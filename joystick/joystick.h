@@ -31,6 +31,22 @@
 
 #include <asm/types.h>
 #include <linux/input.h>
+#include <stdio.h>
+/*
+ * Extra headers
+ */
+#include <sys/ioctl.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+/* time
+ */
+#include <time.h>
+#include <assert.h>
+
 
 /*
  * Version
@@ -124,5 +140,15 @@ struct JS_DATA_SAVE_TYPE {
 	struct JS_DATA_TYPE JS_SAVE;
 	struct JS_DATA_TYPE JS_CORR;
 };
+
+/*
+ Functions prototypes
+*/
+void read_joystick(int fd, struct js_event *js, int *axis, int *button);
+void print_joystick(int *axis, int *button, int t);
+unsigned int    mon_time_ms(void);
+void    mon_delay_ms(unsigned int ms);
+int configure_joystick(void);
+
 
 #endif /* _LINUX_JOYSTICK_H */

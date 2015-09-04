@@ -1,51 +1,22 @@
-/*
-Joystick Map:
-throttle up/down: lift up/down
-left/right: roll up/down
-forward/backward: pitch down/up
-twist clockwise/counter-clockwise: yaw up/down
-fire button: abort/exit
-
-*/
-
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-
 #include "joystick.h"
+#include "config.h"
+
+extern int	axis[6];
+extern int	button[12];
 
 
-/* current axis and button readings
+/*------------------------------------------------------------------
+ * configure_joystick -- open the joystick and configure it
+ * 	
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
  */
-int	axis[6];
-int	button[12];
 
+int configure_joystick(void){
+	int fd;
 
-/* time
- */
-#include <time.h>
-#include <assert.h>
-
-#define JS_DEV	"/dev/input/js0"
-
-unsigned int    mon_time_ms(void);
-void    mon_delay_ms(unsigned int ms);
-
-
-int main (int argc, char **argv)
-{
-	int 		fd;
-	struct js_event js;
-	unsigned int	t, i;
-	
-	// open device and return the file descriptor, read only
-	if ((fd = open(JS_DEV, O_RDONLY)) < 0) {
+	if ((fd = open(JS_DEV, O_RDONLY)) < 0) 
+	{
 		perror("joystick");
 		exit(1);
 	}
@@ -54,50 +25,56 @@ int main (int argc, char **argv)
 	 */
 	fcntl(fd, F_SETFL, O_NONBLOCK);
 
-	while (1) {
-		/* simulate work
-		 */
-		mon_delay_ms(300);
-		t = mon_time_ms();
+	return fd;
+}
 
-		//Read if data is available from joystick and place the result in js
-		//The joystick driver only reports changes in its state
-		//Therefore nonblocking mode must be used
-		while (read(fd, &js, sizeof(struct js_event)) == 
-		       			sizeof(struct js_event))  {
+/*------------------------------------------------------------------
+ * read_joystick -- process all available joystick events
+ * adapted from the given example	
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 
-			/* register data
-			 */
-			// fprintf(stderr,".");
-			switch(js.type & ~JS_EVENT_INIT) {
-				case JS_EVENT_BUTTON:
-					button[js.number] = js.value;
-					break;
-				case JS_EVENT_AXIS:
-					axis[js.number] = js.value;
-					break;
-			}
-		}
-		if (errno != EAGAIN) {
-			perror("\njs: error reading (EAGAIN)");
-			exit (1);
-		}
+void read_joystick(int fd, struct js_event *js, int *axis, int *button){
 
-		printf("\n");
-		printf("%5d   ",t);
-		for (i = 0; i < 6; i++) {
-			printf("%6d ",axis[i]);
+	while (read(fd, js, sizeof(struct js_event)) == sizeof(struct js_event))
+	{
+		switch(js->type & ~JS_EVENT_INIT) 
+		{
+			case JS_EVENT_BUTTON:
+				*(button + js->number) = js->value;
+				break;
+			case JS_EVENT_AXIS:
+				*(axis + js->number) = js->value;
+				break;
 		}
-		printf(" |  ");
-		for (i = 0; i < 12; i++) {
-			printf("%d ",button[i]);
-		}
-		if (button[0])
-			break;
 	}
-	printf("\n<exit>\n");
+	
+	if (errno != EAGAIN) 
+	{
+		perror("\njs: error reading (EAGAIN)");
+		exit(1);
+	}
+	
+}
+
+/*------------------------------------------------------------------
+ * print_joystick -- print all the (relevant) joystick values
+ *	
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+
+void print_joystick(int *axis, int *button, int t){
+
+	printf("Lift: %6d   ",*(axis + LIFT));
+	printf("yaw: %6d   ",*(axis + YAW));
+	printf("pitch: %6d   ",*(axis + PITCH));
+	printf("roll: %6d   ",*(axis + ROLL));
+	printf("\n");
 
 }
+
 
 unsigned int    mon_time_ms(void)
 {
@@ -111,6 +88,7 @@ unsigned int    mon_time_ms(void)
         return ms;
 }
 
+
 void    mon_delay_ms(unsigned int ms)
 {
         struct timespec req, rem;
@@ -119,3 +97,4 @@ void    mon_delay_ms(unsigned int ms)
         req.tv_nsec = 1000000 * (ms % 1000);
         assert(nanosleep(&req,&rem) == 0);
 }
+
