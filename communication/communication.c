@@ -17,6 +17,48 @@
 #define START_CHAR		'a'
 #define STOP_CHAR		'b'
 
+
+/*
+ * Message structure definition
+ * Gijs Bruining
+ */
+struct {
+	int roll;
+	int pitch;
+	int yaw-rate;
+	int ae1;
+	int ae2;
+	int ae3;
+	int ae4;
+	int tstamp;
+} DAQ_mes;
+
+struct {
+	int Err;
+} Err_mes;
+
+struct {
+	char[24] mes;
+} Deb_mes;
+
+struct {
+	int lift;
+	int roll;
+	int pitch;
+	int yaw;
+} JS_mes;
+
+struct {
+	int mode;
+} Mode_mes;
+
+struct {
+	int P1;
+	int P2;
+	int P3;
+} Contr_mes;
+
+
 int	demo_done;
 int	count;
 
@@ -124,6 +166,67 @@ void setup_uart_interrupts(){
 	ENABLE_INTERRUPT(INTERRUPT_PRIMARY_RX);
 
 }
+
+/*
+ * Decoding function
+ *
+ * Decodes the message from a character array and puts the information in the according
+ * global structure. This function probably needs to have the interrupts disabled, 
+ * because it's non atomic.
+ * Input:
+ * 		char head: The header of the message to identify the right message
+ *		char *arr: The character array of the message frame
+ *
+ *  
+ */
+void decode(char head,char *arr){
+	// DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	switch(head){
+		case 0x80 :
+ 		// JS-message
+ 		memcpy(JS_mes,arr,sizeof(arr));
+ 		break;
+
+		case 0x81 :
+ 		// Mode message
+ 		memcpy(Mode_mes,arr,sizeof(arr));
+ 		break;
+
+		case 0x82 :
+ 		// Controller message
+ 		memcpy(Contr_mes,arr,sizeof(arr));
+ 		break;
+	}
+	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+}
+
+/*
+* Encoding function
+* Gijs Bruining
+*/
+char* encode(char head){
+	switch(head){
+		case 0x00	:
+			// DAQ message
+			char *res[sizeof(DAQ_mes)];
+			memcpy(res,DAQ_mes,sizeof(DAQ_mes));
+			break;
+
+		case 0x01	:
+			// Error message
+			char *res[sizeof(Err_mes)];
+			memcpy(res,Err_mes,sizeof(Err_mes));
+			break;
+
+		case 0x02	:
+			// Debug 
+			char *res[sizeof(Deb_mes)];
+			memcpy(res,Deb_mes,sizeof(Deb_mes));
+			break;
+	}
+	return res;
+}
+
 
 int main() 
 {
