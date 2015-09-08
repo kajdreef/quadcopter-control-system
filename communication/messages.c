@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define END_CHAR 'Z'
+
 
 /*
  * Message structure definition
@@ -32,11 +34,8 @@ struct {
 	int roll;
 	int pitch;
 	int yaw;
-} JS_mes;
-
-struct {
 	int mode;
-} Mode_mes;
+} JS_mes;
 
 struct {
 	int P1;
@@ -65,11 +64,6 @@ void decode(char head,char *arr){
  		break;
 
 		case 'b' :
- 		// Mode message
- 		memcpy(&Mode_mes,arr,sizeof(Mode_mes));
- 		break;
-
-		case 'c' :
  		// Controller message
  		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
  		break;
@@ -82,31 +76,34 @@ void decode(char head,char *arr){
 * 
 * Author: Gijs Bruining
 */
-char* encode(char head){
-	// Gijs: WTF is dit de beste manier?? Kan nu geen andere vinden.
-	static char resA[sizeof(DAQ_mes)];
-	static char resB[sizeof(DAQ_mes)];
-	static char resC[sizeof(DAQ_mes)];
-
+void encode(char head, char *buff){
 
 	switch(head){
 		case 'A':
 			// DAQ Message
-			memcpy(&resA,&DAQ_mes,sizeof(DAQ_mes));
-			return resA;
+			buff[0] = 'A';
+			memcpy(buff+1,&DAQ_mes,sizeof(DAQ_mes));
+			buff[sizeof(DAQ_mes)+1] = END_CHAR;
 			break;
 
 		case 'B':
 			// Error message
-			memcpy(&resB,&Err_mes,sizeof(Err_mes));
-			return resB;
+			buff[0] = 'B';
+			memcpy(buff+1,&Err_mes,sizeof(Err_mes));
+			buff[sizeof(DAQ_mes)+1] = END_CHAR;
 			break;
 
 		case 'C':
-			// Debug 
-			memcpy(&resC,&Deb_mes,sizeof(Deb_mes));
-			return resC;
+			// Debug
+			buff[0] = 'C';
+			memcpy(buff+1,&Deb_mes,sizeof(Deb_mes));
+			buff[sizeof(DAQ_mes)+1] = END_CHAR;
 			break;
 	}
-	return 0x00000000;
+	
+}
+
+int main(){
+
+	return 0;
 }
