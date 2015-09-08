@@ -1,9 +1,10 @@
 CC=gcc
 CFLAGS=-I$(X32INC)
 SOURCES= main.c communication.c
+EXECUTABLE= main.exe
 
 main: $(SOURCES)
-	$(CC) -o main main.c communication.c
+	$(CC) -o $(EXECUTABLE) main.c communication.c
 
 clean:
-	rm -f main $(OBJS) $(OBJS:.o=.d)
+	rm -f $(EXECUTABLE) $(OBJS) $(OBJS:.o=.d)

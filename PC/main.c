@@ -1,4 +1,5 @@
 #include <string.h>
+#include <unistd.h>
 #include "communication.h"
 
 
@@ -18,7 +19,7 @@ int main (void) {
 		printf("Failed to open port!\n");
 		return -1;
 	}
-	
+
 	// Initialise interrupts
 	initSig(fd);
 
@@ -30,24 +31,15 @@ int main (void) {
 	send(msg, 4);
 
 	// Place the received message here
-	char rMsg[255] = "";
-	char iMsg[255] = "";
-	int i = 0, j = 0;
+	extern char rMsg[255];
+	extern int i;
 
 	// receive message from FPGA
-	while(rMsg[i-1] != msg[2]) {
-	 	if(getWaitFlag() > 0){
-			receive(iMsg);
-			while(iMsg[j] != '\0'){
-				rMsg[i] = iMsg[j];
-				i++;
-				j++;
-			}
-			decWaitFlag();
-			j = 0;
-		}
+	while(rMsg[i-1] != 'b') {		// TODO CHANGE THIS!! can cause a outofbound error
+		sleep(500);
 	}
-	printf("FINAL:\t%s.\n", rMsg);
+	rMsg[i] = '\0';
+	printf("FINAL:\t%s\n", rMsg);
 
 	// close communication
 	printf("Closing connection...\n");

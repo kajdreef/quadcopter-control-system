@@ -11,8 +11,11 @@
 
 #define SERIAL_DEVICE 	"/dev/ttyUSB0"
 
+
+
 int fd;
-int wait_flag = 0;
+char rMsg[255];
+int i = 0;
 
 /*------------------------------------------------------------------
  *	rs232_open -- setup connection
@@ -90,18 +93,25 @@ int send (char* msg, int msgSize) {
 
 /*------------------------------------------------------------------
  *	receive -- receive a string of characters
+ *		return amount of read bytes
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-char * receive (char * iMsg) {
+int receive () {
 	char buf[255];
+	int j = 0;
+
 	int res = read(fd,buf,255);
 	buf[res]= '\0';
-	printf("Received Message:%s\t:\t%d\n", buf, res);
+	printf("Received Message:%s\t: %d\n", buf, res);
 
-	strncpy(iMsg, buf, res);
+	while(buf[j] != '\0'){
+		rMsg[i] = buf[j];
+		i++;
+		j++;
+	}
 
-	return iMsg;
+	return res;
 }
 
 /*------------------------------------------------------------------
@@ -111,25 +121,7 @@ char * receive (char * iMsg) {
  */
 void received_new_IO (int status){
 	printf("New data is available!\n");
-	wait_flag++;
-}
-
-/*------------------------------------------------------------------
- *	getWaitFlag -- Get the wait flag to check if new data is available
- *	Author: Kaj Dreef
- *------------------------------------------------------------------
- */
-int getWaitFlag () {
-	return wait_flag;
-}
-
-/*------------------------------------------------------------------
- *	setWaitFlag -- set the wait flag to a certain value
- *	Author: Kaj Dreef
- *------------------------------------------------------------------
- */
-void decWaitFlag (int value){
-	wait_flag = 0;
+	receive();
 }
 
 /*------------------------------------------------------------------
@@ -144,6 +136,5 @@ void initSig(int fd) {
 	saio.sa_restorer = NULL;
 	sigaction(SIGIO,&saio,NULL);
 	fcntl(fd, F_SETOWN, getpid());
-	fcntl(fd, F_SETFL, FASYNC|O_NONBLOCK); 
+	fcntl(fd, F_SETFL, FASYNC|O_NONBLOCK);
 }
-

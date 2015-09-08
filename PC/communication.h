@@ -13,7 +13,7 @@
 int rs232_open (void);
 int send_char (char c);
 int send (char* msg, int msgSize);
-char *receive (char * iMsg);
+int receive ();
 void initSig(int fd);
 int getWaitFlag ();
 void decWaitFlag ();
