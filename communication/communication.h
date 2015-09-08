@@ -15,6 +15,9 @@
 #define TRUE 1
 #define FALSE 0
 
+#define PACKETS_PANIC_THRESHOLD 100
+
+
 //flag that gets set when a complete message is received
 extern int MESSAGE_FLAG;
 //buffer to store a message in

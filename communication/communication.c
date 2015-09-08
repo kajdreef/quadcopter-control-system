@@ -29,6 +29,7 @@ void isr_rx(void)
 	static int sync = 0;
  	static char prev = END_CHAR;
 	static int MESSAGE_LENGTH = 0;
+	static int lost_packets = 0;
 
 	char data = X32_rx_data;
 
@@ -47,12 +48,16 @@ void isr_rx(void)
 	{		
 		if((data != END_CHAR && sync != 0) | receive_count == 0){
 			//Error
-			X32_display = 0xFFFF;
-			printf("PANIC\r\n");
+			lost_packets++;
+			if(lost_packets >= PACKETS_PANIC_THRESHOLD)
+				printf("PANICK!!!\r\n");
+			//set panick mode
+			
 		}
 		else
 		{	//successful receival of a message
 			MESSAGE_FLAG = TRUE;
+			lost_packets = 0;
 		}
 		receive_count = 0;			
 	}
