@@ -1,11 +1,6 @@
 #include "communication.h"
+#include "messages.h"
 
-/*------------------------------------------------------------------
- *  communication.c -- Receiving and sending chars
- *------------------------------------------------------------------
- */
-
-char message[MESSAGE_LENGTH] = {0};
 
 /*------------------------------------------------------------------
  * send_message -- send an array of characters
@@ -24,48 +19,40 @@ void send_message(char msg[], int length)
 }
 
 /*------------------------------------------------------------------
- * isr_rx -- receival interrupt service routine
+ * isr_rx -- receival interrupt service routine that
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void isr_rx(void)
 { 	
 	static int receive_count = 0;
 	static int sync = 0;
- 	static char prev = STOP_CHAR;
+ 	static char prev = END_CHAR;
+	static int MESSAGE_LENGTH = 0;
+
 	char data = X32_rx_data;
 
-	/*Start of a new message
-	 */
-	if(data == START_CHAR && receive_count == 0 && prev == STOP_CHAR)
-	{	
+	if(receive_count == 0 && prev == END_CHAR && (MESSAGE_LENGTH = message_length(data)))
+	{	//Start of a new message			
 		sync = 1; //We now have synched with a message
 		receive_count++;
+		message_type = data;
 	}
-	/*Place data in array
-	 */		
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1)
-	{
+	{	//place data in message array
 		message[receive_count - 1] = data;
 		receive_count++; 	
 	}		
-	/*Check if stop char is valid
-	 */		
 	else
-	{
-		//If the final received char is not equal to the stopchar -> error			
-		if((data != STOP_CHAR && sync != 0) | receive_count == 0){
-			//setMode(panic);
+	{		
+		if((data != END_CHAR && sync != 0) | receive_count == 0){
+			//Error
 			X32_display = 0xFFFF;
 			printf("PANIC\r\n");
 		}
 		else
-		{	
-			//for test purposes:
-			X32_display = message[0];
-			printf("message: %s\r\n", message);
-			send_message(message, 2);
+		{	//successful receival of a message
+			MESSAGE_FLAG = TRUE;
 		}
 		receive_count = 0;			
 	}

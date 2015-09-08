@@ -1,48 +1,4 @@
-#include <x32.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#define END_CHAR 'Z'
-
-
-/*
- * Message structure definition
- * Gijs Bruining
- */
-struct {
-	int roll;
-	int pitch;
-	int yaw_rate;
-	int ae1;
-	int ae2;
-	int ae3;
-	int ae4;
-	int tstamp;
-} DAQ_mes;
-
-struct {
-	int Err;
-} Err_mes;
-
-struct {
-	char mes[24];
-} Deb_mes;
-
-struct {
-	int lift;
-	int roll;
-	int pitch;
-	int yaw;
-	int mode;
-} JS_mes;
-
-struct {
-	int P1;
-	int P2;
-	int P3;
-} Contr_mes;
-
+#include "messages.h"
 
 /*
  * Decoding function
@@ -55,20 +11,43 @@ struct {
  * Tested: Yes
  * Author: Gijs Bruining
  */
+
 void decode(char head,char *arr){
 	// DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+		
 	switch(head){
-		case 'a' :
- 		// JS-message
- 		memcpy(&JS_mes,arr,sizeof(JS_mes));
- 		break;
-
-		case 'b' :
- 		// Controller message
- 		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
+		case JS_CHAR :
+	 		// JS-message
+	 		memcpy(&JS_mes,arr,sizeof(JS_mes));
+	 		break;
+		case CON_CHAR:
+	 		// Controller message
+	 		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
  		break;
 	}
 	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+}
+
+
+/*------------------------------------------------------------------
+ * message_length -- get the length of a message corresponding to a message type
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int message_length(char c){
+
+	switch(c){
+		case JS_CHAR:
+			//+2 because of start and end character
+			return sizeof(JS_mes) + 2;
+			break;
+		case CON_CHAR:
+			//+2 because of start and end character
+			return sizeof(Contr_mes) + 2;		
+	 		break;
+		default:
+			return 0;
+	}
 }
 
 /*
@@ -79,31 +58,27 @@ void decode(char head,char *arr){
 void encode(char head, char *buff){
 
 	switch(head){
-		case 'A':
+		case DAQ_CHAR:
 			// DAQ Message
-			buff[0] = 'A';
+			buff[0] = DAQ_CHAR;
 			memcpy(buff+1,&DAQ_mes,sizeof(DAQ_mes));
 			buff[sizeof(DAQ_mes)+1] = END_CHAR;
 			break;
 
-		case 'B':
+		case ERR_CHAR:
 			// Error message
-			buff[0] = 'B';
+			buff[0] = ERR_CHAR;
 			memcpy(buff+1,&Err_mes,sizeof(Err_mes));
-			buff[sizeof(DAQ_mes)+1] = END_CHAR;
+			buff[sizeof(Err_mes)+1] = END_CHAR;
 			break;
 
-		case 'C':
+		case DEB_CHAR:
 			// Debug
-			buff[0] = 'C';
+			buff[0] = DEB_CHAR;
 			memcpy(buff+1,&Deb_mes,sizeof(Deb_mes));
-			buff[sizeof(DAQ_mes)+1] = END_CHAR;
+			buff[sizeof(Deb_mes)+1] = END_CHAR;
 			break;
 	}
 	
 }
 
-int main(){
-
-	return 0;
-}
