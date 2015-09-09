@@ -45,18 +45,6 @@ int message_length(char c){
 			//+2 because of start and end character
 			return sizeof(Contr_mes) + 2;		
 	 		break;
-		case DEB_CHAR:
-			//+2 because of start and end character
-			return sizeof(Deb_mes) + 2;
-			break;
-		case ERR_CHAR:
-			//+2 because of start and end character
-			return sizeof(Err_mes) + 2;		
-	 		break;
-		case DAQ_CHAR:
-			//+2 because of start and end character
-			return sizeof(DAQ_mes) + 2;		
-	 		break;
 		default:
 			return 0;
 	}
