@@ -23,7 +23,11 @@ void decode(char head,char *arr){
 		case CON_CHAR:
 	 		// Controller message
 	 		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
- 		break;
+ 			break;
+		case DAQ_CHAR:
+			// DAQ-message
+			memcpy(&DAQ_mes,arr,sizeof(DAQ_mes));
+			break;
 	}
 	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }

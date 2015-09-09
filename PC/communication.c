@@ -32,6 +32,9 @@ int rs232_open (void) {
 		return -1;
 	}
 
+	// Initialise interrupts
+	initSig(fd);
+	
 	result = isatty(fd);
 	assert(result == 1);
 
@@ -101,17 +104,16 @@ int send (char* msg, int msgSize) {
 int receive () {
 	char buf[255];
 	int j = 0;
-
+	
 	int res = read(fd,buf,255);
-	buf[res]= '\0';
-	printf("Received Message:%c\t: %d\n", buf[0], res);
 
-	while(buf[j] != '\0'){
+	printf("Received Message: Bytes=%d, \t", res);
+	for(j = 0; j < res; j++){
 		rMsg[i] = buf[j];
+		printf("%i ", rMsg[i]);
 		i++;
-		j++;
 	}
-
+	printf("\n");
 	return res;
 }
 
@@ -137,5 +139,5 @@ void initSig(int fd) {
 	saio.sa_restorer = NULL;
 	sigaction(SIGIO,&saio,NULL);
 	fcntl(fd, F_SETOWN, getpid());
-	fcntl(fd, F_SETFL, FASYNC|O_NONBLOCK);
+	fcntl(fd, F_SETFL, FASYNC | O_NONBLOCK);
 }
