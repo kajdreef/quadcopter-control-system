@@ -49,6 +49,7 @@ void isr_rx(void)
 		if((data != END_CHAR && sync != 0) | receive_count == 0){
 			//Error
 			lost_packets++;
+			X32_display = 0xFFFF;
 			if(lost_packets >= PACKETS_PANIC_THRESHOLD)
 				printf("PANICK!!!\r\n");
 			//set panick mode
