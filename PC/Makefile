@@ -1,10 +1,16 @@
-CC=gcc
-CFLAGS=-I$(X32INC)
-SOURCES= main.c communication.c
-EXECUTABLE= main.exe
+# General settings can be found in here
+include Makefile.inc
 
-main: $(SOURCES)
-	$(CC) -o $(EXECUTABLE) main.c communication.c
+CFLAGS=
+SOURCES= joystick.c communication.c main.c
+OBJECTS = $(SOURCES:.c=.o)
+TARGET= main.exe
+
+$(TARGET): $(OBJECTS)
+	$(CC) -o $(TARGET) $(OBJECTS) $(CFLAGS) $(LDFLAGS)
+
+%.o: %.cp
+	$(CC) -c $(CC_FLAGS) $< -o $@
 
 clean:
-	rm -f $(EXECUTABLE) $(OBJS) $(OBJS:.o=.d)
+	rm -rf $(TARGET) $(OBJECTS)
