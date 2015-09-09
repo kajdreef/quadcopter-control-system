@@ -58,6 +58,7 @@ int message_length(char c){
 			return sizeof(Deb_mes) + 2;		
 	 		break;
 		default:
+		default:
 			return 0;
 	}
 }
