@@ -70,7 +70,7 @@ int rs232_open (void) {
  */
 int send_char (char c) {
 	int result;
-	printf("char send!: %c \n", c);
+	//printf("char send!: %c \n", c);
 	do {
 		result = (int) write (fd, &c, 1);
 	} while(result == 0);
@@ -86,6 +86,7 @@ int send_char (char c) {
 int send (char* msg, int msgSize) {
 	int i = 0;
 	for(i = 0; i < msgSize; i++){
+		printf("Send char %i \t %c \n", i, *(msg+i));
 		send_char(*(msg+i));
 	}
 	return 0;
@@ -103,7 +104,7 @@ int receive () {
 
 	int res = read(fd,buf,255);
 	buf[res]= '\0';
-	printf("Received Message:%s\t: %d\n", buf, res);
+	printf("Received Message:%c\t: %d\n", buf[0], res);
 
 	while(buf[j] != '\0'){
 		rMsg[i] = buf[j];
