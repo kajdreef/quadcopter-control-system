@@ -38,9 +38,6 @@ int main (void) {
 		return -1;
 	}
 
-	// Initialise interrupts
-	initSig(fd);
-
 	// Place the received message here
 	extern char rMsg[sizeof(JS_mes)];
 	extern int i;
@@ -54,11 +51,6 @@ int main (void) {
 			printf("Message Length: %d\n", message_length(JS_CHAR));
 
 			printf("Enter the values of Lift, roll, pitch, yaw and mode: (enter after each value!) \n");
-//			scanf("%i", &JS_mes.lift);
-//			scanf("%i", &JS_mes.roll);
-//			scanf("%i", &JS_mes.pitch);
-//			scanf("%i", &JS_mes.yaw);
-//			scanf("%i", &JS_mes.mode);
 
 			JS_mes.lift = 1;
 			JS_mes.roll = 2;
@@ -75,8 +67,8 @@ int main (void) {
 			send(msg, message_length(JS_CHAR));
 
 			// receive message from FPGA
-			while(rMsg[message_length(JS_CHAR)-1] != END_CHAR) {
-				sleep(500);
+			while(rMsg[message_length(DAQ_CHAR)-1] != END_CHAR) {
+				sleep(200);
 			}
 
 	/************************************************************
@@ -108,11 +100,7 @@ int main (void) {
 			print_joystick(axis, button,t);
 
 			// Put data from joystick into a message
-			*(axis + ROLL);
-			*(axis + PITCH);
-			*(axis + YAW);
-			*(axis + LIFT);
-
+			
 
 			// Send data
 			//send();
@@ -122,8 +110,22 @@ int main (void) {
 		}
 	#endif
 
-	decode(JS_CHAR, rMsg);
-	printf("FINAL:\t%s\n", rMsg);
+	printf("%s\n", rMsg);
+	
+	// Slice the message up
+	char newMsg[sizeof(DAQ_mes)];
+	memcpy(newMsg, rMsg+1, sizeof(DAQ_mes));
+	newMsg[sizeof(DAQ_mes)] = NULL;
+
+
+	switchChar(newMsg, sizeof(DAQ_mes));
+	printf("Sliced Message and ordered: %s\n\n", newMsg);
+
+	decode(rMsg[0], newMsg);
+	printf("DAQ Roll:\t%d\n", DAQ_mes.roll);
+	printf("DAQ Pitch:\t%d\n", DAQ_mes.pitch);
+	printf("DAQ Yaw rate:\t%d\n", DAQ_mes.yaw_rate);
+	printf("DAQ tStamp:\t%d\n", DAQ_mes.tstamp);
 
 	// close communication
 	printf("Closing connection...\n");

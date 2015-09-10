@@ -56,6 +56,7 @@ struct CON {
 	int P3;
 };
 
+void switchChar(char * msg, int msgLength);
 void decode(char head,char *arr);
 void encode(char head, char *buff);
 int message_length(char c);
