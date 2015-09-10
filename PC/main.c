@@ -115,8 +115,11 @@ int main (void) {
 	// Slice the message up
 	char newMsg[sizeof(DAQ_mes)];
 	memcpy(newMsg, rMsg+1, sizeof(DAQ_mes));
-	newMsg[sizeof(DAQ_mes)] = '\0';
-	printf("Sliced Message: %s\n\n", newMsg);
+	newMsg[sizeof(DAQ_mes)] = NULL;
+
+
+	switchChar(newMsg, sizeof(DAQ_mes));
+	printf("Sliced Message and ordered: %s\n\n", newMsg);
 
 	decode(rMsg[0], newMsg);
 	printf("DAQ Roll:\t%d\n", DAQ_mes.roll);

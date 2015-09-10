@@ -11,7 +11,6 @@
  * Tested: Yes
  * Author: Gijs Bruining
  */
-
 void decode(char head,char *arr){
 	// DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 		
@@ -30,6 +29,26 @@ void decode(char head,char *arr){
 			break;
 	}
 	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+}
+
+/*------------------------------------------------------------------
+ * switchChar -- Switches the characters around, needed after receiving 
+ * 								a message from the FPGA
+ * Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+void switchChar(char * msg, int msgLength){
+	int i = 0;	
+	char tmp;	
+	for(i = 0; i < msgLength; i+=4){
+		tmp = msg[i];
+		msg[i] = msg[i+3];
+		msg[i+3] = tmp;
+
+		tmp = msg[i+1];
+		msg[i+1] = msg[i+2];
+		msg[i+2] = tmp;
+	}
 }
 
 
