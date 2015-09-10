@@ -44,6 +44,7 @@ int main()
 			//printf("cont: %d\r\n", Contr_mes.P1);
 			MESSAGE_FLAG = FALSE;
 			encode(DAQ_CHAR, output_buffer);
+			printf("encoded message: %s\r\n", output_buffer);
 			send_message(output_buffer, message_length(DAQ_CHAR));
 		}
 	}
