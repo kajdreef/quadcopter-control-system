@@ -7,7 +7,7 @@ int demo_done = 0;
 
 //Message types
 struct JS JS_mes;
-struct DAQ DAQ_mes;
+struct DAQ DAQ_mes = {808464433,808464433,808464433,808464433,808464433,808464433,808464433,808464433};
 struct ERR Err_mes;
 struct DEB Deb_mes;
 struct CON Contr_mes;

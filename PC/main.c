@@ -8,13 +8,20 @@
 #define DEBUG_SEND_MESSAGE 1
 
 #include "communication.h"
+#include "messages.h"
 
 #if !DEBUG_SEND_MESSAGE
 	#include "config.h"
 	#include "joystick.h"
 #endif
 
-int STOP = FALSE;
+//Message types
+struct JS JS_mes;
+struct DAQ DAQ_mes;
+struct ERR Err_mes;
+struct DEB Deb_mes;
+struct CON Contr_mes;
+
 
 /*------------------------------------------------------------------
  *	Main function of the pc application
@@ -35,23 +42,42 @@ int main (void) {
 	initSig(fd);
 
 	// Place the received message here
-	extern char rMsg[255];
+	extern char rMsg[sizeof(JS_mes)];
 	extern int i;
 
 	/************************************************************
 	*	Send/receive a test message and print it to the screen
 	*************************************************************/
 	#if DEBUG_SEND_MESSAGE
-		// Test message!
-		char msg[4] = "a52b";
+			// Test message!
+			char msg[message_length(JS_CHAR)];
+			printf("Message Length: %d\n", message_length(JS_CHAR));
 
-		// send message to FPGA
-		send(msg, 4);
+			printf("Enter the values of Lift, roll, pitch, yaw and mode: (enter after each value!) \n");
+//			scanf("%i", &JS_mes.lift);
+//			scanf("%i", &JS_mes.roll);
+//			scanf("%i", &JS_mes.pitch);
+//			scanf("%i", &JS_mes.yaw);
+//			scanf("%i", &JS_mes.mode);
 
-		// receive message from FPGA
-		while(rMsg[i-1] != '2') {		// TODO CHANGE THIS!! can cause a outofbound error
-			sleep(500);
-		}
+			JS_mes.lift = 1;
+			JS_mes.roll = 2;
+			JS_mes.pitch = 3;
+			JS_mes.yaw = 4;
+			JS_mes.mode = 5;
+
+			printf("%i %i %i %i %i \n", JS_mes.lift, JS_mes.roll, JS_mes.pitch, JS_mes.yaw, JS_mes.mode);			
+
+			// First encode
+			encode(JS_CHAR, msg);
+
+			// send message to FPGA
+			send(msg, message_length(JS_CHAR));
+
+			// receive message from FPGA
+			while(rMsg[message_length(JS_CHAR)-1] != END_CHAR) {
+				sleep(500);
+			}
 
 	/************************************************************
 	*	Get Joystick input and send it to the QR
@@ -96,7 +122,7 @@ int main (void) {
 		}
 	#endif
 
-	rMsg[i] = '\0';
+	decode(JS_CHAR, rMsg);
 	printf("FINAL:\t%s\n", rMsg);
 
 	// close communication
