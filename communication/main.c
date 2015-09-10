@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 int demo_done = 0;
+int state = 1;
 
 //Message types
 struct JS JS_mes;
@@ -36,16 +37,16 @@ int main()
 
 	while (! demo_done) {
 				
-		if(MESSAGE_FLAG == TRUE){
-			JS_mes.lift = 10;
-			X32_display = message_type;
-			decode(message_type,message);
-			//printf("lift: %d\r\n", JS_mes.lift);	
-			//printf("cont: %d\r\n", Contr_mes.P1);
-			MESSAGE_FLAG = FALSE;
-			encode(DAQ_CHAR, output_buffer);
-			send_message(output_buffer, message_length(DAQ_CHAR));
-		}
+		// if(MESSAGE_FLAG == TRUE){
+		// 	JS_mes.lift = 10;
+		// 	X32_display = message_type;
+		// 	decode(message_type,message);
+		// 	//printf("lift: %d\r\n", JS_mes.lift);	
+		// 	//printf("cont: %d\r\n", Contr_mes.P1);
+		// 	MESSAGE_FLAG = FALSE;
+		// 	encode(DAQ_CHAR, output_buffer);
+		// 	send_message(output_buffer, message_length(DAQ_CHAR));
+		// }
 	}
 	X32_display = 0x0000;
 
