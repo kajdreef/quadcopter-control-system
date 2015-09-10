@@ -16,16 +16,28 @@ void decode(char head,char *arr){
 		
 	switch(head){
 		case JS_CHAR :
-	 		// JS-message
+	 		// Joystick message
 	 		memcpy(&JS_mes,arr,sizeof(JS_mes));
 	 		break;
+
 		case CON_CHAR:
 	 		// Controller message
 	 		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
  			break;
+
 		case DAQ_CHAR:
 			// DAQ-message
 			memcpy(&DAQ_mes,arr,sizeof(DAQ_mes));
+			break;
+
+		case ERR_CHAR:
+			// Error message
+			memcpy(&Err_mes,arr,sizeof(Err_mes));
+			break;
+
+		case DEB_CHAR:
+			// Debug message
+			memcpy(&Deb_mes, arr, sizeof(Deb_mes));
 			break;
 	}
 	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
@@ -98,6 +110,13 @@ void encode(char head, char *buff){
 			buff[0] = JS_CHAR;
 			memcpy(buff+1,&JS_mes,sizeof(JS_mes));
 			buff[sizeof(JS_mes)+1] = END_CHAR;
+			break;
+
+		case CON_CHAR:
+			// Debug
+			buff[0] = CON_CHAR;
+			memcpy(buff+1,&Contr_mes,sizeof(Contr_mes));
+			buff[sizeof(Contr_mes)+1] = END_CHAR;
 			break;
 			
 		case DAQ_CHAR:

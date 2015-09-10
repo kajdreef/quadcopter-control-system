@@ -4,6 +4,7 @@
  */
 
 #include "communication.h"
+#include "messages.h"
 #include <string.h>
 
 #define FALSE 0
@@ -11,11 +12,10 @@
 
 #define SERIAL_DEVICE 	"/dev/ttyUSB0"
 
-
-
 int fd;
 char rMsg[255];
 int i = 0;
+
 
 /*------------------------------------------------------------------
  *	rs232_open -- setup connection
@@ -113,6 +113,38 @@ int receive () {
 		printf("%i ", rMsg[i]);
 		i++;
 	}
+	printf("\n");
+
+	int rLength = message_length(rMsg[0]);
+	if(rLength == 0){	// Check if valid starter character
+		printf("Not a starting character \n");
+		i = 0;
+		memset(rMsg, 0, sizeof(rMsg));
+	}
+	else {
+		if(i == rLength){		// check if message has been received.
+			if(rMsg[rLength-1] == END_CHAR){		// Chceck if the final character is the end character
+				// Slice the message up (cut the start and end character)
+				char slicedMsg[rLength -2];
+				memcpy(slicedMsg, rMsg+1, rLength -2);
+				slicedMsg[rLength -2] = '\0';		// place end character so it can be printed
+
+				// Order the characters so it is correct on the laptop
+				switchChar(slicedMsg, rLength -2);
+				printf("Sliced Message and ordered: %s\n", slicedMsg);
+
+				decode(rMsg[0], slicedMsg);
+				i = 0;
+				// memset(rMsg, 0, sizeof(rMsg));
+			}
+			else {
+				printf("ERROR: Part of message missing \n");
+				i = 0;
+				memset(rMsg, 0, sizeof(rMsg));
+			}
+		}
+	}
+
 	printf("\n");
 	return res;
 }
