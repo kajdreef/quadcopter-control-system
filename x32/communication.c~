@@ -1,6 +1,4 @@
 #include "communication.h"
-#include "messages.h"
-
 
 /*------------------------------------------------------------------
  * send_message -- send an array of characters
@@ -32,7 +30,9 @@ void isr_rx(void)
 	static int lost_packets = 0;
 
 	char data = X32_rx_data;
+#ifdef VERBOSE_COMM	
 	printf("Received data: %c\r\n", data);
+#endif
 	if(receive_count == 0 && prev == END_CHAR && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
 		sync = 1; //We now have synched with a message
@@ -49,18 +49,18 @@ void isr_rx(void)
 		if((data != END_CHAR && sync != 0) | receive_count == 0){
 			//Error
 			lost_packets++;
-			printf("lost pacakge\r\n");
-			if(lost_packets >= PACKETS_PANIC_THRESHOLD)
-				
-				supervisor_set_mode(&mode, 1);
-			//set panick mode
-			
+#ifdef VERBOSE_COMM
+			printf("lost package(%d)\r\n", lost_packets);
+#endif
+			if(lost_packets >= PACKETS_PANIC_THRESHOLD){
+			//too much packets lost, set panic mode		
+				supervisor_set_mode(&mode, PANIC);
+			}		
 		}
 		else
 		{	//successful receival of a message
 			MESSAGE_FLAG = TRUE;
 			lost_packets = 0;
-			X32_display = message[0];
 		}
 		receive_count = 0;			
 	}

@@ -5,18 +5,20 @@
 #include "supervisor.h"
 #include "controller.h"
 
-int demo_done = 0;
-int state = 2;
+//Debugging
+#define DISPLAY_MODE
+#define VERBOSE_JS
 
-//Message types
+//Messages
 struct JS JS_mes;
-struct DAQ DAQ_mes = {808464433,808464433,808464433,808464433,808464433,808464433,808464433,808464433};
+struct DAQ DAQ_mes;
 struct ERR Err_mes;
 struct DEB Deb_mes;
 struct CON Contr_mes;
 
 //Buffer where the message is stored
 char message[sizeof(JS_mes)] = {0};
+//Output buffer for sending a message
 char output_buffer[sizeof(DAQ_mes)+2];
 
 //message type received;
@@ -28,41 +30,43 @@ int MESSAGE_FLAG = FALSE;
 enum QR mode = SAFE;
 
 int main(void) 
-{
+{	
+	/*
+		Setup the QR
+	*/
 	setup_uart_interrupts();
 	setup_controller_interrupts();
-	/* 
-		Enable global interrupts
-	 */
-
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	JS_mes.lift = 15000;
-	JS_mes.pitch = 10000;
-	JS_mes.roll = 0;
-	JS_mes.yaw = 0;
-
+#ifdef DISPLAY_MODE
 	X32_display = mode;
-	
+#endif
+
 	supervisor_set_mode(&mode, MANUAL);
 
-	while (! demo_done) {
-				
+
+/*
+	Operation
+*/
+	while (1){
+
+#ifdef DISPLAY_MODE
+		X32_display = mode;
+#endif
 		if(MESSAGE_FLAG == TRUE){
-			X32_display = message_type;
+			//A complete message is received
+
 			decode(message_type,message);
-			
 			supervisor_received_mode(&mode, JS_mes.mode);
-		//	X32_display = mode;					
+#ifdef VERBOSE_JS
+			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d \r\n", JS_mes.lift, JS_mes.pitch, JS_mes.roll, JS_mes.yaw);
+#endif
+							
 			MESSAGE_FLAG = FALSE;
-			//encode(DAQ_CHAR, output_buffer);
-			//send_message(output_buffer, message_length(DAQ_CHAR));
-			printf("Mode: %d\r\n", mode);
 		}
 	}
 
-	X32_display = mode;
-
+	
     DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	return 0;
