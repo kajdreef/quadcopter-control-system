@@ -95,8 +95,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		*mode = PANIC;
 	}
 
-	X32_display = *mode;
-
 
 }
 

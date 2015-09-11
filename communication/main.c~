@@ -27,9 +27,7 @@ int MESSAGE_FLAG = FALSE;
 
 enum QR mode = SAFE;
 
-
-
-int main() 
+int main(void) 
 {
 	setup_uart_interrupts();
 	setup_controller_interrupts();
@@ -39,13 +37,15 @@ int main()
 
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	JS_mes.lift = 0;
-	JS_mes.pitch = 0;
+	JS_mes.lift = 15000;
+	JS_mes.pitch = 10000;
 	JS_mes.roll = 0;
 	JS_mes.yaw = 0;
 
 	X32_display = mode;
 	
+	supervisor_set_mode(&mode, MANUAL);
+
 	while (! demo_done) {
 				
 		if(MESSAGE_FLAG == TRUE){
@@ -57,22 +57,8 @@ int main()
 			MESSAGE_FLAG = FALSE;
 			//encode(DAQ_CHAR, output_buffer);
 			//send_message(output_buffer, message_length(DAQ_CHAR));
+			printf("Mode: %d\r\n", mode;)
 		}
-
-
-	while (! demo_done) {
-				
-		// if(MESSAGE_FLAG == TRUE){
-		// 	JS_mes.lift = 10;
-		// 	X32_display = message_type;
-		// 	decode(message_type,message);
-		// 	//printf("lift: %d\r\n", JS_mes.lift);	
-		// 	//printf("cont: %d\r\n", Contr_mes.P1);
-		// 	MESSAGE_FLAG = FALSE;
-		// 	encode(DAQ_CHAR, output_buffer);
-		// 	send_message(output_buffer, message_length(DAQ_CHAR));
-		// }
->>>>>>> origin/Controller_branch
 	}
 
 	X32_display = mode;

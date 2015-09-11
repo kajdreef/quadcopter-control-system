@@ -13,8 +13,7 @@
  */
 
 void decode(char head,char *arr){
-	// DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-		
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	switch(head){
 		case JS_CHAR :
 	 		// JS-message
@@ -25,7 +24,7 @@ void decode(char head,char *arr){
 	 		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
  		break;
 	}
-	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }
 
 
