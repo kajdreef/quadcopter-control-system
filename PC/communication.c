@@ -12,6 +12,9 @@
 
 #define SERIAL_DEVICE 	"/dev/ttyUSB0"
 
+#define DEBUG_MESSAGES_SEND 0
+#define DEBUG_MESSAGES_RECEIVE 0
+
 int fd;
 char rMsg[255];
 int i = 0;
@@ -89,7 +92,9 @@ int send_char (char c) {
 int send (char* msg, int msgSize) {
 	int i = 0;
 	for(i = 0; i < msgSize; i++){
+	#if DEBUG_MESSAGES_SEND
 		printf("Send char %i \t %c \n", i, *(msg+i));
+	#endif
 		send_char(*(msg+i));
 	}
 	return 0;
@@ -106,18 +111,27 @@ int receive () {
 	int j = 0;
 	
 	int res = read(fd,buf,255);
+	
+	#if DEBUG_MESSAGES_RECEIVE
+		printf("Received Message: Bytes=%d, \t", res);
+	#endif
 
-	printf("Received Message: Bytes=%d, \t", res);
 	for(j = 0; j < res; j++){
 		rMsg[i] = buf[j];
-		printf("%i ", rMsg[i]);
+		#if DEBUG_MESSAGES_RECEIVE
+			printf("%i ", rMsg[i]);
+		#endif
 		i++;
 	}
-	printf("\n");
+	#if DEBUG_MESSAGES_RECEIVE
+		printf("\n");
+	#endif
 
 	int rLength = message_length(rMsg[0]);
 	if(rLength == 0){	// Check if valid starter character
-		printf("Not a starting character \n");
+		#if DEBUG_MESSAGES_RECEIVE
+			printf("Error: Not a starting character \n");
+		#endif
 		i = 0;
 		memset(rMsg, 0, sizeof(rMsg));
 	}
@@ -131,7 +145,10 @@ int receive () {
 
 				// Order the characters so it is correct on the laptop
 				switchChar(slicedMsg, rLength -2);
-				printf("Sliced Message and ordered: %s\n", slicedMsg);
+				
+				#if DEBUG_MESSAGES_RECEIVE
+					printf("Sliced Message and ordered: %s\n", slicedMsg);
+				#endif
 
 				decode(rMsg[0], slicedMsg);
 				i = 0;
@@ -144,8 +161,9 @@ int receive () {
 			}
 		}
 	}
-
-	printf("\n");
+	#if DEBUG_MESSAGES_RECEIVE
+		printf("\n");
+	#endif	
 	return res;
 }
 
@@ -155,7 +173,9 @@ int receive () {
  *------------------------------------------------------------------
  */
 void received_new_IO (int status){
-	printf("New data is available!\n");
+	#if DEBUG_MESSAGES_RECEIVE
+		printf("New data is available!\n");
+	#endif
 	receive();
 }
 
