@@ -1,10 +1,15 @@
 # Object Files
 *.o
 
+# Source Files
+*.c~
+*.h~
+
 # Executables
 *.ce
 *.exe
 
 # Random files
-\~*
-**\.DS_Store
+~*
+*~
+*.DS_Store
