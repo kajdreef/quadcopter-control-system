@@ -20,6 +20,8 @@ struct ERR Err_mes;
 struct DEB Deb_mes;
 struct CON Contr_mes;
 
+int ae[4];
+
 //Buffer where the message is stored
 char message[sizeof(JS_mes)] = {0};
 //Output buffer for sending a message
@@ -47,7 +49,7 @@ int main(void)
 
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	supervisor_set_mode(&mode, SAFE);
+	supervisor_set_mode(&mode, MANUAL);
 
 
 /*

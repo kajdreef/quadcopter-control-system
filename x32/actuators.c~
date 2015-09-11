@@ -3,8 +3,10 @@
 #include "messages.h"
 #include "supervisor.h"
 
-extern struct DAQ DAQ_mes;
-extern struct JS JS_mes;
+//#define VERBOSE_ACTUATORS
+
+extern int ae[4];
+
 extern int state;
 
 extern enum QR mode;
@@ -25,33 +27,36 @@ void set_actuators(){
 		// Checking for states
 		switch(mode){
 			case SAFE:
-				DAQ_mes.ae[i]=0;
+				// is this allowed?
+				ae[i]=0;
 				break;
 
 			case PANIC:
-				DAQ_mes.ae[i] = 0x00000100;
+				ae[i] = 0x00000100;
 				break;
 
 			case CALIBRATION:
-				DAQ_mes.ae[i] =0;
+				//is this allowed?
+				ae[i] =0;
 				break;
 
 			default:
-				if(DAQ_mes.ae[i]<0x00000100)
-					DAQ_mes.ae[i]=0x00000100;
-				else if(DAQ_mes.ae[i]>0x000003ff)
-					DAQ_mes.ae[i]=0x000003ff;
+				if(ae[i]<0x00000100)
+					ae[i]=0x00000100;
+				else if(ae[i]>0x000003ff)
+					ae[i]=0x000003ff;
 				break;
 		}
 	}
 	
-	peripherals[PERIPHERAL_XUFO_A0] = DAQ_mes.ae[0];
-	peripherals[PERIPHERAL_XUFO_A1] = DAQ_mes.ae[1];
-	peripherals[PERIPHERAL_XUFO_A2] = DAQ_mes.ae[2];
-	peripherals[PERIPHERAL_XUFO_A3] = DAQ_mes.ae[3];
+	peripherals[PERIPHERAL_XUFO_A0] = ae[0];
+	peripherals[PERIPHERAL_XUFO_A1] = ae[1];
+	peripherals[PERIPHERAL_XUFO_A2] = ae[2];
+	peripherals[PERIPHERAL_XUFO_A3] = ae[3];
 
-	printf("ae[o]: %d\r\n", DAQ_mes.ae[0]);
-	printf("ae[2]: %d\r\n", DAQ_mes.ae[2]);
-
+#ifdef VERBOSE_ACTUATORS
+	printf("ae[0] = %d, ae[1] = %d, ae[2] = %d, ae[3] = %d\r\n", ae[0], ae[1],ae[2],ae[3]);
+#endif
+	
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }

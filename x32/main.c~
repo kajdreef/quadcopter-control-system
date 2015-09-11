@@ -11,7 +11,7 @@
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
-//#define CONTROLLER_INTERRUPT
+#define CONTROLLER_INTERRUPT
 
 //Messages
 struct JS JS_mes;
@@ -47,7 +47,7 @@ int main(void)
 
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	supervisor_set_mode(&mode, SAFE);
+	supervisor_set_mode(&mode, MANUAL);
 
 
 /*

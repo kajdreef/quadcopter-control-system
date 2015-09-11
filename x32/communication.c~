@@ -28,9 +28,9 @@ void isr_rx(void)
  	static char prev = END_CHAR;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
-	
+	char data;
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	char data = X32_rx_data;
+	data = X32_rx_data;
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 #ifdef VERBOSE_COMM	

@@ -5,8 +5,11 @@
 #include "actuators.h"
 #include "supervisor.h"
 
+//#define VERBOSE_CONTROLLER
+
+
 extern struct JS JS_mes;
-extern struct DAQ DAQ_mes;
+extern int ae[4];
 extern int state;
 struct FACT Factors;
 
@@ -41,10 +44,10 @@ void control_roll(){
 }
 
 void apply_mot_fact(){
-	DAQ_mes.ae[0] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y + Factors.f_p)) );
-	DAQ_mes.ae[1] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y + Factors.f_r)) );
-	DAQ_mes.ae[2] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y - Factors.f_p)) );
-	DAQ_mes.ae[3] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y - Factors.f_r)) );
+	ae[0] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y + Factors.f_p)) );
+	ae[1] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y + Factors.f_r)) );
+	ae[2] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y - Factors.f_p)) );
+	ae[3] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y - Factors.f_r)) );
 
 
 }

@@ -14,8 +14,6 @@
 
 #define X32_timer_period peripherals[PERIPHERAL_TIMER1_PERIOD]
 
-//#define VERBOSE_CONTROLLER
-
 
 struct FACT{
 	int f_l;

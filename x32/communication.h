@@ -19,7 +19,6 @@
 
 #define PACKETS_PANIC_THRESHOLD 100
 
-#define VERBOSE_COMM
 
 //flag that gets set when a complete message is received
 extern int MESSAGE_FLAG;

@@ -1,5 +1,7 @@
 #include "communication.h"
 
+#define VERBOSE_COMM
+
 /*------------------------------------------------------------------
  * send_message -- send an array of characters
  * Author: Bastiaan Oosterhuis
