@@ -27,7 +27,7 @@
 /*
 	Operations
 */
-#define MULT_FIXED(A,B)  ((int)(A * B + 1<<(FRACT_PART-1)) >> FRACT_PART)
+#define MULT_FIXED(A,B)  ((int)(A * B) >> FRACT_PART)
 #define DIV_FIXED(A,B)  (int)((A << FRACT_PART)/B)
 
 

@@ -3,8 +3,10 @@
 #include "messages.h"
 #include <stdio.h>
 #include "supervisor.h"
+#include "controller.h"
 
 int demo_done = 0;
+int state = 2;
 
 //Message types
 struct JS JS_mes;
@@ -25,13 +27,22 @@ int MESSAGE_FLAG = FALSE;
 
 enum QR mode = SAFE;
 
+
+
 int main() 
 {
 	setup_uart_interrupts();
+	setup_controller_interrupts();
 	/* 
 		Enable global interrupts
 	 */
+
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
+
+	JS_mes.lift = 0;
+	JS_mes.pitch = 0;
+	JS_mes.roll = 0;
+	JS_mes.yaw = 0;
 
 	X32_display = mode;
 	
@@ -47,7 +58,7 @@ int main()
 			//encode(DAQ_CHAR, output_buffer);
 			//send_message(output_buffer, message_length(DAQ_CHAR));
 		}
-	}
+
 
 	X32_display = mode;
 

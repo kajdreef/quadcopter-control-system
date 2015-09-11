@@ -1,30 +1,80 @@
-/*------------------------------------------------------------------
- *  communication.c -- Receiving and sending chars
- *------------------------------------------------------------------
- */
-
+#include "controller.h"
+#include "messages.h"
 #include "x32.h"
+#include "fixed_point.h"
+#include "actuators.h"
 
-/* define some peripheral short hands
- */
-#define X32_display	peripherals[PERIPHERAL_DISPLAY]
-#define X32_leds	peripherals[PERIPHERAL_LEDS]
-#define X32_clock	peripherals[PERIPHERAL_MS_CLOCK]
-#define X32_clock_us peripherals[PERIPHERAL_US_CLOCK]
-
-#define X32_timer_period peripherals[PERIPHERAL_TIMER1_PERIOD]
-
-int	demo_done;
-int	count;
+extern struct JS JS_mes;
+extern struct DAQ DAQ_mes;
+extern int state;
+struct FACT Factors;
 
 
-void isr_controller(void)
+
+void manual_lift(){
+	Factors.f_l = INT_TO_FIXED((-1*JS_mes.lift+0x00007FFF)/64);	//Max 1023 0x03FF
+}
+
+void manual_yaw(){
+	Factors.f_y = DIV_FIXED(INT_TO_FIXED(JS_mes.yaw),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
+}
+
+void manual_pitch(){
+	Factors.f_p = DIV_FIXED(INT_TO_FIXED(JS_mes.pitch),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+}
+
+void manual_roll(){
+	Factors.f_r = DIV_FIXED(INT_TO_FIXED(JS_mes.roll),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+}
+
+void control_yaw(){
+
+}
+
+void control_pitch(){
+
+}
+
+void control_roll(){
+
+}
+
+void apply_mot_fact(){
+	DAQ_mes.ae[0] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y + Factors.f_p)) );
+	DAQ_mes.ae[1] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y + Factors.f_r)) );
+	DAQ_mes.ae[2] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y - Factors.f_p)) );
+	DAQ_mes.ae[3] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y - Factors.f_r)) );
+}
+
+void isr_controller()
 {
-	static int old = 0; 	
-	int new = X32_clock_us;
-	 
-	printf("%d\r\n",new - old );
-	old = new;
+	//X32_display = 0x0001;
+	manual_lift();
+	switch (state){
+		case 3:
+			// Manual mode
+			manual_yaw();
+			manual_pitch();
+			manual_roll();
+			break;
+
+		case 5:
+			// Yaw control
+			control_yaw();
+			manual_pitch();
+			manual_roll();
+			break;
+
+		case 6:
+			// Full
+			control_yaw();
+			control_pitch();
+			control_roll();
+			break;
+	}
+
+	apply_mot_fact();
+	set_actuators();
 }
 
 
@@ -43,26 +93,18 @@ void setup_controller_interrupts(){
 
 }
 
-int main() 
-{
-	setup_controller_interrupts();
-	/* 
-		Enable global interrupts
-	 */
-    ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
+// int main() 
+// {
+// 	setup_controller_interrupts();
+// 	/* 
+// 		Enable global interrupts
+// 	 */
+//     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	X32_display = 0xABCD;
-	demo_done = 0;
-	count = 0;
-	while (! demo_done) {
+// 	X32_display = 0xABCD;
 	
-		
-	}
 	
-        DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+//     DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
-	return 0;
-}
-
-
-
+// 	return 0;
+// }

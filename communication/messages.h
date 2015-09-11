@@ -28,10 +28,7 @@ struct DAQ {
 	int roll;
 	int pitch;
 	int yaw_rate;
-	int ae1;
-	int ae2;
-	int ae3;
-	int ae4;
+	int ae[4];
 	int tstamp;
 };
 
