@@ -32,7 +32,7 @@ void control_pitch();
 void control_roll();
 void apply_mot_fact();
 void isr_controller();
-void setup_controller_interrupts(int prio);
+void setup_controller_interrupts();
 int main();
 
 

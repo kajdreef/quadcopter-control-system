@@ -32,6 +32,6 @@ extern enum QR mode;
 
 void send_message(char msg[], int length);
 void isr_rx(void);
-void setup_uart_interrupts(void);
+void setup_uart_interrupts(int prio);
 
 #endif 

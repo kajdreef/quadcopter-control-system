@@ -4,6 +4,7 @@
 #include "x32.h"
 #include <stdio.h>
 #include "supervisor.h"
+#include "messages.h"
 
 /* define some peripheral short hands
  */
@@ -31,6 +32,6 @@ extern enum QR mode;
 
 void send_message(char msg[], int length);
 void isr_rx(void);
-void setup_uart_interrupts(void);
+void setup_uart_interrupts(intr prio);
 
 #endif 

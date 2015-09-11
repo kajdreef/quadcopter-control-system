@@ -1,6 +1,8 @@
 #ifndef _supervisor_h
 #define _supervisor_h
 
+#include <stdio.h>
+
 enum QR{
 	SAFE = 0,
 	PANIC = 1,

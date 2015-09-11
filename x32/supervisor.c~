@@ -1,5 +1,4 @@
 #include "supervisor.h"
-#include "x32.h"
 
 /*------------------------------------------------------------------
  * supervisor_received_mode --  Check the received mode and change it if needed
@@ -40,36 +39,42 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 			check_flag = 0;
 			new_mode_counter =0;	
 		}
-	
-	
 
 }
 
 /*------------------------------------------------------------------
- * supervisor_set_mode -- Setup the interrupts used for receiving data
+ * supervisor_set_mode -- Change modes and enforce conditions for chaning modes.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
-	
 	switch(*mode){
 		case SAFE:
-			if(new_mode == PANIC)
-			{
-				*mode = new_mode;
+			/*
+				Only allowed to execute everything below if if RPM = 0 and if LIFT/ROLL/PITCH/YAW are neutral 
+			*/
+			if(1){
+			//if statement for checking RPM=0 etc.
+				if(new_mode == YAW_CONTROL)
+				{
+					;
+				}
+				else if(new_mode == CALIBRATION)
+				{
+					;			
+				}
+				else if(new_mode == MANUAL)
+				{
+					*mode = new_mode;
+				}			
 			}
-			else if(new_mode == MANUAL)
-			{
-				/*
-					if RPM is zero
-				*/
-				*mode = new_mode;
-			}			
-		
 			break;
 		
 		case PANIC:
-			;
+			if(new_mode == SAFE)
+			{
+				*mode = new_mode;
+			}
 			break;
 		
 		case MANUAL:
@@ -77,7 +82,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			{
 				*mode = new_mode;
 			}
-			
 			break;
 
 		case CALIBRATION:
@@ -85,16 +89,22 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			break;
 
 		case YAW_CONTROL:
-			;
+			if(new_mode == PANIC)
+			{
+				*mode = new_mode;
+			};
 			break;
 
 		case FULL_CONTROL:
+			if(new_mode == PANIC)
+			{
+				*mode = new_mode;
+			}
 			break;
 
 		default:
 		*mode = PANIC;
 	}
-
 
 }
 

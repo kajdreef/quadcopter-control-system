@@ -6,8 +6,12 @@
 #include "controller.h"
 
 //Debugging
-#define DISPLAY_MODE
 #define VERBOSE_JS
+#define DISPLAY_MODE
+
+//Interrupt enabling
+#define MESSAGE_INTERRUPT
+//#define CONTROLLER_INTERRUPT
 
 //Messages
 struct JS JS_mes;
@@ -34,15 +38,16 @@ int main(void)
 	/*
 		Setup the QR
 	*/
-	setup_uart_interrupts();
-	setup_controller_interrupts();
+#ifdef MESSAGE_INTERRUPT
+	setup_uart_interrupts(5);
+#endif 
+#ifdef CONTROLLER_INTERRUPT
+	setup_controller_interrupts(10);
+#endif 
+
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-#ifdef DISPLAY_MODE
-	X32_display = mode;
-#endif
-
-	supervisor_set_mode(&mode, MANUAL);
+	supervisor_set_mode(&mode, SAFE);
 
 
 /*
@@ -53,6 +58,7 @@ int main(void)
 #ifdef DISPLAY_MODE
 		X32_display = mode;
 #endif
+
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
 

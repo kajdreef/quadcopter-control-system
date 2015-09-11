@@ -53,8 +53,12 @@ void isr_rx(void)
 			printf("lost package(%d)\r\n", lost_packets);
 #endif
 			if(lost_packets >= PACKETS_PANIC_THRESHOLD){
-			//too much packets lost, set panic mode		
-				supervisor_set_mode(&mode, PANIC);
+			//too much packets lost, set panic mode
+			supervisor_set_mode(&mode, PANIC);		
+#ifdef VERBOSE_COMM
+			printf("Communication declared lost(PANIC)\r\n");				
+#endif
+				lost_packets = 0;
 			}		
 		}
 		else
@@ -78,7 +82,7 @@ void isr_rx(void)
  *------------------------------------------------------------------
  */
 
-void setup_uart_interrupts(void){
+void setup_uart_interrupts(int prio){
 
 	/*
 		Attach an interrupt to the receival of a byte
@@ -86,7 +90,7 @@ void setup_uart_interrupts(void){
 		Enable the interrupt
 	*/
 	SET_INTERRUPT_VECTOR(INTERRUPT_PRIMARY_RX, &isr_rx);
-	SET_INTERRUPT_PRIORITY(INTERRUPT_PRIMARY_RX, 10);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_PRIMARY_RX, prio);
 	ENABLE_INTERRUPT(INTERRUPT_PRIMARY_RX);
 
 }

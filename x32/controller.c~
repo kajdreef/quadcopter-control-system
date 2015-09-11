@@ -45,8 +45,7 @@ void apply_mot_fact(){
 	DAQ_mes.ae[1] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y + Factors.f_r)) );
 	DAQ_mes.ae[2] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y - Factors.f_p)) );
 	DAQ_mes.ae[3] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y - Factors.f_r)) );
-	printf("fl 1: %d\r\n", (Factors.f_l)>>8);	
-	printf("modfsdftor 1: %d\r\n", FIXED_TO_INT(Factors.f_l));
+
 
 }
 
@@ -81,14 +80,13 @@ void isr_controller()
 	set_actuators();
 }
 
+/*------------------------------------------------------------------
+ * setup_controller_interrupts -- Setup the interrupts used for the controller with a rate of 500Hz
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void setup_controller_interrupts(int prio){
 
-void setup_controller_interrupts(){
-
-	/*
-		Attach an interrupt to the receival of a byte
-		Set the priority
-		Enable the interrupt
-	*/
 	//50MHz clock
 	X32_timer_period = 100000;
 	SET_INTERRUPT_VECTOR(INTERRUPT_TIMER1, &isr_controller);

@@ -80,18 +80,17 @@ void isr_controller()
 	set_actuators();
 }
 
+/*------------------------------------------------------------------
+ * setup_controller_interrupts -- Setup the interrupts used for the controller with a rate of 500Hz
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void setup_controller_interrupts(int prio){
 
-void setup_controller_interrupts(){
-
-	/*
-		Attach an interrupt to the receival of a byte
-		Set the priority
-		Enable the interrupt
-	*/
 	//50MHz clock
 	X32_timer_period = 100000;
 	SET_INTERRUPT_VECTOR(INTERRUPT_TIMER1, &isr_controller);
-	SET_INTERRUPT_PRIORITY(INTERRUPT_TIMER1, 10);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_TIMER1, prio);
 	ENABLE_INTERRUPT(INTERRUPT_TIMER1);
 
 }
