@@ -2,6 +2,7 @@
 #include "communication.h"
 #include "messages.h"
 #include <stdio.h>
+#include "supervisor.h"
 
 int demo_done = 0;
 
@@ -22,6 +23,7 @@ char message_type = '0';
 //Flag set when a complete message is received
 int MESSAGE_FLAG = FALSE;
 
+enum QR mode = SAFE;
 
 int main() 
 {
@@ -31,24 +33,23 @@ int main()
 	 */
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	X32_display = 0x0000;
+	X32_display = mode;
 	
-
 	while (! demo_done) {
 				
 		if(MESSAGE_FLAG == TRUE){
-			JS_mes.lift = 10;
 			X32_display = message_type;
 			decode(message_type,message);
-			//printf("lift: %d\r\n", JS_mes.lift);	
-			//printf("cont: %d\r\n", Contr_mes.P1);
+			
+			supervisor_received_mode(&mode, JS_mes.mode);
+		//	X32_display = mode;					
 			MESSAGE_FLAG = FALSE;
-			encode(DAQ_CHAR, output_buffer);
-			printf("encoded message: %s\r\n", output_buffer);
-			send_message(output_buffer, message_length(DAQ_CHAR));
+			//encode(DAQ_CHAR, output_buffer);
+			//send_message(output_buffer, message_length(DAQ_CHAR));
 		}
 	}
-	X32_display = 0x0000;
+
+	X32_display = mode;
 
     DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 

@@ -51,7 +51,8 @@ void isr_rx(void)
 			lost_packets++;
 			X32_display = 0xFFFF;
 			if(lost_packets >= PACKETS_PANIC_THRESHOLD)
-				printf("PANICK!!!\r\n");
+				
+				supervisor_set_mode(&mode, 1);
 			//set panick mode
 			
 		}
@@ -59,6 +60,7 @@ void isr_rx(void)
 		{	//successful receival of a message
 			MESSAGE_FLAG = TRUE;
 			lost_packets = 0;
+			X32_display = message[0];
 		}
 		receive_count = 0;			
 	}

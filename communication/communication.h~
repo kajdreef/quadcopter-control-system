@@ -3,7 +3,7 @@
 
 #include "x32.h"
 #include <stdio.h>
-#include "supervisor.h"
+
 
 /* define some peripheral short hands
  */
