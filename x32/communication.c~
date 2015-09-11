@@ -28,8 +28,11 @@ void isr_rx(void)
  	static char prev = END_CHAR;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
-
+	
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	char data = X32_rx_data;
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+
 #ifdef VERBOSE_COMM	
 	printf("Received data: %c\r\n", data);
 #endif
@@ -90,7 +93,7 @@ void setup_uart_interrupts(int prio){
 		Enable the interrupt
 	*/
 	SET_INTERRUPT_VECTOR(INTERRUPT_PRIMARY_RX, &isr_rx);
-	SET_INTERRUPT_PRIORITY(INTERRUPT_PRIMARY_RX, 10);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_PRIMARY_RX, prio);
 	ENABLE_INTERRUPT(INTERRUPT_PRIMARY_RX);
 
 }

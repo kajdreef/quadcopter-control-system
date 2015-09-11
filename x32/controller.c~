@@ -50,10 +50,16 @@ void apply_mot_fact(){
 }
 
 void isr_controller()
-{
+{	
+#ifdef VERBOSE_CONTROLLER
+	printf("Control\r\n");
+#endif	
 	//X32_display = 0x0001;
 	manual_lift();
 	switch (mode){
+		case SAFE:
+			// TURN CONTROLLER OFF
+			break;
 		case MANUAL:
 			// Manual mode
 			manual_yaw();
@@ -90,7 +96,7 @@ void setup_controller_interrupts(int prio){
 	//50MHz clock
 	X32_timer_period = 100000;
 	SET_INTERRUPT_VECTOR(INTERRUPT_TIMER1, &isr_controller);
-	SET_INTERRUPT_PRIORITY(INTERRUPT_TIMER1, 10);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_TIMER1, prio);
 	ENABLE_INTERRUPT(INTERRUPT_TIMER1);
 
 }

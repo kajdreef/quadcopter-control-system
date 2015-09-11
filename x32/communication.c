@@ -28,8 +28,11 @@ void isr_rx(void)
  	static char prev = END_CHAR;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
+	char data;
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	data = X32_rx_data;
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
-	char data = X32_rx_data;
 #ifdef VERBOSE_COMM	
 	printf("Received data: %c\r\n", data);
 #endif

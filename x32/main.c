@@ -11,7 +11,7 @@
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
-//#define CONTROLLER_INTERRUPT
+#define CONTROLLER_INTERRUPT
 
 //Messages
 struct JS JS_mes;

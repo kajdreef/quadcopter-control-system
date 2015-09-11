@@ -41,7 +41,6 @@ int main(void)
 #ifdef MESSAGE_INTERRUPT
 	setup_uart_interrupts(5);
 #endif 
-
 #ifdef CONTROLLER_INTERRUPT
 	setup_controller_interrupts(10);
 #endif 

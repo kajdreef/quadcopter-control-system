@@ -50,10 +50,19 @@ void apply_mot_fact(){
 }
 
 void isr_controller()
-{
+{	
+#ifdef VERBOSE_CONTROLLER
+	static int old = 0; 	
+	int new = X32_clock_us;
+	printf("%d\r\n",new - old );
+	old = new;
+#endif	
 	//X32_display = 0x0001;
 	manual_lift();
 	switch (mode){
+		case SAFE:
+			// TURN CONTROLLER OFF
+			break;
 		case MANUAL:
 			// Manual mode
 			manual_yaw();
