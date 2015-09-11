@@ -6,12 +6,15 @@
 #include "controller.h"
 
 //Debugging
+//The controller, Communication and actuators have defines statements as well
 #define VERBOSE_JS
 #define DISPLAY_MODE
 
+
+
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
-#define CONTROLLER_INTERRUPT
+//#define CONTROLLER_INTERRUPT
 
 //Messages
 struct JS JS_mes;
