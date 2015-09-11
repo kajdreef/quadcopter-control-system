@@ -2,9 +2,10 @@
 #include "communication.h"
 #include "messages.h"
 #include <stdio.h>
+#include "controller.h"
 
 int demo_done = 0;
-int state = 1;
+int state = 2;
 
 //Message types
 struct JS JS_mes;
@@ -24,9 +25,12 @@ char message_type = '0';
 int MESSAGE_FLAG = FALSE;
 
 
+
+
 int main() 
 {
 	setup_uart_interrupts();
+	setup_controller_interrupts();
 	/* 
 		Enable global interrupts
 	 */
@@ -34,6 +38,11 @@ int main()
 
 	X32_display = 0x0000;
 	
+
+	JS_mes.lift = 0;
+	JS_mes.pitch = 0;
+	JS_mes.roll = 0;
+	JS_mes.yaw = 0;
 
 	while (! demo_done) {
 				

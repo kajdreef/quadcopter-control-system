@@ -15,7 +15,7 @@ extern int state;
  * Author: Gijs Bruining
  */
 void set_actuators(){
-	// DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	int i;
 	for(i=0;i<4;i++){
 		// Checking for states
@@ -45,5 +45,5 @@ void set_actuators(){
 	peripherals[PERIPHERAL_XUFO_A1] = DAQ_mes.ae[1];
 	peripherals[PERIPHERAL_XUFO_A2] = DAQ_mes.ae[2];
 	peripherals[PERIPHERAL_XUFO_A3] = DAQ_mes.ae[3];
-	// ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }

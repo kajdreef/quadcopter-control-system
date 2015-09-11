@@ -48,6 +48,7 @@ void apply_mot_fact(){
 
 void isr_controller()
 {
+	//X32_display = 0x0001;
 	manual_lift();
 	switch (state){
 		case 3:
