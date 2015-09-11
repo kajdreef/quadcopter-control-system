@@ -140,7 +140,5 @@ void encode(char head, char *buff){
 			buff[sizeof(Deb_mes)+1] = END_CHAR;
 			break;
 	}
-	printf("BUFFER[0]: %c\n", buff[0]);
-	
 }
 

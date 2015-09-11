@@ -35,7 +35,7 @@ int configure_joystick(void){
  *------------------------------------------------------------------
  */
 
-void read_joystick(int fd, struct js_event *js, int *axis, int *button){
+int read_joystick(int fd, struct js_event *js, int *axis, int *button){
 
 	while (read(fd, js, sizeof(struct js_event)) == sizeof(struct js_event))
 	{
@@ -53,9 +53,10 @@ void read_joystick(int fd, struct js_event *js, int *axis, int *button){
 	if (errno != EAGAIN) 
 	{
 		perror("\njs: error reading (EAGAIN)");
-		exit(1);
+		return -1;
 	}
 	
+	return 1;
 }
 
 /*------------------------------------------------------------------
@@ -66,13 +67,12 @@ void read_joystick(int fd, struct js_event *js, int *axis, int *button){
  */
 
 void print_joystick(int *axis, int *button, int t){
-
-	printf("Lift: %6d   ",*(axis + LIFT));
-	printf("yaw: %6d   ",*(axis + YAW));
-	printf("pitch: %6d   ",*(axis + PITCH));
-	printf("roll: %6d   ",*(axis + ROLL));
+	printf("Time: %d\t", t);
+	printf("Lift: %6d\t",*(axis + LIFT));
+	printf("yaw: %6d\t",*(axis + YAW));
+	printf("pitch: %6d\t",*(axis + PITCH));
+	printf("roll: %6d\t",*(axis + ROLL));
 	printf("\n");
-
 }
 
 

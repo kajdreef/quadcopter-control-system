@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <time.h>
 
-#define JOYSTICK 0
+#define JOYSTICK 1
 
 #include "communication.h"
 #include "messages.h"
@@ -15,6 +15,9 @@
 	#include "config.h"
 	#include "joystick.h"
 #endif
+
+#define NANO 1000000000L
+
 
 //Message types
 struct JS JS_mes;
@@ -60,43 +63,61 @@ int main (void) {
 		char message[message_length(JS_CHAR)];
 
 		// Timer for 50 hz
-		struct timeval currentTime, startTime;
+		struct timespec currentTime;
+		struct timespec startTime;
+		
+		long long start, current;
+		clock_gettime(CLOCK_MONOTONIC, &startTime);
+    start = startTime.tv_sec*NANO + startTime.tv_nsec;
 
+		
 		//open and configure the joystick
 		js_fd = configure_joystick();
+		
+		int loopRate = 0;
 
 		// Loop that runs on 50 Hz
 		while (1) {
-			gettimeofday(&currentTime, NULL);
+			clock_gettime(CLOCK_MONOTONIC, &currentTime);
+			current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
 
 			// If 20 ms (50 Hz) has passed then run.
-			if(currentTime.tv_usec - startTime.tv_usec > 20000){
+			if( current - start > 20000000L){
 				// Get start time of 
-				gettimeofday(&startTime, NULL);
+				clock_gettime(CLOCK_MONOTONIC, &startTime);
+				start = startTime.tv_sec*NANO + startTime.tv_nsec;
+
+				loopRate++;
 
 				// simulate work
 				t = mon_time_ms();
 
 				//read out the joystick values
-				read_joystick(js_fd, &js, axis, button);
+				if(read_joystick(js_fd, &js, axis, button) == 1){
 
+					// if fire button is pressed then application shutsdown
+					if (button[FIRE]){
+						break;
+					}
+
+					// Put data from joystick into a message
+					JS_mes.lift = *(axis + LIFT);
+					JS_mes.roll = *(axis + ROLL);
+					JS_mes.pitch = *(axis + PITCH);
+					JS_mes.yaw = *(axis + YAW);
+					JS_mes.mode = mode;
+
+					encode(JS_CHAR, message);
+
+					// Send data
+					send(message, message_length(JS_CHAR));
+				}
+			}
+
+			if(loopRate >= 10){
 				//print the joystick values along with the time
 				print_joystick(axis, button,t);
-
-				// Put data from joystick into a message
-				JS_mes.lift = *(axis + LIFT);
-				JS_mes.roll = *(axis + ROLL);
-				JS_mes.pitch = *(axis + PITCH);
-				JS_mes.yaw = *(axis + YAW);
-				JS_mes.mode = mode;
-				encode(JS_CHAR, message);
-
-				// Send data
-				send(message, message_length(JS_CHAR));
-
-				if (button[FIRE]){
-					break;
-				}
+				loopRate = 0;
 			}
 		}
 	#else
@@ -105,7 +126,6 @@ int main (void) {
 	*************************************************************/
 		// Test message!
 		char msg[message_length(JS_CHAR)];
-		printf("Message Length: %d\n", message_length(JS_CHAR));
 
 		JS_mes.lift = 1;
 		JS_mes.roll = 2;
