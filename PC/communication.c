@@ -142,9 +142,6 @@ int receive () {
 				char slicedMsg[rLength -2];
 				memcpy(slicedMsg, rMsg+1, rLength -2);
 				slicedMsg[rLength -2] = '\0';		// place end character so it can be printed
-
-				// Order the characters so it is correct on the laptop
-				switchChar(slicedMsg, rLength -2);
 				
 				#if DEBUG_MESSAGES_RECEIVE
 					printf("Sliced Message and ordered: %s\n", slicedMsg);

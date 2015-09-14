@@ -7,6 +7,7 @@
 #include <time.h>
 
 #define JOYSTICK 1
+#define SEND_MESSAGE_PRINT 0
 
 #include "communication.h"
 #include "messages.h"
@@ -68,8 +69,7 @@ int main (void) {
 		
 		long long start, current;
 		clock_gettime(CLOCK_MONOTONIC, &startTime);
-    start = startTime.tv_sec*NANO + startTime.tv_nsec;
-
+		start = startTime.tv_sec*NANO + startTime.tv_nsec;
 		
 		//open and configure the joystick
 		js_fd = configure_joystick();
@@ -109,6 +109,15 @@ int main (void) {
 
 					encode(JS_CHAR, message);
 
+					#if SEND_MESSAGE_PRINT
+						int l = 0;
+						printf("Send Message: ");
+						for(l = 0; l < message_length(msg[0]); l++){
+							printf("%c ", msg[l]);
+						}
+						printf("\n");
+					#endif
+
 					// Send data
 					send(message, message_length(JS_CHAR));
 				}
@@ -127,27 +136,26 @@ int main (void) {
 		// Test message!
 		char msg[message_length(JS_CHAR)];
 
-		JS_mes.lift = 1;
-		JS_mes.roll = 2;
-		JS_mes.pitch = 3;
-		JS_mes.yaw = 4;
-		JS_mes.mode = 5;
+		JS_mes.lift = 92;
+		JS_mes.roll = 93;
+		JS_mes.pitch = 94;
+		JS_mes.yaw = 95;
+		JS_mes.mode = 96;
 
 		// First encode
 		encode(JS_CHAR, msg);
 
+		#if SEND_MESSAGE_PRINT
+			int l = 0;
+			printf("Send Message: ");
+			for(l = 0; l < message_length(msg[0]); l++){
+				printf("%c ", msg[l]);
+			}
+			printf("\n");
+		#endif
+
 		// send message to FPGA
 		send(msg, message_length(JS_CHAR));
-
-		// receive message from FPGA
-		while(rMsg[message_length(DAQ_CHAR)-1] != END_CHAR) {
-			sleep(200);
-		}
-
-		printf("DAQ Roll:\t%d\n", DAQ_mes.roll);
-		printf("DAQ Pitch:\t%d\n", DAQ_mes.pitch);
-		printf("DAQ Yaw rate:\t%d\n", DAQ_mes.yaw_rate);
-		printf("DAQ tStamp:\t%d\n", DAQ_mes.tstamp);
 
 	#endif
 
