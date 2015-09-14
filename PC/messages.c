@@ -13,7 +13,10 @@
  */
 void decode(char head,char *arr){
 	// DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-		
+
+	// Order the characters so it is correct on the laptop
+	switchCharDecode(arr, message_length(head) - 2);
+
 	switch(head){
 		case JS_CHAR :
 	 		// Joystick message
@@ -44,12 +47,32 @@ void decode(char head,char *arr){
 }
 
 /*------------------------------------------------------------------
+ * switchChar -- Switches the characters around, needed before sending 
+ * 								a message to the FPGA
+ * Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+void switchCharEncode(char * msg, int msgLength){
+	int i = 0;	
+	char tmp;	
+	for(i = 1; i < msgLength-1; i+=4){
+		tmp = msg[i];
+		msg[i] = msg[i+3];
+		msg[i+3] = tmp;
+
+		tmp = msg[i+1];
+		msg[i+1] = msg[i+2];
+		msg[i+2] = tmp;
+	}
+}
+
+/*------------------------------------------------------------------
  * switchChar -- Switches the characters around, needed after receiving 
  * 								a message from the FPGA
  * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void switchChar(char * msg, int msgLength){
+void switchCharDecode(char * msg, int msgLength){
 	int i = 0;	
 	char tmp;	
 	for(i = 0; i < msgLength; i+=4){
@@ -62,7 +85,6 @@ void switchChar(char * msg, int msgLength){
 		msg[i+2] = tmp;
 	}
 }
-
 
 /*------------------------------------------------------------------
  * message_length -- get the length of a message corresponding to a message type
@@ -140,5 +162,6 @@ void encode(char head, char *buff){
 			buff[sizeof(Deb_mes)+1] = END_CHAR;
 			break;
 	}
+	switchCharEncode(buff, message_length(head));
 }
 
