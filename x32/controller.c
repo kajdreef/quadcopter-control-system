@@ -13,6 +13,8 @@ extern int ae[4];
 extern int state;
 struct FACT Factors;
 
+extern int isr_controller_time;
+
 extern enum QR mode;
 
 void manual_lift(){
@@ -54,12 +56,14 @@ void apply_mot_fact(){
 
 void isr_controller()
 {	
-#ifdef VERBOSE_CONTROLLER
-	static int old = 0; 	
-	int new = X32_clock_us;
-	printf("%d\r\n",new - old );
-	old = new;
-#endif	
+	int old = X32_clock_us;
+	//simulate 1ms workload
+	int i;
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
+	for(i = 0; i<130; i++)
+	{;}	
+
 	//X32_display = 0x0001;
 	manual_lift();
 	switch (mode){
@@ -90,6 +94,10 @@ void isr_controller()
 
 	apply_mot_fact();
 	set_actuators();
+	
+	
+	isr_controller_time = X32_clock_us - old;
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }
 
 /*------------------------------------------------------------------

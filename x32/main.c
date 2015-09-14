@@ -11,7 +11,7 @@
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
-//#define CONTROLLER_INTERRUPT
+#define CONTROLLER_INTERRUPT
 
 //Messages
 struct JS JS_mes;
@@ -21,6 +21,7 @@ struct DEB Deb_mes;
 struct CON Contr_mes;
 
 int ae[4];
+int isr_controller_time = 0;
 
 //Buffer where the message is stored
 char message[sizeof(JS_mes)] = {0};
@@ -67,6 +68,7 @@ int main(void)
 							
 			MESSAGE_FLAG = FALSE;
 		}
+		printf("isr time: %d\r\n", isr_controller_time);
 	}
 
 	
