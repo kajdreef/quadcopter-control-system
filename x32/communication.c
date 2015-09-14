@@ -1,6 +1,6 @@
 #include "communication.h"
 
-#define VERBOSE_COMM
+//#define VERBOSE_COMM
 
 /*------------------------------------------------------------------
  * send_message -- send an array of characters
@@ -23,8 +23,11 @@ void send_message(char msg[], int length)
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-void isr_rx(void)
-{ 	
+void isr_rx(void){
+
+#ifdef VERBOSE_COMM 	 	
+	int old = X32_clock_us;
+#endif 
 	static int receive_count = 0;
 	static int sync = 0;
  	static char prev = END_CHAR;
@@ -34,11 +37,9 @@ void isr_rx(void)
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	data = X32_rx_data;
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	
+
 	X32_display = data;
-#ifdef VERBOSE_COMM	
-	printf("Received data: %c\r\n", data);
-#endif
+
 	if(receive_count == 0 && prev == END_CHAR && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
 		sync = 1; //We now have synched with a message
@@ -60,10 +61,7 @@ void isr_rx(void)
 #endif
 			if(lost_packets >= PACKETS_PANIC_THRESHOLD){
 			//too much packets lost, set panic mode
-			supervisor_set_mode(&mode, PANIC);		
-#ifdef VERBOSE_COMM
-			printf("Communication declared lost(PANIC)\r\n");				
-#endif
+				supervisor_set_mode(&mode, PANIC);		
 				lost_packets = 0;
 			}		
 		}
@@ -79,6 +77,10 @@ void isr_rx(void)
 	}
 	
 	prev = data;
+#ifdef VERBOSE_COMM
+	printf("%d\r\n", X32_clock_us - old );
+#endif
+
 	
 }
 
