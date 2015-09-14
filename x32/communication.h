@@ -17,7 +17,10 @@ extern char message_type;
 extern enum QR mode;
 
 void send_message(char msg[], int length);
-void isr_rx(void);
+void isr_rx_fifo(void);
+int is_char_available(void);
+int get_char(void);
+void detect_message(char data);
 void setup_uart_interrupts(int prio);
 
 #endif 

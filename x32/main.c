@@ -21,10 +21,14 @@ struct DEB Deb_mes;
 struct CON Contr_mes;
 
 int ae[4];
+
+//Variables for profiling
 int isr_controller_time = 0;
+int isr_rx_time = 0;
 
 //Buffer where the message is stored
 char message[sizeof(JS_mes)] = {0};
+
 //Output buffer for sending a message
 char output_buffer[sizeof(DAQ_mes)+2];
 
@@ -38,11 +42,13 @@ enum QR mode = SAFE;
 
 int main(void) 
 {	
+
+	char c;
 	/*
 		Setup the QR
 	*/
 #ifdef MESSAGE_INTERRUPT
-	setup_uart_interrupts(5);
+	setup_uart_interrupts(9);
 #endif 
 #ifdef CONTROLLER_INTERRUPT
 	setup_controller_interrupts(10);
@@ -55,10 +61,16 @@ int main(void)
 	Operation
 */
 	while (1){
+		
+		if(is_char_available())
+		{ 	//Get characters out of the fifo ready for processing
+			c = get_char();
+			detect_message(c);
+		}
 
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
-
+						
 			decode(message_type,message);
 			supervisor_received_mode(&mode, JS_mes.mode);
 
@@ -68,7 +80,7 @@ int main(void)
 							
 			MESSAGE_FLAG = FALSE;
 		}
-		printf("isr time: %d\r\n", isr_controller_time);
+		printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
 	}
 
 	
