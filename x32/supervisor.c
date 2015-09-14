@@ -48,8 +48,7 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
  *------------------------------------------------------------------
  */
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
-	//SOMEHOW UNABLE TO USE PERIPHERALS IN THE SUPERVISOR	
-	//DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	switch(*mode){
 		case SAFE:
 			/*
@@ -107,7 +106,9 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		default:
 		*mode = PANIC;
 	}
-//	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+   	X32_leds &= 7;
+	X32_leds |= (*mode+1) << 3;	 
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }
 
 

@@ -4,19 +4,6 @@
 #include "x32.h"
 #include "fixed_point.h"
 #include "actuators.h"
-
-/* define some peripheral short hands
- */
-#define X32_display	peripherals[PERIPHERAL_DISPLAY]
-#define X32_leds	peripherals[PERIPHERAL_LEDS]
-#define X32_clock	peripherals[PERIPHERAL_MS_CLOCK]
-#define X32_clock_us peripherals[PERIPHERAL_US_CLOCK]
-
-#define X32_timer_period peripherals[PERIPHERAL_TIMER1_PERIOD]
-
-//#define VERBOSE_CONTROLLER
-
-
 struct FACT{
 	int f_l;
 	int f_y;

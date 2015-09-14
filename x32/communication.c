@@ -34,7 +34,8 @@ void isr_rx(void)
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	data = X32_rx_data;
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-
+	
+	X32_display = data;
 #ifdef VERBOSE_COMM	
 	printf("Received data: %c\r\n", data);
 #endif

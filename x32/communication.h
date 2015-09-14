@@ -5,20 +5,7 @@
 #include <stdio.h>
 #include "supervisor.h"
 #include "messages.h"
-
-/* define some peripheral short hands
- */
-#define X32_display	peripherals[PERIPHERAL_DISPLAY]
-#define X32_leds	peripherals[PERIPHERAL_LEDS]
-#define X32_clock	peripherals[PERIPHERAL_MS_CLOCK]
-#define X32_rx_data		peripherals[PERIPHERAL_PRIMARY_DATA]
-#define X32_rx_status peripherals[PERIPHERAL_PRIMARY_STATUS]
-
-#define TRUE 1
-#define FALSE 0
-
-#define PACKETS_PANIC_THRESHOLD 100
-
+#include "config.h"
 
 //flag that gets set when a complete message is received
 extern int MESSAGE_FLAG;

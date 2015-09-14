@@ -1,5 +1,7 @@
 #include "communication.h"
 
+#define VERBOSE_COMM
+
 /*------------------------------------------------------------------
  * send_message -- send an array of characters
  * Author: Bastiaan Oosterhuis
@@ -32,7 +34,9 @@ void isr_rx(void)
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	data = X32_rx_data;
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-
+	
+	X32_display &= 0xFF00;
+	X32_display |= data;
 #ifdef VERBOSE_COMM	
 	printf("Received data: %c\r\n", data);
 #endif

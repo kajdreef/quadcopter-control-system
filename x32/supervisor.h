@@ -2,6 +2,8 @@
 #define _supervisor_h
 
 #include <stdio.h>
+#include "x32.h"
+#include "config.h"
 
 enum QR{
 	SAFE = 0,

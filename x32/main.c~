@@ -6,8 +6,8 @@
 #include "controller.h"
 
 //Debugging
+//The controller, Communication and actuators have defines statements as well
 #define VERBOSE_JS
-#define DISPLAY_MODE
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
@@ -49,23 +49,18 @@ int main(void)
 
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	supervisor_set_mode(&mode, MANUAL);
-
-
-/*
+	supervisor_set_mode(&mode, SAFE);
+ /*
 	Operation
 */
 	while (1){
-
-#ifdef DISPLAY_MODE
-		X32_display = mode;
-#endif
 
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
 
 			decode(message_type,message);
 			supervisor_received_mode(&mode, JS_mes.mode);
+
 #ifdef VERBOSE_JS
 			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d \r\n", JS_mes.lift, JS_mes.pitch, JS_mes.roll, JS_mes.yaw);
 #endif
