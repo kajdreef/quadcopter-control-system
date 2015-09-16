@@ -93,7 +93,8 @@ int send (char* msg, int msgSize) {
 	int i = 0;
 	for(i = 0; i < msgSize; i++){
 	#if DEBUG_MESSAGES_SEND
-		printf("Send char %i \t %c \n", i, *(msg+i));
+		printf("Send char: ");
+		printBits(sizeof(msg[0]), msg+i);
 	#endif
 		send_char(*(msg+i));
 	}

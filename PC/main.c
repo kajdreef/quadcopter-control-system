@@ -62,7 +62,7 @@ int main (void) {
 		struct js_event *js_ptr = &js;
 		unsigned int t;
 
-		char msg[sizeof(JS_mes)];
+		char msg[sizeof(JS_mes)/sizeof(JS_mes[0])*3];
 
 		// Timer for 50 hz
 		struct timespec currentTime;
@@ -111,7 +111,7 @@ int main (void) {
 					encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
 
 					// Send data
-					send(msg, sizeof(msg));
+					send(msg, sizeof(msg)/sizeof(msg[0]));
 				}
 			}
 
@@ -126,7 +126,7 @@ int main (void) {
 	*	Send/receive a test message and print it to the screen
 	*************************************************************/
 		// Test message!
-		char msg[sizeof(JS_mes)];
+		char msg[sizeof(JS_mes)/sizeof(JS_mes[0])*3];
 
 		JS_mes[JS_LIFT] = -20;
 		JS_mes[JS_ROLL] = 21;
