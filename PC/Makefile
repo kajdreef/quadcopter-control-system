@@ -2,7 +2,7 @@
 include Makefile.inc
 
 CFLAGS=
-SOURCES= joystick.c communication.c messages.c main.c
+SOURCES= $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
 TARGET= main.exe
 

@@ -5,61 +5,53 @@
 #include <stdio.h>
 #include <string.h>
 
+//from pc to x32
+#define JS_MASK 	(1<<6)
+#define CON_MASK 	0
+
+//from x32 to pc
+#define DAQ_MASK 	(1<<6)
+#define ERR_MASK 	0
+#define	DEB_MASK	(2<<6)
+
+#define END			(3<<6)
+#define MASK 		0x3F
+
+
 #define END_CHAR 'Z'
 //start chars:
-#define DAQ_CHAR 'a' 
+#define DAQ_CHAR 'a'
 #define ERR_CHAR 'b'
 #define DEB_CHAR 'c'
 #define JS_CHAR 'A'
 #define CON_CHAR 'B'
 
-extern struct CON Contr_mes;
-extern struct JS JS_mes;
-extern struct DEB Deb_mes;
-extern struct ERR Err_mes;
-extern struct DAQ DAQ_mes;
+//JS_mes
+#define JS_LIFT 	0
+#define JS_ROLL 	1
+#define JS_PITCH 	2
+#define JS_YAW		3
+#define JS_MODE		4
 
-/*
- * Message structure definition
- * Gijs Bruining
- */
-struct DAQ {
-	int roll;
-	int pitch;
-	int yaw_rate;
-	int ae1;
-	int ae2;
-	int ae3;
-	int ae4;
-	int tstamp;
-};
+//DAQ_mes
+#define DAQ_ROLL		0
+#define DAQ_PITCH		1
+#define DAQ_YAW_RATE	2
+#define DAQ_AE1			3
+#define DAQ_AE2			4
+#define DAQ_AE3			5
+#define DAQ_AE4			6
+#define DAQ_TSTAMP		7
 
-struct ERR {
-	int Err;
-};
+//CON_mes
+#define CON_P1	0
+#define CON_P2	1
+#define CON_P3	2
 
-struct DEB {
-	char mes[24];
-};
+void printBits(size_t const size, void const * const ptr);
+void encode_message(int mask, int message_length, int *input, char *output_buffer);
+void encode(int value, char* buffer,int index, int mask, int end);
+void decode (char* input, int msg_length, int* dest );
 
-struct JS {
-	int lift;
-	int roll;
-	int pitch;
-	int yaw;
-	int mode;
-}; 
-
-struct CON {
-	int P1;
-	int P2;
-	int P3;
-};
-
-void switchCharDecode(char * msg, int msgLength);
-void switchCharEncode(char * msg, int msgLength);
-void decode(char head,char *arr);
-void encode(char head, char *buff);
-int message_length(char c);
 
 #endif
