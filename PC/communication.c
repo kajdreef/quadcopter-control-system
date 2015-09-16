@@ -12,13 +12,13 @@
 
 #define SERIAL_DEVICE 	"/dev/ttyUSB0"
 
-#define DEBUG_MESSAGES_SEND 0
+#define DEBUG_MESSAGES_SEND 1
 #define DEBUG_MESSAGES_RECEIVE 0
 
 int fd;
 char rMsg[255];
 int i = 0;
-
+extern int DAQ_mes[8];
 
 /*------------------------------------------------------------------
  *	rs232_open -- setup connection
@@ -37,7 +37,7 @@ int rs232_open (void) {
 
 	// Initialise interrupts
 	initSig(fd);
-	
+
 	result = isatty(fd);
 	assert(result == 1);
 
@@ -109,9 +109,9 @@ int send (char* msg, int msgSize) {
 int receive () {
 	char buf[255];
 	int j = 0;
-	
+
 	int res = read(fd,buf,255);
-	
+
 	#if DEBUG_MESSAGES_RECEIVE
 		printf("Received Message: Bytes=%d, \t", res);
 	#endif
@@ -127,40 +127,18 @@ int receive () {
 		printf("\n");
 	#endif
 
-	int rLength = message_length(rMsg[0]);
-	if(rLength == 0){	// Check if valid starter character
+	int rLength = sizeof(DAQ_mes);
+	if(i == rLength){		// check if message has been received.
+
 		#if DEBUG_MESSAGES_RECEIVE
-			printf("Error: Not a starting character \n");
+			printf("Message received \n");
 		#endif
+
+		decode (rMsg, i, DAQ_mes);
 		i = 0;
 		memset(rMsg, 0, sizeof(rMsg));
 	}
-	else {
-		if(i == rLength){		// check if message has been received.
-			if(rMsg[rLength-1] == END_CHAR){		// Chceck if the final character is the end character
-				// Slice the message up (cut the start and end character)
-				char slicedMsg[rLength -2];
-				memcpy(slicedMsg, rMsg+1, rLength -2);
-				slicedMsg[rLength -2] = '\0';		// place end character so it can be printed
-				
-				#if DEBUG_MESSAGES_RECEIVE
-					printf("Sliced Message and ordered: %s\n", slicedMsg);
-				#endif
 
-				decode(rMsg[0], slicedMsg);
-				i = 0;
-				// memset(rMsg, 0, sizeof(rMsg));
-			}
-			else {
-				printf("ERROR: Part of message missing \n");
-				i = 0;
-				memset(rMsg, 0, sizeof(rMsg));
-			}
-		}
-	}
-	#if DEBUG_MESSAGES_RECEIVE
-		printf("\n");
-	#endif	
 	return res;
 }
 

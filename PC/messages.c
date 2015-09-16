@@ -1,167 +1,111 @@
+#include <stdio.h>
+#include <string.h>
 #include "messages.h"
 
-/*
- * Decoding function
- * This function takes an array of characters and the corresponding header,
- * then it puts the corresponding data in the global structs.
- * This function probably needs to have the interrupts disabled, because it's non atomic
- *
- * In: 	char head: The header of the message to decode
- * 		char *arr: A array of characters to decode
- * Tested: Yes
- * Author: Gijs Bruining
- */
-void decode(char head,char *arr){
-	// DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+#define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
-	// Order the characters so it is correct on the laptop
-	switchCharDecode(arr, message_length(head) - 2);
+#define DEBUG 1
 
-	switch(head){
-		case JS_CHAR :
-	 		// Joystick message
-	 		memcpy(&JS_mes,arr,sizeof(JS_mes));
-	 		break;
+extern int DAQ_mes[8];
+extern int ERR_mes;
+extern char DEB_mes[24];
+extern int JS_mes[5];
+extern int CON_mes[3];
 
-		case CON_CHAR:
-	 		// Controller message
-	 		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
- 			break;
+/*------------------------------------------------------------------
+ *	decode -- Decode the messeges
+ *	Author: Internet (stackexchange) only use for debugging
+ *------------------------------------------------------------------
+ */void printBits(size_t const size, void const * const ptr)
+{
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    int i, j;
 
-		case DAQ_CHAR:
-			// DAQ-message
-			memcpy(&DAQ_mes,arr,sizeof(DAQ_mes));
-			break;
-
-		case ERR_CHAR:
-			// Error message
-			memcpy(&Err_mes,arr,sizeof(Err_mes));
-			break;
-
-		case DEB_CHAR:
-			// Debug message
-			memcpy(&Deb_mes, arr, sizeof(Deb_mes));
-			break;
-	}
-	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+    for (i=size-1;i>=0;i--)
+    {
+        for (j=7;j>=0;j--)
+        {
+            byte = b[i] & (1<<j);
+            byte >>= j;
+            printf("%u", byte);
+        }
+    }
+    puts("");
 }
 
 /*------------------------------------------------------------------
- * switchChar -- Switches the characters around, needed before sending 
- * 								a message to the FPGA
- * Author: Kaj Dreef
+ *	encode_message -- Encode a complete message
+ *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-void switchCharEncode(char * msg, int msgLength){
-	int i = 0;	
-	char tmp;	
-	for(i = 1; i < msgLength-1; i+=4){
-		tmp = msg[i];
-		msg[i] = msg[i+3];
-		msg[i+3] = tmp;
+void encode_message(int mask, int message_length, int *input, char *output_buffer){
 
-		tmp = msg[i+1];
-		msg[i+1] = msg[i+2];
-		msg[i+2] = tmp;
+	int i;	
+	int j;
+	for(i = 0; i < message_length-1; i++, j += 3){
+		encode(input[i], output_buffer, j, mask,0);
 	}
+	encode(input[i], output_buffer, j, mask,1);
+}
+
+
+/*------------------------------------------------------------------
+ *	encode -- Encode one integer value to 3 chars and place them in a buffer
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void encode(int value, char* buffer,int index, int mask, int end){
+
+	*(buffer+index) = ((value >> 12) & MASK) | mask;
+	*(buffer+index+1) = ((value >> 6) & MASK) | mask;
+	if(end == 0){
+		*(buffer+index+2) = (value & MASK) | mask;
+	}
+	else
+	{
+		*(buffer+index+2) = (value & MASK) | END;
+	}
+
 }
 
 /*------------------------------------------------------------------
- * switchChar -- Switches the characters around, needed after receiving 
- * 								a message from the FPGA
- * Author: Kaj Dreef
+ *	decode -- Decode the messeges into int messages (Can only do int messages)
+ *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void switchCharDecode(char * msg, int msgLength){
-	int i = 0;	
-	char tmp;	
-	for(i = 0; i < msgLength; i+=4){
-		tmp = msg[i];
-		msg[i] = msg[i+3];
-		msg[i+3] = tmp;
+void decode (char* input, int msg_length, int* dest ){
 
-		tmp = msg[i+1];
-		msg[i+1] = msg[i+2];
-		msg[i+2] = tmp;
+	int i;
+	int final_result = 0;
+	int result1;
+	int result2;
+	int result3;
+	char DECODE_MASK = input[0] & 11000000;
+
+	for(i = 0; i < msg_length; i++){
+		final_result = 0;
+		if( CHECK_SIGN_BIT(input[i*3 + 0])){
+			#if DEBUG
+			printf("SIGNED BIT FOUND\n");
+			#endif
+			final_result = 0xFFFC0000;
+		}
+
+		result1 = (input[i*3 + 0] ^ DECODE_MASK) << 12;
+		result2 = (input[i*3 + 1] ^ DECODE_MASK) << 6;
+
+		if(i == msg_length-1){
+			char test = (input[i*3 + 2] ^ 11000000);
+			result3 = test;
+		}
+		else {
+			result3 = (input[i*3 + 2] ^ DECODE_MASK);
+		}
+
+		final_result ^= (result1 ^ result2 ^ result3);
+		*(dest + i) = final_result;
 	}
 }
 
-/*------------------------------------------------------------------
- * message_length -- get the length of a message corresponding to a message type
- * Author: Bastiaan Oosterhuis
- *------------------------------------------------------------------
- */
-int message_length(char c){
-
-	switch(c){
-		case JS_CHAR:
-			//+2 because of start and end character
-			return sizeof(JS_mes) + 2;
-			break;
-		case CON_CHAR:
-			//+2 because of start and end character
-			return sizeof(Contr_mes) + 2;		
-	 		break;
-		case DAQ_CHAR:
-			//+2 because of start and end character
-			return sizeof(DAQ_mes) + 2;
-			break;
-		case ERR_CHAR:
-			//+2 because of start and end character
-			return sizeof(Err_mes) + 2;		
-	 		break;
-		case DEB_CHAR:
-			//+2 because of start and end character
-			return sizeof(Deb_mes) + 2;		
-	 		break;
-		default:
-			return 0;
-	}
-}
-
-/*
-* Encoding function
-* 
-* Author: Gijs Bruining
-*/
-void encode(char head, char *buff){
-
-	switch(head){
-		case JS_CHAR:
-			// DAQ Message
-			buff[0] = JS_CHAR;
-			memcpy(buff+1,&JS_mes,sizeof(JS_mes));
-			buff[sizeof(JS_mes)+1] = END_CHAR;
-			break;
-
-		case CON_CHAR:
-			// Debug
-			buff[0] = CON_CHAR;
-			memcpy(buff+1,&Contr_mes,sizeof(Contr_mes));
-			buff[sizeof(Contr_mes)+1] = END_CHAR;
-			break;
-			
-		case DAQ_CHAR:
-			// DAQ Message
-			buff[0] = DAQ_CHAR;
-			memcpy(buff+1,&DAQ_mes,sizeof(DAQ_mes));
-			buff[sizeof(DAQ_mes)+1] = END_CHAR;
-			break;
-
-		case ERR_CHAR:
-			// Error message
-			buff[0] = ERR_CHAR;
-			memcpy(buff+1,&Err_mes,sizeof(Err_mes));
-			buff[sizeof(Err_mes)+1] = END_CHAR;
-			break;
-
-		case DEB_CHAR:
-			// Debug
-			buff[0] = DEB_CHAR;
-			memcpy(buff+1,&Deb_mes,sizeof(Deb_mes));
-			buff[sizeof(Deb_mes)+1] = END_CHAR;
-			break;
-	}
-	switchCharEncode(buff, message_length(head));
-}
 

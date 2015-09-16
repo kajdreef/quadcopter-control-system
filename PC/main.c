@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <time.h>
 
-#define JOYSTICK 1
+#define JOYSTICK 0
 #define SEND_MESSAGE_PRINT 0
 
 #include "communication.h"
@@ -20,13 +20,14 @@
 #define NANO 1000000000L
 
 
-//Message types
-struct JS JS_mes;
-struct DAQ DAQ_mes;
-struct ERR Err_mes;
-struct DEB Deb_mes;
-struct CON Contr_mes;
+//Message
+int DAQ_mes[8];
+int ERR_mes;
+char DEB_mes[24];
+int JS_mes[5];
+int CON_mes[3];
 
+char output_buffer[15];
 
 /*------------------------------------------------------------------
  *	Main function of the pc application
@@ -60,20 +61,20 @@ int main (void) {
 		struct js_event js;
 		struct js_event *js_ptr = &js;
 		unsigned int t;
-		
-		char message[message_length(JS_CHAR)];
+
+		char msg[sizeof(JS_mes)];
 
 		// Timer for 50 hz
 		struct timespec currentTime;
 		struct timespec startTime;
-		
+
 		long long start, current;
 		clock_gettime(CLOCK_MONOTONIC, &startTime);
 		start = startTime.tv_sec*NANO + startTime.tv_nsec;
-		
+
 		//open and configure the joystick
 		js_fd = configure_joystick();
-		
+
 		int loopRate = 0;
 
 		// Loop that runs on 50 Hz
@@ -83,7 +84,7 @@ int main (void) {
 
 			// If 20 ms (50 Hz) has passed then run.
 			if( current - start > 20000000L){
-				// Get start time of 
+				// Get start time of
 				clock_gettime(CLOCK_MONOTONIC, &startTime);
 				start = startTime.tv_sec*NANO + startTime.tv_nsec;
 
@@ -101,25 +102,16 @@ int main (void) {
 					}
 
 					// Put data from joystick into a message
-					JS_mes.lift = *(axis + LIFT);
-					JS_mes.roll = *(axis + ROLL);
-					JS_mes.pitch = *(axis + PITCH);
-					JS_mes.yaw = *(axis + YAW);
-					JS_mes.mode = mode;
+					JS_mes[JS_LIFT] = *(axis + LIFT);
+					JS_mes[JS_ROLL] = *(axis + ROLL);
+					JS_mes[JS_PITCH] = *(axis + PITCH);
+					JS_mes[JS_YAW] = *(axis + YAW);
+					JS_mes[JS_MODE]  = mode;
 
-					encode(JS_CHAR, message);
-
-					#if SEND_MESSAGE_PRINT
-						int l = 0;
-						printf("Send Message: ");
-						for(l = 0; l < message_length(msg[0]); l++){
-							printf("%c ", msg[l]);
-						}
-						printf("\n");
-					#endif
+					encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
 
 					// Send data
-					send(message, message_length(JS_CHAR));
+					send(msg, sizeof(msg));
 				}
 			}
 
@@ -134,28 +126,19 @@ int main (void) {
 	*	Send/receive a test message and print it to the screen
 	*************************************************************/
 		// Test message!
-		char msg[message_length(JS_CHAR)];
+		char msg[sizeof(JS_mes)];
 
-		JS_mes.lift = 92;
-		JS_mes.roll = 93;
-		JS_mes.pitch = 94;
-		JS_mes.yaw = 95;
-		JS_mes.mode = 96;
+		JS_mes[JS_LIFT] = -20;
+		JS_mes[JS_ROLL] = 21;
+		JS_mes[JS_PITCH] = 22;
+		JS_mes[JS_YAW]= -123;
+		JS_mes[JS_MODE] = 24;
 
 		// First encode
-		encode(JS_CHAR, msg);
-
-		#if SEND_MESSAGE_PRINT
-			int l = 0;
-			printf("Send Message: ");
-			for(l = 0; l < message_length(msg[0]); l++){
-				printf("%c ", msg[l]);
-			}
-			printf("\n");
-		#endif
+		encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
 
 		// send message to FPGA
-		send(msg, message_length(JS_CHAR));
+		send(msg, sizeof(msg));
 
 	#endif
 
