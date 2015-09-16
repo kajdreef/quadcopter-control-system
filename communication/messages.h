@@ -28,8 +28,7 @@
 #define DAQ_AE2			4
 #define DAQ_AE3			5
 #define DAQ_AE4			6
-#define DAQ_AE5			7
-#define DAQ_TSTAMP		8
+#define DAQ_TSTAMP		7
 
 //CON_mes	
 #define CON_P1	0
