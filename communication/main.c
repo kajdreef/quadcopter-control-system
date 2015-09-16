@@ -1,25 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "communication.h"
+#include "messages.h"
 
 #define JS_MASK (1<<6)
 #define MASK 0x3F
 
 #define OUTPUT_ENCODE 0
+
+struct JS JS_mes;
+char output_buffer[15];
+
+
 int main(void){
 
-	struct JS joystick;
-
-	joystick.lift = -20;
-	joystick.roll = 21;
-	joystick.pitch = 22;
-	joystick.yaw = 23;
-	joystick.mode = 24;
-
+	JS_mes.lift = -20;
+	JS_mes.roll = 21;
+	JS_mes.pitch = 22;
+	JS_mes.yaw = 23;
+	JS_mes.mode = 24;
 
 	int message;
-	int total = joystick.lift;
+	int total = JS_mes.lift;
 	message = ((total >> 12) & MASK) | JS_MASK;
 	printf("Message: 0X%X\n", (char)message);
 
@@ -29,11 +31,13 @@ int main(void){
 	message = (total & MASK) | JS_MASK;
 	printf("Message: 0X%X\n", (char)message);
 
-	encode(joystick.lift, output_buffer, 0);
-	encode(joystick.roll, output_buffer, 3);
-	encode(joystick.pitch, output_buffer, 6);
-	encode(joystick.yaw, output_buffer, 9);
-	encode(joystick.mode, output_buffer, 12);
+	encode_message(JS_CHAR, output_buffer)
+
+	//encode(JS_mes.lift, output_buffer, 0);
+	//encode(JS_mes.roll, output_buffer, 3);
+	//encode(JS_mes.pitch, output_buffer, 6);
+	//encode(JS_mes.yaw, output_buffer, 9);
+	//encode(JS_mes.mode, output_buffer, 12);
 
 
 	#if OUTPUT_ENCODE

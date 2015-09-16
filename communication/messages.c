@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "communication.h"
+#include "messages.h"
 
 #define JS_MASK (1<<6)
 #define MASK 0x3F
@@ -26,6 +26,32 @@
         }
     }
     puts("");
+}
+
+
+void encode_message(char type, char *buffer){
+	switch(head){
+		case DAQ_CHAR:
+			// DAQ Message
+			buff[0] = DAQ_CHAR;
+			memcpy(buff+1,&DAQ_mes,sizeof(DAQ_mes));
+			buff[sizeof(DAQ_mes)+1] = END_CHAR;
+			break;
+
+		case ERR_CHAR:
+			// Error message
+			buff[0] = ERR_CHAR;
+			memcpy(buff+1,&Err_mes,sizeof(Err_mes));
+			buff[sizeof(Err_mes)+1] = END_CHAR;
+			break;
+
+		case DEB_CHAR:
+			// Debug
+			buff[0] = DEB_CHAR;
+			memcpy(buff+1,&Deb_mes,sizeof(Deb_mes));
+			buff[sizeof(Deb_mes)+1] = END_CHAR;
+			break;
+
 }
 
 void encode(int value, char* buffer,int index){
