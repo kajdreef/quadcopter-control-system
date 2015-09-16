@@ -87,17 +87,17 @@ void detect_message(char data){
 
 	static int receive_count = 0;
 	static int sync = 0;
- 	static char prev = END_CHAR;
+ 	static char prev = END;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
 	
 	X32_display = data;
 	
-	if(receive_count == 0 && prev == END_CHAR && (MESSAGE_LENGTH = message_length(data)))
+	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
 		sync = 1; //We now have synched with a message
 		receive_count++;
-		message_type = data;
+		message_type = data & 0xC0;
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1)
 	{	//place data in message array
@@ -106,7 +106,7 @@ void detect_message(char data){
 	}		
 	else
 	{		
-		if((data != END_CHAR && sync != 0) | receive_count == 0){
+		if(( (data&0xC0)!= END && sync != 0) | receive_count == 0){
 			//Error
 			lost_packets++;
 #ifdef VERBOSE_COMM
@@ -129,7 +129,7 @@ void detect_message(char data){
 		receive_count = 0;			
 	}
 	
-	prev = data;
+	prev = data&0xC0;
 
     
 }

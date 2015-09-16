@@ -1,95 +1,132 @@
+#include <stdio.h>
+#include <string.h>
 #include "messages.h"
 
-/*
- * Decoding function
- * This function takes an array of characters and the corresponding header,
- * then it puts the corresponding data in the global structs.
- * This function probably needs to have the interrupts disabled, because it's non atomic
- *
- * In: 	char head: The header of the message to decode
- * 		char *arr: A array of characters to decode
- * Tested: Yes
- * Author: Gijs Bruining
- */
+#define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
-void decode(char head,char *arr){
-	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	switch(head){
-		case JS_CHAR :
-	 		// JS-message
-	 		memcpy(&JS_mes,arr,sizeof(JS_mes));
-	 		break;
-		case CON_CHAR:
-	 		// Controller message
-	 		memcpy(&Contr_mes,arr,sizeof(Contr_mes));
- 		break;
+#define DEBUG 1
+
+extern int DAQ_mes[8];
+extern int ERR_mes;
+extern char DEB_mes[24];
+extern int JS_mes[5];
+extern int CON_mes[3];
+
+
+/*------------------------------------------------------------------
+ *	message_length -- Return the length of the message to be received
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int message_length(char data)
+{
+	switch(data & 0xC0){
+		
+		case(JS_MASK):
+			return 3*sizeof(JS_mes)/sizeof(JS_mes[0]);
+			break;
+		case(CON_MASK):
+			return 3*sizeof(CON_mes)/sizeof(CON_mes[0]);
+			break;
+		default:
+			return -1;	
+	}	
+}
+
+/*------------------------------------------------------------------
+ *	decode -- Decode the messeges
+ *	Author: Internet (stackexchange) only use for debugging
+ *------------------------------------------------------------------
+ */void printBits(size_t const size, void const * const ptr)
+{
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    int i, j;
+
+    for (i=size-1;i>=0;i--)
+    {
+        for (j=7;j>=0;j--)
+        {
+            byte = b[i] & (1<<j);
+            byte >>= j;
+            printf("%u", byte);
+        }
+    }
+    puts("");
+}
+
+/*------------------------------------------------------------------
+ *	encode_message -- Encode a complete message
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void encode_message(int mask, int message_length, int *input, char *output_buffer){
+
+	int i;	
+	int j;
+	for(i = 0; i < message_length-1; i++, j += 3){
+		encode(input[i], output_buffer, j, mask,0);
 	}
-	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	encode(input[i], output_buffer, j, mask,1);
 }
 
 
 /*------------------------------------------------------------------
- * message_length -- get the length of a message corresponding to a message type
- * Author: Bastiaan Oosterhuis
+ *	encode -- Encode one integer value to 3 chars and place them in a buffer
+ *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-int message_length(char c){
+void encode(int value, char* buffer,int index, int mask, int end){
 
-	switch(c){
-		case JS_CHAR:
-			//+2 because of start and end character
-			return sizeof(JS_mes) + 2;
-			break;
-		case CON_CHAR:
-			//+2 because of start and end character
-			return sizeof(Contr_mes) + 2;		
-	 		break;
-		case DAQ_CHAR:
-			//+2 because of start and end character
-			return sizeof(DAQ_mes) + 2;
-			break;
-		case ERR_CHAR:
-			//+2 because of start and end character
-			return sizeof(Err_mes) + 2;		
-	 		break;
-		case DEB_CHAR:
-			//+2 because of start and end character
-			return sizeof(Deb_mes) + 2;		
-	 		break;
-		default:
-			return 0;
+	*(buffer+index) = ((value >> 12) & MASK) | mask;
+	*(buffer+index+1) = ((value >> 6) & MASK) | mask;
+	if(end == 0){
+		*(buffer+index+2) = (value & MASK) | mask;
+	}
+	else
+	{
+		*(buffer+index+2) = (value & MASK) | END;
+	}
+
+}
+
+/*------------------------------------------------------------------
+ *	decode -- Decode the messeges into int messages (Can only do int messages)
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+void decode (char* input, int msg_length, int* dest ){
+
+	int i;
+	int final_result = 0;
+	int result1;
+	int result2;
+	int result3;
+	char DECODE_MASK = input[0] & 11000000;
+
+	for(i = 0; i < msg_length; i++){
+		final_result = 0;
+		if( CHECK_SIGN_BIT(input[i*3 + 0])){
+			#if DEBUG
+			printf("SIGNED BIT FOUND\n");
+			#endif
+			final_result = 0xFFFC0000;
+		}
+
+		result1 = (input[i*3 + 0] ^ DECODE_MASK) << 12;
+		result2 = (input[i*3 + 1] ^ DECODE_MASK) << 6;
+
+		if(i == msg_length-1){
+			char test = (input[i*3 + 2] ^ 11000000);
+			result3 = test;
+		}
+		else {
+			result3 = (input[i*3 + 2] ^ DECODE_MASK);
+		}
+
+		final_result ^= (result1 ^ result2 ^ result3);
+		*(dest + i) = final_result;
 	}
 }
 
-/*
-* Encoding function
-* 
-* Author: Gijs Bruining
-*/
-void encode(char head, char *buff){
-
-	switch(head){
-		case DAQ_CHAR:
-			// DAQ Message
-			buff[0] = DAQ_CHAR;
-			memcpy(buff+1,&DAQ_mes,sizeof(DAQ_mes));
-			buff[sizeof(DAQ_mes)+1] = END_CHAR;
-			break;
-
-		case ERR_CHAR:
-			// Error message
-			buff[0] = ERR_CHAR;
-			memcpy(buff+1,&Err_mes,sizeof(Err_mes));
-			buff[sizeof(Err_mes)+1] = END_CHAR;
-			break;
-
-		case DEB_CHAR:
-			// Debug
-			buff[0] = DEB_CHAR;
-			memcpy(buff+1,&Deb_mes,sizeof(Deb_mes));
-			buff[sizeof(Deb_mes)+1] = END_CHAR;
-			break;
-	}
-	
-}
 

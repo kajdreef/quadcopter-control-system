@@ -11,15 +11,16 @@
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
-#define CONTROLLER_INTERRUPT
+//#define CONTROLLER_INTERRUPT
 
 //Messages
-struct JS JS_mes;
-struct DAQ DAQ_mes;
-struct ERR Err_mes;
-struct DEB Deb_mes;
-struct CON Contr_mes;
+int DAQ_mes[8];
+int ERR_mes;
+char DEB_mes[24];
+int JS_mes[5];
+int CON_mes[3];
 
+//actuator values
 int ae[4];
 
 //Variables for profiling
@@ -27,10 +28,10 @@ int isr_controller_time = 0;
 int isr_rx_time = 0;
 
 //Buffer where the message is stored
-char message[sizeof(JS_mes)] = {0};
+char message[3*sizeof(JS_mes)/sizeof(JS_mes[0])] = {0};
 
 //Output buffer for sending a message
-char output_buffer[sizeof(DAQ_mes)+2];
+char output_buffer[3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0])];
 
 //message type received;
 char message_type = '0';
@@ -71,16 +72,17 @@ int main(void)
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
 						
-			decode(message_type,message);
-			supervisor_received_mode(&mode, JS_mes.mode);
+			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
+		
+			supervisor_received_mode(&mode, JS_mes[JS_MODE]);
 
 #ifdef VERBOSE_JS
-			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d \r\n", JS_mes.lift, JS_mes.pitch, JS_mes.roll, JS_mes.yaw);
+			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW]);
 #endif
 							
 			MESSAGE_FLAG = FALSE;
 		}
-		printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
+	//	printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
 	}
 
 	

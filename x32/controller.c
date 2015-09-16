@@ -8,7 +8,7 @@
 //#define VERBOSE_CONTROLLER
 
 
-extern struct JS JS_mes;
+extern int JS_mes[5];
 extern int ae[4];
 extern int state;
 struct FACT Factors;
@@ -18,19 +18,19 @@ extern int isr_controller_time;
 extern enum QR mode;
 
 void manual_lift(){
-	Factors.f_l = INT_TO_FIXED((-1*JS_mes.lift+0x00007FFF)/64);	//Max 1023 0x03FF
+	Factors.f_l = INT_TO_FIXED((-1*JS_mes[JS_LIFT]+0x00007FFF)/64);	//Max 1023 0x03FF
 }
 
 void manual_yaw(){
-	Factors.f_y = DIV_FIXED(INT_TO_FIXED(JS_mes.yaw),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
+	Factors.f_y = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_YAW]),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
 }
 
 void manual_pitch(){
-	Factors.f_p = DIV_FIXED(INT_TO_FIXED(JS_mes.pitch),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+	Factors.f_p = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_PITCH]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
 }
 
 void manual_roll(){
-	Factors.f_r = DIV_FIXED(INT_TO_FIXED(JS_mes.roll),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+	Factors.f_r = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_ROLL]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
 }
 
 void control_yaw(){
