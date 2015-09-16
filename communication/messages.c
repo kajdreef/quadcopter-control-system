@@ -80,6 +80,11 @@ void encode_message(char type, char *output_buffer){
 	
 }
 
+/*------------------------------------------------------------------
+ *	encode -- Encode one integer value to 3 chars and place them in a buffer
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void encode(int value, char* buffer,int index){
 
 	*(buffer+index) = ((value >> 12) & MASK) | JS_MASK;
