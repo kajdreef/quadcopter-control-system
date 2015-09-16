@@ -9,91 +9,94 @@
 
 
 extern struct JS JS_mes;
-extern int ae[4];
+extern struct DAQ DAQ_mes;
 extern int state;
-struct FACT Factors;
-
 extern int isr_controller_time;
 
 extern enum QR mode;
 
-void manual_lift(){
-	Factors.f_l = INT_TO_FIXED((-1*JS_mes.lift+0x00007FFF)/64);	//Max 1023 0x03FF
+void manual_lift(Factors *F){
+	F->f_l = INT_TO_FIXED((-1*JS_mes.lift+0x00007FFF)/64);	//Max 1023 0x03FF
 }
 
-void manual_yaw(){
-	Factors.f_y = DIV_FIXED(INT_TO_FIXED(JS_mes.yaw),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
+void manual_yaw(Factors *F){
+	F->f_y = DIV_FIXED(INT_TO_FIXED(JS_mes.yaw),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
 }
 
-void manual_pitch(){
-	Factors.f_p = DIV_FIXED(INT_TO_FIXED(JS_mes.pitch),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+void manual_pitch(Factors *F){
+	F->f_p = DIV_FIXED(INT_TO_FIXED(JS_mes.pitch),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
 }
 
-void manual_roll(){
-	Factors.f_r = DIV_FIXED(INT_TO_FIXED(JS_mes.roll),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+void manual_roll(Factors *F){
+	F->f_r = DIV_FIXED(INT_TO_FIXED(JS_mes.roll),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
 }
 
-void control_yaw(){
-
-}
-
-void control_pitch(){
+void control_yaw(Factors *F){
 
 }
 
-void control_roll(){
+void control_pitch(Factors *F){
 
 }
 
-void apply_mot_fact(){
-	ae[0] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y + Factors.f_p)) );
-	ae[1] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y + Factors.f_r)) );
-	ae[2] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) + Factors.f_y - Factors.f_p)) );
-	ae[3] = FIXED_TO_INT( MULT_FIXED(Factors.f_l,(INT_TO_FIXED(1) - Factors.f_y - Factors.f_r)) );
+void control_roll(Factors *F){
 
+}
 
+void apply_mot_fact(Factors *F,int *ae){
+	ae[0] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y + F->f_p)) );
+	ae[1] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y + F->f_r)) );
+	ae[2] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y - F->f_p)) );
+	ae[3] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y - F->f_r)) );
+
+	// Data aqcuisition:
+	memcpy(DAQ_mes.ae,ae,sizeof(ae));
 }
 
 void isr_controller()
 {	
+	static Factors F;
+	static int ae[4] = {0,0,0,0};
+
 	int old = X32_clock_us;
-	//simulate 1ms workload
-	int i;
+	// //simulate 1ms workload
+	// int i;
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	
-	for(i = 0; i<130; i++)
-	{;}	
+	// for(i = 0; i<130; i++)
+	// {;}	
 
 	//X32_display = 0x0001;
-	manual_lift();
+	manual_lift(&F);
 	switch (mode){
 		case SAFE:
 			// TURN CONTROLLER OFF
+			// Gijs: Dit is waarschijnlijk niet nodig, aangezien de output al wordt beveiligd
 			break;
 		case MANUAL:
 			// Manual mode
-			manual_yaw();
-			manual_pitch();
-			manual_roll();
+			manual_yaw(&F);
+			manual_pitch(&F);
+			manual_roll(&F);
 			break;
 
 		case YAW_CONTROL:
 			// Yaw control
-			control_yaw();
-			manual_pitch();
-			manual_roll();
+			control_yaw(&F);
+			manual_pitch(&F);
+			manual_roll(&F);
 			break;
 
 		case FULL_CONTROL:
 			// Full
-			control_yaw();
-			control_pitch();
-			control_roll();
+			control_yaw(&F);
+			control_pitch(&F);
+			control_roll(&F);
 			break;
 	}
 
-	apply_mot_fact();
-	set_actuators();
+	apply_mot_fact(&F,ae);
+	set_actuators(ae);
 	
 	
 	isr_controller_time = X32_clock_us - old;

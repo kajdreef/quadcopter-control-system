@@ -5,10 +5,7 @@
 
 //#define VERBOSE_ACTUATORS
 
-extern int ae[4];
-
 extern int state;
-
 extern enum QR mode;
 
 /*
@@ -19,7 +16,7 @@ extern enum QR mode;
  * 
  * Author: Gijs Bruining
  */
-void set_actuators(){
+void set_actuators(int *ae){
 
 	int i;
 	
