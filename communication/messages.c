@@ -51,6 +51,23 @@ void encode_message(char type, char *buffer){
 			memcpy(buff+1,&Deb_mes,sizeof(Deb_mes));
 			buff[sizeof(Deb_mes)+1] = END_CHAR;
 			break;
+		case JS_CHAR:
+			//JS message
+			encode(JS_mes.lift, output_buffer, 0);
+			encode(JS_mes.roll, output_buffer, 3);
+			encode(JS_mes.pitch, output_buffer, 6);
+			encode(JS_mes.yaw, output_buffer, 9);
+			encode(JS_mes.mode, output_buffer, 12);
+		break;
+
+		#define END_CHAR 'Z'
+//start chars:
+#define DAQ_CHAR 'a' 
+#define ERR_CHAR 'b'
+#define DEB_CHAR 'c'
+#define JS_CHAR 'A'
+#define CON_CHAR 'B'
+
 
 }
 

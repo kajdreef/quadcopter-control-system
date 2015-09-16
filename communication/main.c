@@ -8,7 +8,12 @@
 
 #define OUTPUT_ENCODE 0
 
+struct CON Contr_mes;
 struct JS JS_mes;
+struct DEB Deb_mes;
+struct ERR Err_mes;
+struct DAQ DAQ_mes;
+
 char output_buffer[15];
 
 
@@ -31,7 +36,7 @@ int main(void){
 	message = (total & MASK) | JS_MASK;
 	printf("Message: 0X%X\n", (char)message);
 
-	encode_message(JS_CHAR, output_buffer)
+	encode_message(JS_CHAR, output_buffer);
 
 	//encode(JS_mes.lift, output_buffer, 0);
 	//encode(JS_mes.roll, output_buffer, 3);
