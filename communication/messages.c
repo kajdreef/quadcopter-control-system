@@ -95,28 +95,47 @@ void encode(int value, char* buffer,int index){
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void decode (char* buffer, int msg_size, int* dest ){
+void decode (char* input, int* dest ){
 	int i;
 	int final_result = 0;
 	int result1;
 	int result2;
 	int result3;
-	
+	int msg_size = message_size(input[0]);	
+
 	for(i = 0; i < msg_size; i++){
 		final_result = 0;
-		if( CHECK_SIGN_BIT(buffer[i*3 + 0])){
+		if( CHECK_SIGN_BIT(input[i*3 + 0])){
 			#if DEBUG
 			printf("SIGNED BIT FOUND\n");
 			#endif
 			final_result = 0xFFFC0000;
 		}
 
-		result1 = (buffer[i*3 + 0] ^ JS_MASK) << 12;
-		result2 = (buffer[i*3 + 1] ^ JS_MASK) << 6;
-		result3 = (buffer[i*3 + 2] ^ JS_MASK);
+		result1 = (input[i*3 + 0] ^ JS_MASK) << 12;
+		result2 = (input[i*3 + 1] ^ JS_MASK) << 6;
+		result3 = (input[i*3 + 2] ^ JS_MASK);
 
 		final_result ^= (result1 ^ result2 ^ result3);
 
 		*(dest + i) = final_result;
 	}
+}
+
+/*------------------------------------------------------------------
+ *	message_size -- Returns the amount of values stored in the original array
+ *					(e.g. message send was an array of 5 int, this function will return 5)
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+int message_size(char msg) {
+	char temp = (msg & 11000000);
+	
+	switch(temp){
+		case JS_MASK:
+			return sizeof(JS_mes)/sizeof(JS_mes[0]);
+		default:
+			return -1;
+	}
+
 }

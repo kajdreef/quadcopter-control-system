@@ -21,7 +21,7 @@ int main(void){
 	JS_mes[JS_LIFT] = -20;
 	JS_mes[JS_ROLL] = 21;
 	JS_mes[JS_PITCH] = 22;
-	JS_mes[JS_YAW]= 23;
+	JS_mes[JS_YAW]= -123;
 	JS_mes[JS_MODE] = 24;
 
 	int message;
@@ -45,14 +45,11 @@ int main(void){
 	}
 	#endif
 
-	JS_mes[JS_LIFT] = 0;
-	JS_mes[JS_ROLL] = 0;
-	JS_mes[JS_PITCH] = 0;
-	JS_mes[JS_YAW]= 0;
-	JS_mes[JS_MODE] = 0;
-
-	decode(output_buffer, sizeof(JS_mes), JS_mes);
+	decode(output_buffer, JS_mes);
 	printf("Lift: %d\n", JS_mes[JS_LIFT]);
+	printf("Roll: %d\n", JS_mes[JS_ROLL]);
+	printf("Pitch: %d\n", JS_mes[JS_PITCH]);
+	printf("Yaw: %d\n", JS_mes[JS_YAW]);
 	printf("Mode: %d\n", JS_mes[JS_MODE]);
 
 	return 0;
