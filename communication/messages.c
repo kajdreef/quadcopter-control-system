@@ -75,7 +75,7 @@ void encode(int value, char* buffer,int index){
 }
 
 /*------------------------------------------------------------------
- *	decode -- Decode the messeges into int messages
+ *	decode -- Decode the messeges into int messages (Can only do int messages)
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
@@ -85,6 +85,7 @@ void decode (char* input, int msg_length, int* dest ){
 	int result1;
 	int result2;
 	int result3;
+	char DECODE_MASK = input[0] & 11000000;
 
 	for(i = 0; i < msg_length; i++){
 		final_result = 0;
@@ -95,9 +96,9 @@ void decode (char* input, int msg_length, int* dest ){
 			final_result = 0xFFFC0000;
 		}
 
-		result1 = (input[i*3 + 0] ^ JS_MASK) << 12;
-		result2 = (input[i*3 + 1] ^ JS_MASK) << 6;
-		result3 = (input[i*3 + 2] ^ JS_MASK);
+		result1 = (input[i*3 + 0] ^ DECODE_MASK) << 12;
+		result2 = (input[i*3 + 1] ^ DECODE_MASK) << 6;
+		result3 = (input[i*3 + 2] ^ DECODE_MASK);
 
 		final_result ^= (result1 ^ result2 ^ result3);
 
@@ -105,20 +106,3 @@ void decode (char* input, int msg_length, int* dest ){
 	}
 }
 
-/*------------------------------------------------------------------
- *	message_size -- Returns the amount of values stored in the original array
- *					(e.g. message send was an array of 5 int, this function will return 5)
- *	Author: Kaj Dreef
- *------------------------------------------------------------------
- */
-int message_size(char msg) {
-	char temp = (msg & 11000000);
-	
-	switch(temp){
-		case JS_MASK:
-			return sizeof(JS_mes)/sizeof(JS_mes[0]);
-		default:
-			return -1;
-	}
-
-}
