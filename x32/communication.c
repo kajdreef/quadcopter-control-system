@@ -1,6 +1,6 @@
 #include "communication.h"
 
-//#define VERBOSE_COMM
+#define VERBOSE_COMM
 
 extern int isr_rx_time;
 #define FIFO_SIZE 512
@@ -87,17 +87,26 @@ void detect_message(char data){
 
 	static int receive_count = 0;
 	static int sync = 0;
- 	static char prev = END;
+ 	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
 	
 	X32_display = data;
-	
+#ifdef VERBOSE_COMM
+		printf("received data: 0X%X\r\n",data);
+		printf("message_length: %d \r\n", message_length(data));
+		printf("receive count: %d\r\n", receive_count);
+		printf("prev: 0X%X\r\n",prev);
+		printf("END: 0X%X\r\n", END);
+#endif	
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
+#ifdef VERBOSE_COMM
+		printf("Synchronization\r\n");
+#endif
 		sync = 1; //We now have synched with a message
 		receive_count++;
-		message_type = data & 0xC0;
+		message_type = data & END;
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1)
 	{	//place data in message array
@@ -106,7 +115,7 @@ void detect_message(char data){
 	}		
 	else
 	{		
-		if(( (data&0xC0)!= END && sync != 0) | receive_count == 0){
+		if(( (data&END)!= END && sync != 0) | receive_count == 0){
 			//Error
 			lost_packets++;
 #ifdef VERBOSE_COMM
@@ -129,8 +138,7 @@ void detect_message(char data){
 		receive_count = 0;			
 	}
 	
-	prev = data&0xC0;
-
+	prev = data&END;
     
 }
 
