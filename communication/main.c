@@ -35,7 +35,7 @@ int main(void){
 	message = (total & MASK) | JS_MASK;
 	printf("Message: 0X%X\n", (char)message);
 	*/
-	encode_message(JS_CHAR, output_buffer);
+	encode_message(JS_mes, sizeof(JS_MES)/4 ,output_buffer);
 
 	#if OUTPUT_ENCODE
 	int i;
@@ -53,6 +53,7 @@ int main(void){
 
 	decode(output_buffer, sizeof(JS_mes), JS_mes);
 	printf("Lift: %d\n", JS_mes[JS_LIFT]);
+	
 	printf("Mode: %d\n", JS_mes[JS_MODE]);
 
 	return 0;

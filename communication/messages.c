@@ -2,8 +2,19 @@
 #include <string.h>
 #include "messages.h"
 
-#define JS_MASK (1<<6)
-#define MASK 0x3F
+//from pc to x32
+#define JS_MASK 	(1<<6)
+#define CON_MASK 	0
+
+//from x32 to pc
+#define DAQ_MASK 	(1<<6)
+#define ERR_MASK 	0
+#define	DEB_MASK	(2<<6)
+
+#define END			(3<<6)
+#define MASK 		0x3F 
+
+
 #define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
 #define DEBUG 1
@@ -41,45 +52,13 @@ extern int CON_mes[3];
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-void encode_message(char type, char *output_buffer){
-	switch(type){
-		case DAQ_CHAR:
-			//DAQ Message
-			encode(DAQ_mes[DAQ_ROLL], output_buffer, 0);
-			encode(DAQ_mes[DAQ_PITCH], output_buffer, 3);
-			encode(DAQ_mes[DAQ_YAW_RATE], output_buffer, 6);
-			encode(DAQ_mes[DAQ_AE1], output_buffer, 9);
-			encode(DAQ_mes[DAQ_AE2], output_buffer, 12);
-			encode(DAQ_mes[DAQ_AE3], output_buffer, 15);
-			encode(DAQ_mes[DAQ_AE4], output_buffer, 18);
-			encode(DAQ_mes[DAQ_TSTAMP], output_buffer, 21);
-			break;
-		
-		case CON_CHAR:
-			//Controller message
-			encode(CON_mes[CON_P1], output_buffer, 0);
-			encode(CON_mes[CON_P2], output_buffer, 3);
-			encode(CON_mes[CON_P3], output_buffer, 6);
-			break;
-		case ERR_CHAR:
-			// Error message
-			encode(ERR_mes, output_buffer,0);
-			break;
+void encode_message(int *input, int message_length, char *output_buffer){
+	int i;	
+	int j;
+	for(i = 0; i < 8; i++, j += 3){
+		encode(input[i], output_buffer, j);
+	}
 
-		case DEB_CHAR:
-			// Debug
-			
-			break;
-		case JS_CHAR:
-			//JS message
-			encode(JS_mes[JS_LIFT], output_buffer, 0);
-			encode(JS_mes[JS_ROLL], output_buffer, 3);
-			encode(JS_mes[JS_PITCH], output_buffer, 6);
-			encode(JS_mes[JS_YAW], output_buffer, 9);
-			encode(JS_mes[JS_MODE], output_buffer, 12);
-		break;
-		}
-	
 }
 
 /*------------------------------------------------------------------
