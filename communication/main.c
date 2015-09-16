@@ -44,22 +44,16 @@ int main(void){
 
 	}
 	#endif
-/*
-	// decode index
-	int lift = decode(output_buffer, 0);
-	printf("Lift: %d\n", lift);
 
-	int roll = decode(output_buffer, 1);
-	printf("Roll: %d\n", roll);
+	JS_mes[JS_LIFT] = 0;
+	JS_mes[JS_ROLL] = 0;
+	JS_mes[JS_PITCH] = 0;
+	JS_mes[JS_YAW]= 0;
+	JS_mes[JS_MODE] = 0;
 
-	int pitch = decode(output_buffer, 2);
-	printf("Pitch: %d\n", pitch);
+	decode(output_buffer, sizeof(JS_mes), JS_mes);
+	printf("Lift: %d\n", JS_mes[JS_LIFT]);
+	printf("Mode: %d\n", JS_mes[JS_MODE]);
 
-	int yaw = decode(output_buffer, 3);
-	printf("Yaw: %d\n", yaw);
-
-	int mode = decode(output_buffer, 4);
-	printf("Mode: %d\n", mode);
-*/
 	return 0;
 }
