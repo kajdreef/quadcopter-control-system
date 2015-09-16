@@ -35,7 +35,7 @@ int main(void){
 	}
 	#endif
 
-	decode(output_buffer, JS_mes);
+	decode(output_buffer,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
 	printf("Lift: %d\n", JS_mes[JS_LIFT]);
 	printf("Roll: %d\n", JS_mes[JS_ROLL]);
 	printf("Pitch: %d\n", JS_mes[JS_PITCH]);

@@ -70,20 +70,20 @@ void encode(int value, char* buffer,int index, int mask, int end){
 }
 
 /*------------------------------------------------------------------
- *	decode -- Decode the messeges into int messages
+ *	decode -- Decode the messeges into int messages (Can only do int messages)
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void decode (char* input, int* dest){
+void decode (char* input, int msg_length, int* dest ){
 
 	int i;
 	int final_result = 0;
 	int result1;
 	int result2;
 	int result3;
-	int msg_size = message_size(input[0]);	
+	char DECODE_MASK = input[0] & 11000000;
 
-	for(i = 0; i < msg_size; i++){
+	for(i = 0; i < msg_length; i++){
 		final_result = 0;
 		if( CHECK_SIGN_BIT(input[i*3 + 0])){
 			#if DEBUG
@@ -92,9 +92,9 @@ void decode (char* input, int* dest){
 			final_result = 0xFFFC0000;
 		}
 
-		result1 = (input[i*3 + 0] ^ JS_MASK) << 12;
-		result2 = (input[i*3 + 1] ^ JS_MASK) << 6;
-		result3 = (input[i*3 + 2] ^ JS_MASK);
+		result1 = (input[i*3 + 0] ^ DECODE_MASK) << 12;
+		result2 = (input[i*3 + 1] ^ DECODE_MASK) << 6;
+		result3 = (input[i*3 + 2] ^ DECODE_MASK);
 
 		final_result ^= (result1 ^ result2 ^ result3);
 
