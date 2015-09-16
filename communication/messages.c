@@ -6,6 +6,8 @@
 #define MASK 0x3F
 #define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
+#define DEBUG 1
+
 extern int DAQ_mes[8];
 extern int ERR_mes;
 extern char DEB_mes[24];
@@ -89,27 +91,32 @@ void encode(int value, char* buffer,int index){
 }
 
 /*------------------------------------------------------------------
- *	decode -- Decode the messeges
+ *	decode -- Decode the messeges into int messages
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-int decode (char* buffer, int index){
+void decode (char* buffer, int msg_size, int* dest ){
 	int i;
 	int final_result = 0;
 	int result1;
 	int result2;
 	int result3;
+	
+	for(i = 0; i < msg_size; i++){
+		final_result = 0;
+		if( CHECK_SIGN_BIT(buffer[i*3 + 0])){
+			#if DEBUG
+			printf("SIGNED BIT FOUND\n");
+			#endif
+			final_result = 0xFFFC0000;
+		}
 
-	if( CHECK_SIGN_BIT(buffer[index*3 + 0])){
-		printf("SIGNED BIT FOUND\n");
-		final_result = 0xFFFC0000;
+		result1 = (buffer[i*3 + 0] ^ JS_MASK) << 12;
+		result2 = (buffer[i*3 + 1] ^ JS_MASK) << 6;
+		result3 = (buffer[i*3 + 2] ^ JS_MASK);
+
+		final_result ^= (result1 ^ result2 ^ result3);
+
+		*(dest + i) = final_result;
 	}
-
-	result1 = (buffer[index*3 + 0] ^ JS_MASK) << 12;
-	result2 = (buffer[index*3 + 1] ^ JS_MASK) << 6;
-	result3 = (buffer[index*3 + 2] ^ JS_MASK);
-
-	final_result ^= (result1 ^ result2 ^ result3);
-
- 	return final_result;
 }
