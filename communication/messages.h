@@ -37,7 +37,7 @@
 
 void printBits(size_t const size, void const * const ptr);
 void encode(int value, char* buffer,int index);
-void decode (char* buffer, int* dest );
+void decode (char* buffer, int msg_length, int* dest );
 int message_size(char msg);
 
 #endif

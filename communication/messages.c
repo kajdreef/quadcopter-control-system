@@ -79,15 +79,14 @@ void encode(int value, char* buffer,int index){
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void decode (char* input, int* dest ){
+void decode (char* input, int msg_length, int* dest ){
 	int i;
 	int final_result = 0;
 	int result1;
 	int result2;
 	int result3;
-	int msg_size = message_size(input[0]);	
 
-	for(i = 0; i < msg_size; i++){
+	for(i = 0; i < msg_length; i++){
 		final_result = 0;
 		if( CHECK_SIGN_BIT(input[i*3 + 0])){
 			#if DEBUG

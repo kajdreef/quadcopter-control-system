@@ -35,7 +35,7 @@ int main(void){
 	message = (total & MASK) | JS_MASK;
 	printf("Message: 0X%X\n", (char)message);
 	*/
-	encode_message(JS_mes, sizeof(JS_mes)/4 ,output_buffer);
+	encode_message(JS_mes, sizeof(JS_mes)/sizeof(JS_mes[0]) ,output_buffer);
 
 	#if OUTPUT_ENCODE
 	int i;
@@ -45,7 +45,7 @@ int main(void){
 	}
 	#endif
 
-	decode(output_buffer, JS_mes);
+	decode(output_buffer,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
 	printf("Lift: %d\n", JS_mes[JS_LIFT]);
 	printf("Roll: %d\n", JS_mes[JS_ROLL]);
 	printf("Pitch: %d\n", JS_mes[JS_PITCH]);
