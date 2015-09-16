@@ -94,10 +94,16 @@ void decode (char* input, int msg_length, int* dest ){
 
 		result1 = (input[i*3 + 0] ^ DECODE_MASK) << 12;
 		result2 = (input[i*3 + 1] ^ DECODE_MASK) << 6;
-		result3 = (input[i*3 + 2] ^ DECODE_MASK);
+
+		if(i == msg_length-1){
+			char test = (input[i*3 + 2] ^ 11000000);
+			result3 = test;
+		}
+		else {
+			result3 = (input[i*3 + 2] ^ DECODE_MASK);
+		}
 
 		final_result ^= (result1 ^ result2 ^ result3);
-
 		*(dest + i) = final_result;
 	}
 }
