@@ -13,45 +13,28 @@
 #define JS_CHAR 'A'
 #define CON_CHAR 'B'
 
-extern struct CON Contr_mes;
-extern struct JS JS_mes;
-extern struct DEB Deb_mes;
-extern struct ERR Err_mes;
-extern struct DAQ DAQ_mes;
+//JS_mes
+#define JS_LIFT 	0
+#define JS_ROLL 	1
+#define JS_PITCH 	2
+#define JS_YAW		3
+#define JS_MODE		4
 
-/*
- * Message structure definition
- * Gijs Bruining
- */
-struct DAQ {
-	int roll;
-	int pitch;
-	int yaw_rate;
-	int ae[4];
-	int tstamp;
-};
+//DAQ_mes
+#define DAQ_ROLL		0
+#define DAQ_PITCH		1
+#define DAQ_YAW_RATE	2
+#define DAQ_AE1			3
+#define DAQ_AE2			4
+#define DAQ_AE3			5
+#define DAQ_AE4			6
+#define DAQ_AE5			7
+#define DAQ_TSTAMP		8
 
-struct ERR {
-	int Err;
-};
-
-struct DEB {
-	char mes[24];
-};
-
-struct JS {
-	int lift;
-	int roll;
-	int pitch;
-	int yaw;
-	int mode;
-}; 
-
-struct CON {
-	int P1;
-	int P2;
-	int P3;
-};
+//CON_mes	
+#define CON_P1	0
+#define CON_P2	1
+#define CON_P3	2
 
 void printBits(size_t const size, void const * const ptr);
 void encode(int value, char* buffer,int index);

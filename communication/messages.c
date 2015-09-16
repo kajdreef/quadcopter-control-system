@@ -6,6 +6,12 @@
 #define MASK 0x3F
 #define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
+extern int DAQ_mes[8];
+extern int ERR_mes;
+extern char DEB_mes[24];
+extern int JS_mes[5];
+extern int CON_mes[3];
+
 /*------------------------------------------------------------------
  *	decode -- Decode the messeges
  *	Author: Internet (stackexchange) only use for debugging
@@ -28,47 +34,50 @@
     puts("");
 }
 
-
-void encode_message(char type, char *buffer){
-	switch(head){
+/*------------------------------------------------------------------
+ *	encode_message -- Encode a complete message
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void encode_message(char type, char *output_buffer){
+	switch(type){
 		case DAQ_CHAR:
-			// DAQ Message
-			buff[0] = DAQ_CHAR;
-			memcpy(buff+1,&DAQ_mes,sizeof(DAQ_mes));
-			buff[sizeof(DAQ_mes)+1] = END_CHAR;
+			//DAQ Message
+			encode(DAQ_mes[DAQ_ROLL], output_buffer, 0);
+			encode(DAQ_mes[DAQ_PITCH], output_buffer, 3);
+			encode(DAQ_mes[DAQ_YAW_RATE], output_buffer, 6);
+			encode(DAQ_mes[DAQ_AE1], output_buffer, 9);
+			encode(DAQ_mes[DAQ_AE2], output_buffer, 12);
+			encode(DAQ_mes[DAQ_AE3], output_buffer, 15);
+			encode(DAQ_mes[DAQ_AE4], output_buffer, 18);
+			encode(DAQ_mes[DAQ_TSTAMP], output_buffer, 21);
 			break;
-
+		
+		case CON_CHAR:
+			//Controller message
+			encode(CON_mes[CON_P1], output_buffer, 0);
+			encode(CON_mes[CON_P2], output_buffer, 3);
+			encode(CON_mes[CON_P3], output_buffer, 6);
+			break;
 		case ERR_CHAR:
 			// Error message
-			buff[0] = ERR_CHAR;
-			memcpy(buff+1,&Err_mes,sizeof(Err_mes));
-			buff[sizeof(Err_mes)+1] = END_CHAR;
+			encode(ERR_mes, output_buffer,0);
 			break;
 
 		case DEB_CHAR:
 			// Debug
-			buff[0] = DEB_CHAR;
-			memcpy(buff+1,&Deb_mes,sizeof(Deb_mes));
-			buff[sizeof(Deb_mes)+1] = END_CHAR;
+			
 			break;
 		case JS_CHAR:
 			//JS message
-			encode(JS_mes.lift, output_buffer, 0);
-			encode(JS_mes.roll, output_buffer, 3);
-			encode(JS_mes.pitch, output_buffer, 6);
-			encode(JS_mes.yaw, output_buffer, 9);
-			encode(JS_mes.mode, output_buffer, 12);
+			encode(JS_mes[JS_LIFT], output_buffer, 0);
+			encode(JS_mes[JS_ROLL], output_buffer, 3);
+			encode(JS_mes[JS_PITCH], output_buffer, 6);
+			encode(JS_mes[JS_YAW], output_buffer, 9);
+			encode(JS_mes[JS_MODE], output_buffer, 12);
 		break;
-
-		#define END_CHAR 'Z'
-//start chars:
-#define DAQ_CHAR 'a' 
-#define ERR_CHAR 'b'
-#define DEB_CHAR 'c'
-#define JS_CHAR 'A'
-#define CON_CHAR 'B'
-
-
+		}
+	
 }
 
 void encode(int value, char* buffer,int index){

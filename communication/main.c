@@ -8,25 +8,24 @@
 
 #define OUTPUT_ENCODE 0
 
-struct CON Contr_mes;
-struct JS JS_mes;
-struct DEB Deb_mes;
-struct ERR Err_mes;
-struct DAQ DAQ_mes;
+int DAQ_mes[8];
+int ERR_mes;
+char DEB_mes[24];
+int JS_mes[5];
+int CON_mes[3];
 
 char output_buffer[15];
 
-
 int main(void){
 
-	JS_mes.lift = -20;
-	JS_mes.roll = 21;
-	JS_mes.pitch = 22;
-	JS_mes.yaw = 23;
-	JS_mes.mode = 24;
+	JS_mes[JS_LIFT] = -20;
+	JS_mes[JS_ROLL] = 21;
+	JS_mes[JS_PITCH] = 22;
+	JS_mes[JS_YAW]= 23;
+	JS_mes[JS_MODE] = 24;
 
 	int message;
-	int total = JS_mes.lift;
+	/*int total = JS_mes.lift;
 	message = ((total >> 12) & MASK) | JS_MASK;
 	printf("Message: 0X%X\n", (char)message);
 
@@ -35,15 +34,8 @@ int main(void){
 
 	message = (total & MASK) | JS_MASK;
 	printf("Message: 0X%X\n", (char)message);
-
+	*/
 	encode_message(JS_CHAR, output_buffer);
-
-	//encode(JS_mes.lift, output_buffer, 0);
-	//encode(JS_mes.roll, output_buffer, 3);
-	//encode(JS_mes.pitch, output_buffer, 6);
-	//encode(JS_mes.yaw, output_buffer, 9);
-	//encode(JS_mes.mode, output_buffer, 12);
-
 
 	#if OUTPUT_ENCODE
 	int i;
@@ -52,7 +44,7 @@ int main(void){
 
 	}
 	#endif
-
+/*
 	// decode index
 	int lift = decode(output_buffer, 0);
 	printf("Lift: %d\n", lift);
@@ -68,6 +60,6 @@ int main(void){
 
 	int mode = decode(output_buffer, 4);
 	printf("Mode: %d\n", mode);
-
+*/
 	return 0;
 }
