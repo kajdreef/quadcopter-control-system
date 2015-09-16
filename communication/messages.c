@@ -2,19 +2,6 @@
 #include <string.h>
 #include "messages.h"
 
-//from pc to x32
-#define JS_MASK 	(1<<6)
-#define CON_MASK 	0
-
-//from x32 to pc
-#define DAQ_MASK 	(1<<6)
-#define ERR_MASK 	0
-#define	DEB_MASK	(2<<6)
-
-#define END			(3<<6)
-#define MASK 		0x3F 
-
-
 #define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
 #define DEBUG 1
@@ -52,25 +39,33 @@ extern int CON_mes[3];
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-void encode_message(int *input, int message_length, char *output_buffer){
+void encode_message(int mask, int message_length, int *input, char *output_buffer){
+
 	int i;	
 	int j;
-	for(i = 0; i < 8; i++, j += 3){
-		encode(input[i], output_buffer, j);
+	for(i = 0; i < message_length-1; i++, j += 3){
+		encode(input[i], output_buffer, j, mask,0);
 	}
-
+	encode(input[i], output_buffer, j, mask,1);
 }
+
 
 /*------------------------------------------------------------------
  *	encode -- Encode one integer value to 3 chars and place them in a buffer
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-void encode(int value, char* buffer,int index){
+void encode(int value, char* buffer,int index, int mask, int end){
 
-	*(buffer+index) = ((value >> 12) & MASK) | JS_MASK;
-	*(buffer+index+1) = ((value >> 6) & MASK) | JS_MASK;
-	*(buffer+index+2) = (value & MASK) | JS_MASK;
+	*(buffer+index) = ((value >> 12) & MASK) | mask;
+	*(buffer+index+1) = ((value >> 6) & MASK) | mask;
+	if(end == 0){
+		*(buffer+index+2) = (value & MASK) | mask;
+	}
+	else
+	{
+		*(buffer+index+2) = (value & MASK) | END;
+	}
 
 }
 
@@ -79,7 +74,8 @@ void encode(int value, char* buffer,int index){
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void decode (char* input, int* dest ){
+void decode (char* input, int* dest){
+
 	int i;
 	int final_result = 0;
 	int result1;
@@ -106,20 +102,4 @@ void decode (char* input, int* dest ){
 	}
 }
 
-/*------------------------------------------------------------------
- *	message_size -- Returns the amount of values stored in the original array
- *					(e.g. message send was an array of 5 int, this function will return 5)
- *	Author: Kaj Dreef
- *------------------------------------------------------------------
- */
-int message_size(char msg) {
-	char temp = (msg & 11000000);
-	
-	switch(temp){
-		case JS_MASK:
-			return sizeof(JS_mes)/sizeof(JS_mes[0]);
-		default:
-			return -1;
-	}
 
-}

@@ -5,6 +5,19 @@
 #include <stdio.h>
 #include <string.h>
 
+//from pc to x32
+#define JS_MASK 	(1<<6)
+#define CON_MASK 	0
+
+//from x32 to pc
+#define DAQ_MASK 	(1<<6)
+#define ERR_MASK 	0
+#define	DEB_MASK	(2<<6)
+
+#define END			(3<<6)
+#define MASK 		0x3F 
+
+
 #define END_CHAR 'Z'
 //start chars:
 #define DAQ_CHAR 'a' 
@@ -36,8 +49,7 @@
 #define CON_P3	2
 
 void printBits(size_t const size, void const * const ptr);
-void encode(int value, char* buffer,int index);
+void encode(int value, char* buffer,int index, int mask, int end);
 void decode (char* buffer, int* dest );
-int message_size(char msg);
 
 #endif
