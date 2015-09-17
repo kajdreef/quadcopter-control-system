@@ -25,7 +25,6 @@ int ae[4];
 
 //Variables for profiling
 int isr_controller_time = 0;
-int isr_rx_time = 0;
 
 //Buffer where the message is stored
 char message[3*sizeof(JS_mes)/sizeof(JS_mes[0])] = {0};
@@ -80,7 +79,7 @@ int main(void)
 
 #ifdef VERBOSE_JS
 			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d, mode: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW], JS_mes[JS_MODE]);
-			printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
+		//	printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
 #endif
 							
 			MESSAGE_FLAG = FALSE;

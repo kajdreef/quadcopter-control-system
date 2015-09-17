@@ -6,6 +6,8 @@
 #include <errno.h>
 #include <time.h>
 
+#define CONTINUOUS 1
+//#define SINGLE_MESSAGE
 #define JOYSTICK 0
 #define SEND_MESSAGE_PRINT 0
 
@@ -49,7 +51,7 @@ int main (void) {
 	extern int i;
 
 
-	#if JOYSTICK
+if(CONTINUOUS){
 	/************************************************************
 	*	Get Joystick input and send it to the QR
 	*************************************************************/
@@ -72,18 +74,21 @@ int main (void) {
 		clock_gettime(CLOCK_MONOTONIC, &startTime);
 		start = startTime.tv_sec*NANO + startTime.tv_nsec;
 
+#if JOYSTICK 
 		//open and configure the joystick
 		js_fd = configure_joystick();
-
+#endif 
 		int loopRate = 0;
 
 		// Loop that runs on 50 Hz
-		while (1) {
+		while (1) 
+		{
 			clock_gettime(CLOCK_MONOTONIC, &currentTime);
 			current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
 
-			// If 20 ms (50 Hz) has passed then run.
-			if( current - start > 20000000L){
+			// If 40 ms (25 Hz) has passed then run.
+			if( current - start > 40000000L)
+			{
 				// Get start time of
 				clock_gettime(CLOCK_MONOTONIC, &startTime);
 				start = startTime.tv_sec*NANO + startTime.tv_nsec;
@@ -92,12 +97,14 @@ int main (void) {
 
 				// simulate work
 				t = mon_time_ms();
-
+#if JOYSTICK
 				//read out the joystick values
-				if(read_joystick(js_fd, &js, axis, button) == 1){
+				if(read_joystick(js_fd, &js, axis, button) == 1)
+				{
 
 					// if fire button is pressed then application shutsdown
-					if (button[FIRE]){
+					if (button[FIRE])
+					{
 						break;
 					}
 
@@ -113,16 +120,28 @@ int main (void) {
 					// Send data
 					send(msg, sizeof(msg)/sizeof(msg[0]));
 				}
+			
+#else
+					encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
+
+					// Send data
+					send(msg, sizeof(msg)/sizeof(msg[0]));
+
+#endif
 			}
 
-			if(loopRate >= 10){
+			if(loopRate >= 10)
+			{
 				//print the joystick values along with the time
 				print_joystick(axis, button,t);
 				loopRate = 0;
 			}
 		}
-	#else
-	/************************************************************
+
+}
+	
+#ifdef SINGLE_MESSAGE
+/************************************************************
 	*	Send/receive a test message and print it to the screen
 	*************************************************************/
 		// Test message!
@@ -140,7 +159,7 @@ int main (void) {
 		// send message to FPGA
 		send(msg, sizeof(msg));
 
-	#endif
+#endif
 
 	// close communication
 	printf("Closing connection...\n");

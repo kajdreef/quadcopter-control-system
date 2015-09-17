@@ -2,8 +2,6 @@
 
 //#define VERBOSE_COMM
 
-extern int isr_rx_time;
-
 #define FIFO_SIZE 128
 char fifo_buffer[FIFO_SIZE] = {0};
 int rear = 0, front = 0;
@@ -31,7 +29,6 @@ void send_message(char msg[], int length)
 
 void isr_rx_fifo(void){
 
-	int old = X32_clock_us;
 	char data;
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
 	while (X32_rx_status & 0x02) {
@@ -43,7 +40,6 @@ void isr_rx_fifo(void){
 	}
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
-	 isr_rx_time = X32_clock_us - old;
 }
 
 
