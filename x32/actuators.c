@@ -46,10 +46,10 @@ void set_actuators(int *ae){
 		}
 	}
 	
-	//peripherals[PERIPHERAL_XUFO_A0] = ae[0];
-	//peripherals[PERIPHERAL_XUFO_A1] = ae[1];
-	//peripherals[PERIPHERAL_XUFO_A2] = ae[2];
-	//peripherals[PERIPHERAL_XUFO_A3] = ae[3];
+	peripherals[PERIPHERAL_XUFO_A0] = ae[0];
+	peripherals[PERIPHERAL_XUFO_A1] = ae[1];
+	peripherals[PERIPHERAL_XUFO_A2] = ae[2];
+	peripherals[PERIPHERAL_XUFO_A3] = ae[3];
 
 #ifdef VERBOSE_ACTUATORS
 	printf("ae[0] = %d, ae[1] = %d, ae[2] = %d, ae[3] = %d\r\n", ae[0], ae[1],ae[2],ae[3]);

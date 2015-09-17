@@ -1,11 +1,6 @@
 #ifndef _messages_h
 #define _messages_h
 
-#include <x32.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #define END_CHAR 'Z'
 //start chars:
 #define DAQ_CHAR 'a' 
