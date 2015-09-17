@@ -42,12 +42,11 @@ enum QR mode = SAFE;
 int panic_time = 0;
 
 int main(void) 
-{	
-	int i;
-	
+{		
 	/*
 		Setup the QR
 	*/
+	
 #ifdef MESSAGE_INTERRUPT
 	setup_uart_interrupts(9);
 #endif 
@@ -63,6 +62,8 @@ int main(void)
 */
 	while (1){
 		
+		status_led();		
+	
 		supervisor_check_panic(&mode);		
 		
 		if(is_char_available())
@@ -92,4 +93,22 @@ int main(void)
 
 	return 0;
 }
+
+/*------------------------------------------------------------------
+ * status_led -- Toggle the led showing that the x32 is running every second
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void status_led(void){
+	
+	static int prev = 0;		
+
+	if(X32_clock_us - prev > 1000000)
+	{	
+		X32_leds ^= 1;
+		prev = X32_clock_us;
+	}
+
+}
+
 

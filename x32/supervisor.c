@@ -55,6 +55,11 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 
 }
 
+/*------------------------------------------------------------------
+ * supervisor_check_panic --  Check to see if in panic mode and call the supervisor to possible set safe mode
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void supervisor_check_panic(enum QR *mode){
 
 	if(*mode == PANIC)
