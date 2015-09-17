@@ -40,6 +40,8 @@ char message_type = '0';
 int MESSAGE_FLAG = FALSE;
 enum QR mode = SAFE;
 
+int panic_time = 0;
+
 int main(void) 
 {	
 	int i;
@@ -61,6 +63,8 @@ int main(void)
 	Operation
 */
 	while (1){
+		
+		supervisor_check_panic(&mode);		
 		
 		if(is_char_available())
 		{ 	//Get characters out of the fifo ready for processing			

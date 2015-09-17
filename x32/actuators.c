@@ -27,7 +27,6 @@ void set_actuators(){
 		// Checking for states
 		switch(mode){
 			case SAFE:
-				// is this allowed?
 				ae[i]=0;
 				break;
 

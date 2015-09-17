@@ -1,12 +1,14 @@
 #include "supervisor.h"
 
-#define DEBUG_SUPERVISOR
+//#define DEBUG_SUPERVISOR
+#define PANIC_US 3000000
+
+extern int panic_time;
 /*------------------------------------------------------------------
  * supervisor_received_mode --  Check the received mode and change it if needed
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void supervisor_received_mode(enum QR *mode, int received_mode)
 {
 	static int received_mode_prev = 0;
@@ -53,6 +55,17 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 
 }
 
+void supervisor_check_panic(enum QR *mode){
+
+	if(*mode == PANIC)
+	{
+
+		supervisor_set_mode(mode, SAFE);
+		
+	}
+
+}
+
 /*------------------------------------------------------------------
  * supervisor_set_mode -- Change modes and enforce conditions for chaning modes.
  * Author: Bastiaan Oosterhuis
@@ -65,8 +78,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			/*
 				Only allowed to execute everything below if if RPM = 0 and if LIFT/ROLL/PITCH/YAW are neutral 
 			*/
-			if(1){
-			//if statement for checking RPM=0 etc.
+			//SAFE mode has 0 RPM per definition enforced by the actuators
 				if(new_mode == YAW_CONTROL)
 				{
 					;
@@ -79,13 +91,22 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				{
 					*mode = new_mode;
 				}			
-			}
+			
 			break;
 		
 		case PANIC:
-			if(new_mode == SAFE)
+#ifdef DEBUG_SUPERVISOR
+			printf("Panic mode time %d:\r\n", X32_clock_us-panic_time);
+			printf("new mode: %d\r\n", new_mode);	
+			printf("PANIC_US: %d\r\n", PANIC_US);
+			printf("panic time %d \r\n", panic_time);			
+			
+#endif		
+
+			if(new_mode == SAFE && panic_time !=0 && (X32_clock_us - panic_time > PANIC_US))
 			{
 				*mode = new_mode;
+				panic_time = 0;
 			}
 			break;
 		
@@ -116,6 +137,11 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 
 		default:
 		*mode = PANIC;
+	}
+
+	if(new_mode == PANIC)
+	{
+		panic_time = X32_clock_us;
 	}
    	X32_leds &= 7;
 	X32_leds |= (*mode+1) << 3;	 
