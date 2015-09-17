@@ -1,6 +1,6 @@
 #include "communication.h"
 
-#define VERBOSE_COMM
+//#define VERBOSE_COMM
 
 extern int isr_rx_time;
 #define FIFO_SIZE 512
