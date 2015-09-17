@@ -17,7 +17,6 @@
 #define END			(3<<6)
 #define MASK 		0x3F 
 
-
 #define END_CHAR 'Z'
 //start chars:
 #define DAQ_CHAR 'a' 

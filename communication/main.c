@@ -5,7 +5,7 @@
 
 #define MASK 0x3F
 
-#define OUTPUT_ENCODE 0
+#define OUTPUT_ENCODE 1
 
 int DAQ_mes[8];
 int ERR_mes;
@@ -17,11 +17,11 @@ char output_buffer[15];
 
 int main(void){
 
-	JS_mes[JS_LIFT] = -20;
+	JS_mes[JS_LIFT] = 21;
 	JS_mes[JS_ROLL] = 21;
-	JS_mes[JS_PITCH] = 22;
-	JS_mes[JS_YAW]= -123;
-	JS_mes[JS_MODE] = 24;
+	JS_mes[JS_PITCH] = 21;
+	JS_mes[JS_YAW]= 21;
+	JS_mes[JS_MODE] = 21;
 
 	int message;
 

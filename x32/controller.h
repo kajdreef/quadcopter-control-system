@@ -12,14 +12,16 @@ struct FACT{
 	int f_r;
 };
 
-void manual_lift();
-void manual_yaw();
-void manual_pitch();
-void manual_roll();
-void control_yaw();
-void control_pitch();
-void control_roll();
-void apply_mot_fact();
+typedef struct FACT Factors;
+
+void manual_lift(Factors *F);
+void manual_yaw(Factors *F);
+void manual_pitch(Factors *F);
+void manual_roll(Factors *F);
+void control_yaw(Factors *F);
+void control_pitch(Factors *F);
+void control_roll(Factors *F);
+void apply_mot_fact(Factors *F,int *ae);
 void isr_controller();
 void setup_controller_interrupts(int prio);
 int main();
