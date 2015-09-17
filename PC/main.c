@@ -26,7 +26,7 @@
 int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
-int JS_mes[5] = {10,11,12,13,2};
+int JS_mes[5] = {100,111,112,113,12};
 int CON_mes[3];
 
 char output_buffer[15];

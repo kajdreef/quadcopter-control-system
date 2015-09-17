@@ -13,8 +13,5 @@
 #define TRUE 1
 #define FALSE 0
 
-#define PACKETS_PANIC_THRESHOLD 100
-
-
 
 #endif

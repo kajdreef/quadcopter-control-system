@@ -2,9 +2,13 @@
 
 #define VERBOSE_COMM
 
+#define PACKETS_PANIC_THRESHOLD 100
+
 #define FIFO_SIZE 128
 char fifo_buffer[FIFO_SIZE] = {0};
 int rear = 0, front = 0;
+
+
 /*------------------------------------------------------------------
  * send_message -- send characters from an array
  * Author: Bastiaan Oosterhuis

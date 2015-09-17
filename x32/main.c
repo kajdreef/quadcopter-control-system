@@ -41,6 +41,9 @@ enum QR mode = SAFE;
 
 int panic_time = 0;
 
+void status_led(void);
+void toggle_led(int i);
+
 int main(void) 
 {		
 	/*
@@ -63,7 +66,7 @@ int main(void)
 	while (1){
 		
 		status_led();		
-	
+		
 		supervisor_check_panic(&mode);		
 		
 		if(is_char_available())
@@ -108,7 +111,10 @@ void status_led(void){
 		X32_leds ^= 1;
 		prev = X32_clock_us;
 	}
-
 }
 
+void toggle_led(int i) 
+{
+	X32_leds = (X32_leds ^ (1 << i));
+}
 
