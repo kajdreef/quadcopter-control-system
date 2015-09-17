@@ -90,11 +90,11 @@ int send_char (char c) {
  *------------------------------------------------------------------
  */
 int send (char* msg, int msgSize) {
-	int i = 0;
+	int i = 0, j = 0;
 	for(i = 0; i < msgSize; i++){
 	#if DEBUG_MESSAGES_SEND
-		printf("Send char: ");
-		printBits(sizeof(msg[0]), msg+i);
+		printf("Send char: %x \n", *(msg+i));
+		//printBits(sizeof(msg[0]), msg+i);
 	#endif
 		send_char(*(msg+i));
 	}

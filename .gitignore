@@ -4,6 +4,7 @@
 # Executables
 *.ce
 *.exe
+*.d
 
 # Random files
 *.DS_Store
