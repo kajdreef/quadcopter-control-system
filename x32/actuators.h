@@ -17,6 +17,6 @@
 #define PERIPHERAL_XUFO_A3 PERIPHERAL_DISPLAY
 #endif
 
-void set_actuators();
+void set_actuators(int *ae);
 
 #endif
