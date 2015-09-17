@@ -6,6 +6,7 @@
 #include "communication.h"
 #include "messages.h"
 #include <string.h>
+#include <time.h>
 
 #define FALSE 0
 #define TRUE 1
@@ -14,6 +15,8 @@
 
 #define DEBUG_MESSAGES_SEND 1
 #define DEBUG_MESSAGES_RECEIVE 0
+
+#define NANO 1000000000L
 
 int fd;
 char rMsg[255];
@@ -36,7 +39,7 @@ int rs232_open (void) {
 	}
 
 	// Initialise interrupts
-	initSig(fd);
+	//initSig(fd);
 
 	result = isatty(fd);
 	assert(result == 1);
@@ -91,12 +94,28 @@ int send_char (char c) {
  */
 int send (char* msg, int msgSize) {
 	int i = 0, j = 0;
-	for(i = 0; i < msgSize; i++){
+	int k = 0;
+	long long start = 0, current = 0;
+	struct timespec currentTime;
+	struct timespec startTime;
+
+
+	for(k = 0; k < msgSize; k++){
 	#if DEBUG_MESSAGES_SEND
-		printf("Send char: %x \n", *(msg+i));
-		//printBits(sizeof(msg[0]), msg+i);
+		printf("Send char %d: %x \n",k, *(msg+k));
 	#endif
-		send_char(*(msg+i));
+		clock_gettime(CLOCK_MONOTONIC, &startTime);
+		start = startTime.tv_sec*NANO + startTime.tv_nsec;
+		//printf("start time %lld\n", start);
+		
+		while(current-start < 1000){
+			clock_gettime(CLOCK_MONOTONIC, &currentTime);
+			current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
+			
+		}
+
+		//printf("current time %lld\n", current);
+		send_char(*(msg+k));
 	}
 	return 0;
 }

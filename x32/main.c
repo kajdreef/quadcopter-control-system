@@ -11,7 +11,7 @@
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
-//#define CONTROLLER_INTERRUPT
+#define CONTROLLER_INTERRUPT
 
 //Messages
 int DAQ_mes[8];
@@ -38,13 +38,12 @@ char message_type = '0';
 
 //Flag set when a complete message is received
 int MESSAGE_FLAG = FALSE;
-
 enum QR mode = SAFE;
 
 int main(void) 
 {	
-
-	char c;
+	int i;
+	
 	/*
 		Setup the QR
 	*/
@@ -64,25 +63,25 @@ int main(void)
 	while (1){
 		
 		if(is_char_available())
-		{ 	//Get characters out of the fifo ready for processing
-			c = get_char();
-			detect_message(c);
+		{ 	//Get characters out of the fifo ready for processing			
+			detect_message(get_char());
 		}
 
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
 						
 			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
-		
+				
 			supervisor_received_mode(&mode, JS_mes[JS_MODE]);
 
 #ifdef VERBOSE_JS
-			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW]);
+			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d, mode: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW], JS_mes[JS_MODE]);
+			printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
 #endif
 							
 			MESSAGE_FLAG = FALSE;
 		}
-	//	printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
+		
 	}
 
 	

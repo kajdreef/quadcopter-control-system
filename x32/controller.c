@@ -59,10 +59,10 @@ void isr_controller()
 	int old = X32_clock_us;
 	//simulate 1ms workload
 	int i;
-	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	//DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	
-	for(i = 0; i<130; i++)
-	{;}	
+	//for(i = 0; i<100; i++)
+	//{;}	
 
 	//X32_display = 0x0001;
 	manual_lift();
@@ -97,7 +97,7 @@ void isr_controller()
 	
 	
 	isr_controller_time = X32_clock_us - old;
-	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }
 
 /*------------------------------------------------------------------

@@ -128,11 +128,11 @@ int main (void) {
 		// Test message!
 		char msg[sizeof(JS_mes)/sizeof(JS_mes[0])*3];
 
-		JS_mes[JS_LIFT] = -20;
-		JS_mes[JS_ROLL] = 21;
-		JS_mes[JS_PITCH] = 22;
-		JS_mes[JS_YAW]= -123;
-		JS_mes[JS_MODE] = 24;
+		JS_mes[JS_LIFT] = -1;
+		JS_mes[JS_ROLL] = 200;
+		JS_mes[JS_PITCH] = -3000;
+		JS_mes[JS_YAW]= 20000;
+		JS_mes[JS_MODE] = 1;
 
 		// First encode
 		encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);

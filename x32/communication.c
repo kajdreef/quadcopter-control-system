@@ -3,11 +3,12 @@
 //#define VERBOSE_COMM
 
 extern int isr_rx_time;
-#define FIFO_SIZE 512
+
+#define FIFO_SIZE 128
 char fifo_buffer[FIFO_SIZE] = {0};
 int rear = 0, front = 0;
 /*------------------------------------------------------------------
- * send_message -- send an array of characters
+ * send_message -- send characters from an array
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -31,13 +32,16 @@ void send_message(char msg[], int length)
 void isr_rx_fifo(void){
 
 	int old = X32_clock_us;
+	char data;
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
 	while (X32_rx_status & 0x02) {
-		
-		fifo_buffer[front++] = X32_rx_data;
-		
+		data = X32_rx_data;
+		fifo_buffer[front++] = data;
+			
 		if (front >= FIFO_SIZE)
 			front = 0;
 	}
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	 isr_rx_time = X32_clock_us - old;
 }
@@ -45,7 +49,7 @@ void isr_rx_fifo(void){
 
 
 /*------------------------------------------------------------------
- * isr_char_available -- check if a character is available in the buffer
+ * isr_char_available -- checks if a character is available in the FIFO buffer
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -70,19 +74,20 @@ int is_char_available(void){
 int get_char(void)
 {
 	char c;    
-	
+	int temp = rear;
     c = fifo_buffer[rear++];
-    if(rear >= FIFO_SIZE){
+	if(rear >= FIFO_SIZE){
 		rear = 0;
 	}
 	return c;
 }
 
 /*------------------------------------------------------------------
- * detect_message -- Detect a message
+ * detect_message -- Detect a message by searching for a pattern in the received messages
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
+
 void detect_message(char data){
 
 	static int receive_count = 0;
@@ -94,23 +99,25 @@ void detect_message(char data){
 	X32_display = data;
 #ifdef VERBOSE_COMM
 		printf("received data: 0X%X\r\n",data);
-		printf("message_length: %d \r\n", message_length(data));
-		printf("receive count: %d\r\n", receive_count);
-		printf("prev: 0X%X\r\n",prev);
-		printf("END: 0X%X\r\n", END);
+	//	printf("message_length: %d \r\n", message_length(data));
+		//printf("receive count: %d\r\n", receive_count);
+	//	printf("prev: 0X%X\r\n",prev);
+		//printf("END: 0X%X\r\n", END);
 #endif	
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
 #ifdef VERBOSE_COMM
-		printf("Synchronization\r\n");
+	//	printf("Synchronization\r\n");
 #endif
 		sync = 1; //We now have synched with a message
+		message[receive_count] = data;		
 		receive_count++;
 		message_type = data & END;
+		
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1)
 	{	//place data in message array
-		message[receive_count - 1] = data;
+		message[receive_count] = data;
 		receive_count++; 	
 	}		
 	else
@@ -129,10 +136,12 @@ void detect_message(char data){
 		}
 		else
 		{	//successful receival of a message
+			message[receive_count] = data;
 			MESSAGE_FLAG = TRUE;
 			lost_packets = 0;
+			
 #ifdef VERBOSE_COMM
-			printf("Message type %c received successfully\r\n", message_type);
+			//printf("Message type %c received successfully\r\n", message_type);
 #endif
 		}
 		receive_count = 0;			
