@@ -26,7 +26,7 @@
 int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
-int JS_mes[5];
+int JS_mes[5] = {10,11,12,13,2};
 int CON_mes[3];
 
 char output_buffer[15];
@@ -86,9 +86,9 @@ if(CONTINUOUS){
 			clock_gettime(CLOCK_MONOTONIC, &currentTime);
 			current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
 
-			// If 40 ms (25 Hz) has passed then run.
+			// If 40 ms (25 Hz) has passed then run.40000000L
 			if( current - start > 40000000L)
-			{
+			{					  
 				// Get start time of
 				clock_gettime(CLOCK_MONOTONIC, &startTime);
 				start = startTime.tv_sec*NANO + startTime.tv_nsec;
@@ -105,7 +105,8 @@ if(CONTINUOUS){
 					// if fire button is pressed then application shutsdown
 					if (button[FIRE])
 					{
-						break;
+						mode = 0;
+						//break;
 					}
 
 					// Put data from joystick into a message

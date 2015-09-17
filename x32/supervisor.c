@@ -21,7 +21,7 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 	printf("Check flag: %d\r\n", check_flag);
 #endif	
 
-	if(received_mode <= 5 && received_mode >= 0){
+	if(received_mode <= 5 && received_mode >= 0 && *mode != PANIC){
 	//range is valid
 		
 		if(received_mode != *mode )
@@ -98,7 +98,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 #ifdef DEBUG_SUPERVISOR
 			printf("Panic mode time %d:\r\n", X32_clock_us-panic_time);
 			printf("new mode: %d\r\n", new_mode);	
-			printf("PANIC_US: %d\r\n", PANIC_US);
 			printf("panic time %d \r\n", panic_time);			
 			
 #endif		
@@ -118,6 +117,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			if(new_mode == SAFE)
 			{//panic will switch to safe automatically
 				*mode = PANIC;
+				new_mode = PANIC;
 			}
 			break;
 
@@ -136,6 +136,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			if(new_mode == SAFE)
 			{
 				*mode = PANIC;
+				new_mode = PANIC;
 			};
 			break;
 
@@ -147,6 +148,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			if(new_mode == SAFE)
 			{//panic will switch to safe automatically
 				*mode = PANIC;
+				new_mode = PANIC;
 			}
 			break;
 
@@ -154,7 +156,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		*mode = PANIC;
 	}
 
-	if(new_mode == PANIC)
+	if(new_mode == PANIC )
 	{
 		panic_time = X32_clock_us;
 	}

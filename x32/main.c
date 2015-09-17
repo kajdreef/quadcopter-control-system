@@ -57,7 +57,7 @@ int main(void)
 
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	supervisor_set_mode(&mode, MANUAL);
+	supervisor_set_mode(&mode, SAFE);
  /*
 	Operation
 */
@@ -78,8 +78,8 @@ int main(void)
 			supervisor_received_mode(&mode, JS_mes[JS_MODE]);
 
 #ifdef VERBOSE_JS
-			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d, mode: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW], JS_mes[JS_MODE]);
-		//	printf("rx time: %d  contr time: %d\r\n", isr_rx_time, isr_controller_time);
+			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d, received mode: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW], JS_mes[JS_MODE]);
+		printf("contr time: %d\r\n", isr_controller_time);
 #endif
 							
 			MESSAGE_FLAG = FALSE;

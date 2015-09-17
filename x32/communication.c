@@ -1,6 +1,6 @@
 #include "communication.h"
 
-//#define VERBOSE_COMM
+#define VERBOSE_COMM
 
 #define FIFO_SIZE 128
 char fifo_buffer[FIFO_SIZE] = {0};
@@ -94,7 +94,7 @@ void detect_message(char data){
 	
 	X32_display = data;
 #ifdef VERBOSE_COMM
-		printf("received data: 0X%X\r\n",data);
+	//	printf("received data: 0X%X\r\n",data);
 	//	printf("message_length: %d \r\n", message_length(data));
 		//printf("receive count: %d\r\n", receive_count);
 	//	printf("prev: 0X%X\r\n",prev);
