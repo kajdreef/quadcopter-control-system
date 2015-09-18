@@ -16,6 +16,7 @@ extern enum QR mode;
 
 
 void manual_lift(Factors *F){
+	
 	F->f_l = INT_TO_FIXED((-1*JS_mes[JS_LIFT]+0x00007FFF)/64);	//Max 1023 0x03FF
 }
 
@@ -44,10 +45,10 @@ void control_roll(Factors *F){
 }
 
 void apply_mot_fact(Factors *F,int *ae){
-	ae[0] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y + F->f_p)) );
-	ae[1] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y + F->f_r)) );
-	ae[2] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y - F->f_p)) );
-	ae[3] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y - F->f_r)) );
+	ae[0] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y + F->f_p)) );
+	ae[1] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y - F->f_r)) );
+	ae[2] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y - F->f_p)) );
+	ae[3] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y + F->f_r)) );
 
 	// Data aqcuisition:
 	//memcpy(DAQ_mes.ae,ae,sizeof(ae));
@@ -55,7 +56,7 @@ void apply_mot_fact(Factors *F,int *ae){
 
 void isr_controller()
 {	
-	static Factors F;
+	static Factors F={0,0,0,0};
 	static int ae[4] = {0,0,0,0};
 
 	int old = X32_clock_us;

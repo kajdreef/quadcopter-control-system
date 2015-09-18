@@ -1,9 +1,10 @@
 #include "supervisor.h"
-
+#include "messages.h"
 //#define DEBUG_SUPERVISOR
 #define PANIC_US 3000000
 
 extern int panic_time;
+extern int JS_mes[];
 /*------------------------------------------------------------------
  * supervisor_received_mode --  Check the received mode and change it if needed
  * Author: Bastiaan Oosterhuis
@@ -93,7 +94,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					;			
 				}
 				else if(new_mode == MANUAL)
-				{
+				{  JS_mes[JS_LIFT] = 32767;
 					*mode = new_mode;
 				}			
 			

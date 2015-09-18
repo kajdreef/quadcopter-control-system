@@ -49,7 +49,8 @@ int main(void)
 	/*
 		Setup the QR
 	*/
-	
+JS_mes[JS_LIFT] = 32767;	
+
 #ifdef MESSAGE_INTERRUPT
 	setup_uart_interrupts(9);
 #endif 
