@@ -96,7 +96,7 @@ void detect_message(char data){
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
 	
-	X32_display = data;
+	//X32_display = data;
 #ifdef VERBOSE_COMM
 	//	printf("received data: 0X%X\r\n",data);
 	//	printf("message_length: %d \r\n", message_length(data));

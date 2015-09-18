@@ -35,17 +35,17 @@ int configure_joystick(void){
  *------------------------------------------------------------------
  */
 
-int read_joystick(int fd, struct js_event *js, int *axis, int *button){
-
-	while (read(fd, js, sizeof(struct js_event)) == sizeof(struct js_event))
+int read_joystick(int jfd, struct js_event *js, int axis[], int button[]){
+	//printf("read_joystick %d \n", jfd);
+	while (read(jfd, js, sizeof(struct js_event)) == sizeof(struct js_event))
 	{
 		switch(js->type & ~JS_EVENT_INIT) 
 		{
 			case JS_EVENT_BUTTON:
-				*(button + js->number) = js->value;
+				button[js->number] = js->value;
 				break;
 			case JS_EVENT_AXIS:
-				*(axis + js->number) = js->value;
+				axis[js->number] = js->value;
 				break;
 		}
 	}

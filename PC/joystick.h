@@ -144,7 +144,7 @@ struct JS_DATA_SAVE_TYPE {
 /*
  Functions prototypes
 */
-int read_joystick(int fd, struct js_event *js, int *axis, int *button);
+int read_joystick(int fd, struct js_event *js, int axis[], int button[]);
 void print_joystick(int *axis, int *button, int t);
 unsigned int    mon_time_ms(void);
 void    mon_delay_ms(unsigned int ms);

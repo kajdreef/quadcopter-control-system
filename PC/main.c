@@ -8,7 +8,7 @@
 
 #define CONTINUOUS 1
 //#define SINGLE_MESSAGE
-#define JOYSTICK 0
+#define JOYSTICK 1
 #define SEND_MESSAGE_PRINT 0
 
 #include "communication.h"
@@ -26,11 +26,12 @@
 int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
-int JS_mes[5] = {100,111,112,113,12};
+int JS_mes[5] = {100,111,112,113,0};
 int CON_mes[3];
 
-char output_buffer[15];
-
+//char output_buffer[15];
+char msg[15];//sizeof(JS_mes)/sizeof(JS_mes[0])*3];
+extern char rMsg[sizeof(JS_mes)];
 /*------------------------------------------------------------------
  *	Main function of the pc application
  *	Author: Kaj Dreef
@@ -41,36 +42,35 @@ int main (void) {
 	printf("Opening connection... \n");
 
 	int fd = rs232_open();
+	
 	if (fd == -1) {
 		printf("Failed to open port!\n");
 		return -1;
 	}
 
 	// Place the received message here
-	extern char rMsg[sizeof(JS_mes)];
-	extern int i;
+//	extern int i;
+	
+	int	axis[6];
+	int	button[12];
+	int js_fd;
+	int mode = 0;
+	struct js_event js;
+	struct js_event *js_ptr = &js;
+	unsigned int t;
 
+	// Timer for 50 hz
+	struct timespec currentTime;
+	struct timespec startTime;
+
+	long long start, current;
 
 if(CONTINUOUS){
 	/************************************************************
 	*	Get Joystick input and send it to the QR
 	*************************************************************/
 		//current axis and button readings
-		int	axis[6];
-		int	button[12];
-		int js_fd;
-		int mode = 0;
-		struct js_event js;
-		struct js_event *js_ptr = &js;
-		unsigned int t;
-
-		char msg[sizeof(JS_mes)/sizeof(JS_mes[0])*3];
-
-		// Timer for 50 hz
-		struct timespec currentTime;
-		struct timespec startTime;
-
-		long long start, current;
+	
 		clock_gettime(CLOCK_MONOTONIC, &startTime);
 		start = startTime.tv_sec*NANO + startTime.tv_nsec;
 
@@ -99,13 +99,18 @@ if(CONTINUOUS){
 				t = mon_time_ms();
 #if JOYSTICK
 				//read out the joystick values
-				if(read_joystick(js_fd, &js, axis, button) == 1)
+				if(read_joystick(js_fd, js_ptr,axis, button))
 				{
-
+									
 					// if fire button is pressed then application shutsdown
 					if (button[FIRE])
 					{
 						mode = 0;
+						//break;
+					}
+					if (button[10])
+					{
+						mode = 2;
 						//break;
 					}
 
@@ -116,11 +121,12 @@ if(CONTINUOUS){
 					JS_mes[JS_YAW] = *(axis + YAW);
 					JS_mes[JS_MODE]  = mode;
 
-					encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
+					encode_message(JS_MASK, 5, JS_mes, msg);
 
 					// Send data
-					send(msg, sizeof(msg)/sizeof(msg[0]));
+					send(msg, 15);//sizeof(msg)/sizeof(msg[0]));
 				}
+			
 			
 #else
 					encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);

@@ -43,7 +43,7 @@ void encode_message(int mask, int message_length, int *input, char *output_buffe
 
 	int i;	
 	int j;
-	for(i = 0; i < message_length-1; i++, j += 3){
+	for(i = 0,j = 0; i < message_length-1; i++, j += 3){
 		encode(input[i], output_buffer, j, mask,0);
 	}
 	encode(input[i], output_buffer, j, mask,1);

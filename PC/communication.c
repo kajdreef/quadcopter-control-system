@@ -20,7 +20,7 @@
 
 int fd;
 char rMsg[255];
-int i = 0;
+//int i = 0;
 extern int DAQ_mes[8];
 
 /*------------------------------------------------------------------
@@ -129,7 +129,9 @@ int send (char* msg, int msgSize) {
 int receive () {
 	char buf[255];
 	int j = 0;
-
+////////////////////////////////////
+	int i;
+///////////////////////////////////
 	int res = read(fd,buf,255);
 
 	#if DEBUG_MESSAGES_RECEIVE
