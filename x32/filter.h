@@ -22,8 +22,8 @@ struct Filt_param {
 
 typedef struct Filt_param Filt_Param;
 
-Filt_Param Filt_phi = { 0, 0, 0, 0, 0, 9999, -9999};
-Filt_Param Filt_thet ={ 0, 0, 0, 0, 0, 9999, -9999};
+Filt_Param Filt_phi = { 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0};
+Filt_Param Filt_thet ={ 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0};
 
 
 # define X32_QR_S0 peripherals[PERIPHERAL_XUFO_S0]		// roll

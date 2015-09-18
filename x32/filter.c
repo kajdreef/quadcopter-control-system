@@ -23,7 +23,7 @@ int BF_2nd(int x,int *xy, Filt_Param *Filt){
 	//Shift the y values and calculate the new value for y(n)
 	xy[5] = xy[4];
 	xy[4] = xy[3];
-	xy[3] = MULT_FIXED(Filt->a0,xy[0]) + MULT_FIXED(Filt->a1,xy[1]) + MULT_FIXED(Filt->a2,xy[2]) + MULT_FIXED(Filt->b1,xy[4]) + MULT_FIXED(Filt->b2,xy[5]);
+	xy[3] = MULT_FIXED(Filt->a0,xy[0]) + MULT_FIXED(Filt->a1,xy[1]) + MULT_FIXED(Filt->a2,xy[2]) - MULT_FIXED(Filt->b1,xy[4]) - MULT_FIXED(Filt->b2,xy[5]);
 
 	return xy[3];
 }
