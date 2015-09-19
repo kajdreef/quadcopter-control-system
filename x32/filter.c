@@ -77,7 +77,7 @@ void isr_sensor(){
 	phi = rem_absurd_val( INT_TO_FIXED(X32_QR_S0) ,xy_phi[0],&Filt_phi);
 	thet = rem_absurd_val( INT_TO_FIXED(X32_QR_S1) ,xy_thet[0],&Filt_thet);
 	p = rem_absurd_val( INT_TO_FIXED(X32_QR_S3) ,prev_x_p,&Filt_phi); // NOT COMPLETE!! Filter params
-	q = rem_absurd_val( INT_TO_FIXED(X32_QR_S4) ,prev_x_q),&Filt_phi; // NOT COMPLETE!! Filter params
+	q = rem_absurd_val( INT_TO_FIXED(X32_QR_S4) ,prev_x_q,&Filt_phi); // NOT COMPLETE!! Filter params
 	r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_phi); // NOT COMPLETE!! Filter params
 
 	// Filter the accelerometer values
@@ -85,7 +85,7 @@ void isr_sensor(){
 	thet = BF_2nd(thet,xy_thet,&Filt_thet);
 
 	// Anti-drift the gyro values
-
+	
 
 	// Kalman filter OWYEAH
 	kalman(phi,p, &phi_bias,&filtered_phi,&filtered_p,&Filt_phi);

@@ -94,7 +94,8 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					;			
 				}
 				else if(new_mode == MANUAL)
-				{  JS_mes[JS_LIFT] = 32767;
+				{  
+					//JS_mes[JS_LIFT] = 32767;		// Set minimum lift, probably not needed anymore!
 					*mode = new_mode;
 				}			
 			

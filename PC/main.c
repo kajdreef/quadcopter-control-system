@@ -26,7 +26,7 @@
 int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
-int JS_mes[5] = {100,111,112,113,0};
+int JS_mes[5] = {32767,0,0,0,0}; 		// Initialize with lift at minimum
 int CON_mes[3];
 
 //char output_buffer[15];
@@ -51,7 +51,7 @@ int main (void) {
 	// Place the received message here
 //	extern int i;
 	
-	int	axis[6];
+	int	axis[6] = {0,0,0,32767,0,0};		// Initialize with lift at minimum
 	int	button[12];
 	int js_fd;
 	int mode = 0;

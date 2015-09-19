@@ -28,7 +28,8 @@ void set_actuators(int *ae){
 				break;
 
 			case PANIC:
-				ae[i] = 0x00000100;
+				if(ae[i] != 0)
+					ae[i] = 0x00000100;
 				break;
 
 			case CALIBRATION:
@@ -37,10 +38,10 @@ void set_actuators(int *ae){
 				break;
 
 			default:
-				if(ae[i]<0x00000000)
-					ae[i]=0x00000000;
-				else if(ae[i]>0x000001ff)
-					ae[i]=0x000001ff;
+				if(ae[i]<0x00000100 & ae[i] != 0)
+					ae[i]=0x00000100;
+				else if(ae[i]>0x000003ff)
+					ae[i]=0x000003ff;
 				break;
 		}
 	}
