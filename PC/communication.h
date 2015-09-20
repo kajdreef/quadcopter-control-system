@@ -14,12 +14,9 @@ int rs232_open (void);
 int send_char (char c);
 int send (char* msg, int msgSize);
 int receive ();
-void initSig(int fd);
-int getWaitFlag ();
-void decWaitFlag ();
 void received_new_IO (int status);
+void initSig(void);
+void enable_interrupts(void);
+void disable_interrupts(void);
 
-
-
-// https://en.wikibooks.org/wiki/Serial_Programming/termios
-// ftp://sunsite.unc.edu/pub/Linux/docs/HOWTO/Serial-Programming-HOWTO
+void clear_rMsg();
