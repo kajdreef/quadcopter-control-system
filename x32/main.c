@@ -13,6 +13,8 @@
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
 
+#define MESSAGE_TIME_THRESHOLD 200000 //in microseconds
+
 //Messages
 int DAQ_mes[8];
 int ERR_mes;
@@ -22,9 +24,6 @@ int CON_mes[3];
 
 //actuator values
 int ae[4];
-
-//Variables for profiling
-int isr_controller_time = 0;
 
 //Buffer where the message is stored
 char message[3*sizeof(JS_mes)/sizeof(JS_mes[0])] = {0};
@@ -37,19 +36,30 @@ char message_type = '0';
 
 //Flag set when a complete message is received
 int MESSAGE_FLAG = FALSE;
+
+//QR initial state
 enum QR mode = SAFE;
 
+//For counting the time in panic mode
 int panic_time = 0;
+
+//Variables for profiling
+int isr_controller_time = 0;
 
 void status_led(void);
 void toggle_led(int i);
+void pc_link_led(int status);
 
 int main(void) 
 {		
-	/*
-		Setup the QR
-	*/
-JS_mes[JS_LIFT] = 32767;	
+	//Time of the last received complete message
+	int last_message_time = 0;
+	
+	//To indicate whether there has been communication yet
+	int com_started = 0;
+
+	//default value corresponding to 0 lift
+	JS_mes[JS_LIFT] = 32767;	
 
 #ifdef MESSAGE_INTERRUPT
 	setup_uart_interrupts(9);
@@ -70,17 +80,37 @@ JS_mes[JS_LIFT] = 32767;
 		
 		supervisor_check_panic(&mode);		
 		
-		if(is_char_available())
-		{ 	//Get characters out of the fifo ready for processing			
+		if(!check_pc_link(last_message_time, com_started))
+		{//Too long since last received message	
+			if(mode != PANIC)
+			{
+				supervisor_set_mode(&mode, PANIC);
+				pc_link_led(0);
+			}
+		}	
+	
+		while(is_char_available())
+		{//Get characters out of the fifo ready for processing			
+		
 			detect_message(get_char());
+						
 		}
 
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
-						
+			last_message_time = X32_clock_us;
+			
+			//Decode the message						
 			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
 				
+			//Check if the mode needs to be switched
 			supervisor_received_mode(&mode, JS_mes[JS_MODE]);
+
+			if(com_started == 0)
+			{
+				com_started = 1;
+			}
+			pc_link_led(1);
 
 #ifdef VERBOSE_JS
 			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d, received mode: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW], JS_mes[JS_MODE]);
@@ -98,6 +128,34 @@ JS_mes[JS_LIFT] = 32767;
 	return 0;
 }
 
+int check_pc_link(int last_message_time, int com_started){
+
+	if(com_started == 1)
+	{
+		if(X32_clock_us - last_message_time > MESSAGE_TIME_THRESHOLD)
+		{
+			return 0;
+		}
+		else 
+		{
+			return 1;
+		}
+	}
+	else
+	{
+		return 1;
+	}
+
+
+}
+
+void pc_link_led(int status){
+
+	
+		X32_leds = (X32_leds & 253) | status << 1;
+	
+}
+
 /*------------------------------------------------------------------
  * status_led -- Toggle the led showing that the x32 is running every second
  * Author: Bastiaan Oosterhuis
@@ -109,7 +167,8 @@ void status_led(void){
 
 	if(X32_clock_us - prev > 1000000)
 	{	
-		X32_leds ^= 1;
+		//X32_leds ^= 1;
+		toggle_led(0);		
 		prev = X32_clock_us;
 	}
 }
@@ -118,4 +177,6 @@ void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
 }
+
+
 

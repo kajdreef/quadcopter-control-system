@@ -16,6 +16,6 @@ enum QR{
 
 void supervisor_set_mode(enum QR *mode, enum QR new_mode);
 void supervisor_received_mode(enum QR *mode, int received_mode);
-
+void supervisor_check_panic(enum QR *mode);
 #endif
 

@@ -2,9 +2,10 @@
 
 #define VERBOSE_COMM
 
-#define PACKETS_PANIC_THRESHOLD 100
+#define PACKETS_PANIC_THRESHOLD 75
 
 #define FIFO_SIZE 128
+
 char fifo_buffer[FIFO_SIZE] = {0};
 int rear = 0, front = 0;
 
@@ -84,6 +85,8 @@ int get_char(void)
 
 /*------------------------------------------------------------------
  * detect_message -- Detect a message by searching for a pattern in the received messages
+ * Returns the status of the PC link. If too many packages losses the system will switch to panic mode
+ * 
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -95,7 +98,7 @@ void detect_message(char data){
  	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
-	
+
 	//X32_display = data;
 #ifdef VERBOSE_COMM
 	//	printf("received data: 0X%X\r\n",data);
@@ -125,6 +128,7 @@ void detect_message(char data){
 		if(( (data&END)!= END && sync != 0) | receive_count == 0){
 			//Error
 			lost_packets++;
+			
 #ifdef VERBOSE_COMM
 			printf("lost package(%d)\r\n", lost_packets);
 #endif
@@ -132,6 +136,7 @@ void detect_message(char data){
 			//too much packets lost, set panic mode
 				supervisor_set_mode(&mode, PANIC);		
 				lost_packets = 0;
+				
 			}		
 		}
 		else
@@ -148,7 +153,8 @@ void detect_message(char data){
 	}
 	
 	prev = data&END;
-    
+
+   
 }
 
 

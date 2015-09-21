@@ -8,7 +8,7 @@
 
 #define CONTINUOUS 1
 //#define SINGLE_MESSAGE
-#define JOYSTICK 1
+#define JOYSTICK 0
 #define SEND_MESSAGE_PRINT 0
 
 #include "communication.h"
@@ -26,7 +26,7 @@
 int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
-int JS_mes[5] = {32767,0,0,0,0}; 		// Initialize with lift at minimum
+int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
 int CON_mes[3];
 
 //char output_buffer[15];

@@ -1,7 +1,12 @@
 #include "supervisor.h"
 #include "messages.h"
 //#define DEBUG_SUPERVISOR
-#define PANIC_US 3000000
+#define PANIC_US 2000000 //microseconds
+
+#define NEUTRAL_LIFT	32767
+#define NEUTRAL_ROLL	0	
+#define NEUTRAL_PITCH	0
+#define NEUTRAL_YAW		0
 
 extern int panic_time;
 extern int JS_mes[];
@@ -79,11 +84,14 @@ void supervisor_check_panic(enum QR *mode){
  */
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+
 	switch(*mode){
 		case SAFE:
 			/*
 				Only allowed to execute everything below if if RPM = 0 and if LIFT/ROLL/PITCH/YAW are neutral 
 			*/
+
+			if(neutral_input()){
 			//SAFE mode has 0 RPM per definition enforced by the actuators
 				if(new_mode == YAW_CONTROL)
 				{
@@ -98,15 +106,15 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					//JS_mes[JS_LIFT] = 32767;		// Set minimum lift, probably not needed anymore!
 					*mode = new_mode;
 				}			
-			
+			}
 			break;
-		
+	
 		case PANIC:
 #ifdef DEBUG_SUPERVISOR
 			printf("Panic mode time %d:\r\n", X32_clock_us-panic_time);
 			printf("new mode: %d\r\n", new_mode);	
 			printf("panic time %d \r\n", panic_time);			
-			
+		
 #endif		
 
 			if(new_mode == SAFE && panic_time !=0 && (X32_clock_us - panic_time > PANIC_US))
@@ -115,7 +123,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				panic_time = 0;
 			}
 			break;
-		
+	
 		case MANUAL:
 			if(new_mode == PANIC)
 			{
@@ -169,7 +177,28 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	}
    	X32_leds &= 7;
 	X32_leds |= (*mode+1) << 3;	 
+
+	
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+}
+
+
+/*------------------------------------------------------------------
+ * neutral_input --  Function to check if the received inputs are neutral
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int neutral_input(void)
+{
+	if(JS_mes[JS_LIFT] == NEUTRAL_LIFT && JS_mes[JS_ROLL] == NEUTRAL_ROLL && JS_mes[JS_PITCH] == NEUTRAL_PITCH && JS_mes[JS_YAW] == NEUTRAL_YAW)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+
 }
 
 
