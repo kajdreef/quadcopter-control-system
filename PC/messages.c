@@ -108,4 +108,20 @@ void decode (char* input, int msg_length, int* dest ){
 	}
 }
 
+/*------------------------------------------------------------------
+ *	message_length() -- Returns the length in bytes of the message type
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+int message_length(char msg) {
+	
+	switch(msg & 11000000){
+		case DAQ_MASK:
+			return sizeof(DAQ_mes)/sizeof(DAQ_mes[0])*3;
+		case ERR_MASK:
+		case DEB_MASK:
+		default:
+			return -1;
+	}
+}
 

@@ -20,8 +20,11 @@
 
 int fd;
 char rMsg[255];
-//int i = 0;
+int messagePointer = 0;
+int MESSAGE_LENGTH = 0;
+
 extern int DAQ_mes[8];
+struct sigaction saio;           /* definition of signal action */
 
 /*------------------------------------------------------------------
  *	rs232_open -- setup connection
@@ -39,7 +42,8 @@ int rs232_open (void) {
 	}
 
 	// Initialise interrupts
-	//initSig(fd);
+	//initSig();
+	//enable_interrupts(fd);
 
 	result = isatty(fd);
 	assert(result == 1);
@@ -93,12 +97,12 @@ int send_char (char c) {
  *------------------------------------------------------------------
  */
 int send (char* msg, int msgSize) {
-	int i = 0, j = 0;
-	int k = 0;
+	int k = 0, j = 0;
 	long long start = 0, current = 0;
 	struct timespec currentTime;
 	struct timespec startTime;
 
+	disable_interrupts();
 
 	for(k = 0; k < msgSize; k++){
 	#if DEBUG_MESSAGES_SEND
@@ -106,7 +110,6 @@ int send (char* msg, int msgSize) {
 	#endif
 		clock_gettime(CLOCK_MONOTONIC, &startTime);
 		start = startTime.tv_sec*NANO + startTime.tv_nsec;
-		//printf("start time %lld\n", start);
 		
 		while(current-start < 1000){
 			clock_gettime(CLOCK_MONOTONIC, &currentTime);
@@ -114,9 +117,11 @@ int send (char* msg, int msgSize) {
 			
 		}
 
-		//printf("current time %lld\n", current);
 		send_char(*(msg+k));
 	}
+	
+	enable_interrupts();
+
 	return 0;
 }
 
@@ -129,43 +134,66 @@ int send (char* msg, int msgSize) {
 int receive () {
 	char buf[255];
 	int j = 0;
-////////////////////////////////////
-	int i;
-///////////////////////////////////
 	int res = read(fd,buf,255);
+	static int error_flag = 0;
 
 	#if DEBUG_MESSAGES_RECEIVE
 		printf("Received Message: Bytes=%d, \t", res);
 	#endif
 
+	MESSAGE_LENGTH = message_length(rMsg[0]);
+
+	// Read the buffer out and place it in the message
 	for(j = 0; j < res; j++){
-		rMsg[i] = buf[j];
+
+		// Check if message is full
+		if(messagePointer == MESSAGE_LENGTH - 1){
+			// Check if the char is of type END
+			if ((rMsg[MESSAGE_LENGTH - 1] & 11000000) == END){
+				decode (rMsg, MESSAGE_LENGTH/3, DAQ_mes);
+				clear_rMsg();
+			}
+			else {	// if not Error
+				error_flag = 1;
+				clear_rMsg();
+			}
+		}
+
+		// If error wait till next End message comes along
+		if(error_flag == 1){
+			if((buf[j] & 11000000) == END){
+				error_flag = 0;
+			}
+		}
+		else {
+			rMsg[messagePointer] = buf[j];
+		}
 		#if DEBUG_MESSAGES_RECEIVE
-			printf("%i ", rMsg[i]);
+			printf("%i ", rMsg[messagePointer]);
 		#endif
-		i++;
+		messagePointer++;
 	}
 	#if DEBUG_MESSAGES_RECEIVE
 		printf("\n");
 	#endif
 
-	int rLength = sizeof(DAQ_mes);
-	if(i == rLength){		// check if message has been received.
-
-		#if DEBUG_MESSAGES_RECEIVE
-			printf("Message received \n");
-		#endif
-
-		decode (rMsg, i, DAQ_mes);
-		i = 0;
-		memset(rMsg, 0, sizeof(rMsg));
-	}
-
 	return res;
 }
 
+
 /*------------------------------------------------------------------
- *	received_new_IO -- Sets wait_flag to false when new data is avaiable
+ *	clear_rMsg -- clear the array of the received message and set i back to 0
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+void clear_rMsg(){
+	messagePointer = 0;
+	memset(rMsg, 0, sizeof(rMsg));
+}
+
+
+/*------------------------------------------------------------------
+ *	received_new_IO -- Call the receive function to set the data in rMsg
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
@@ -181,12 +209,31 @@ void received_new_IO (int status){
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void initSig(int fd) {
-	struct sigaction saio;           /* definition of signal action */
+void initSig(void){
 	saio.sa_handler = received_new_IO;
 	saio.sa_flags = 0;
 	saio.sa_restorer = NULL;
+}
+
+/*------------------------------------------------------------------
+ *	enable_interrupts -- Enables the interrupts by assigning the right settings
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+void enable_interrupts(void) {
 	sigaction(SIGIO,&saio,NULL);
 	fcntl(fd, F_SETOWN, getpid());
 	fcntl(fd, F_SETFL, FASYNC | O_NONBLOCK);
 }
+
+/*------------------------------------------------------------------
+ *	disable_interrupts -- disable the interrupts
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+void disable_interrupts(void) {
+	sigaction(SIGIO,NULL,NULL);
+	fcntl(fd, F_SETOWN, NULL);
+	fcntl(fd, F_SETFL, FASYNC | O_NONBLOCK);
+}
+
