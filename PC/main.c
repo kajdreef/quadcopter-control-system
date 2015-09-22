@@ -7,8 +7,9 @@
 #include <time.h>
 
 #define CONTINUOUS 1
-#define JOYSTICK 1
+#define JOYSTICK 0
 #define SEND_MESSAGE_PRINT 0
+#define RECEIVED_MSG_PRINT 1
 
 #include "communication.h"
 #include "messages.h"
@@ -41,8 +42,12 @@ int main (void) {
 	int	button[12];
 	int js_fd;
 	int mode = 0;
+
+#if JOYSTICK
 	struct js_event js;
 	struct js_event *js_ptr = &js;
+#endif
+
 	unsigned int t;
 	int fd;
 
@@ -51,6 +56,8 @@ int main (void) {
 	struct timespec startTime;
 
 	long long start, current;
+
+	extern int flag_MSG_RECEIVED;
 
 	// initialise communication
 	printf("Opening connection... \n");
@@ -79,6 +86,11 @@ int main (void) {
 	{
 		clock_gettime(CLOCK_MONOTONIC, &currentTime);
 		current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
+
+
+		while(is_char_available()){
+			detect_message(get_char());
+		}
 
 		// If 40 ms (25 Hz) has passed then run.40000000L
 		if( current - start > 40000000L)
@@ -135,6 +147,11 @@ int main (void) {
 			}
 // No joystick
 	#else
+			JS_mes[0] = 32767;
+			JS_mes[1] = 10;
+			JS_mes[2] = 20;
+			JS_mes[3] = 30;
+			JS_mes[4] = 2;
 			// Encode message and send it
 			encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
 			send(msg, sizeof(msg)/sizeof(msg[0]));
@@ -143,8 +160,18 @@ int main (void) {
 
 		if(loopRate >= 10)
 		{
+			#if RECEIVED_MSG_PRINT
+			if(	flag_MSG_RECEIVED){
+				printf("Time %d \tRoll %d\t Pitch %d\t Yaw_rate %d\t AE1 %d\t AE2 %d\t AE3 %d\t AE4 %d\n",
+							DAQ_mes[DAQ_TSTAMP], DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE],
+								DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
+
+				flag_MSG_RECEIVED = 0;
+			}
+			#endif
+
 			//print the joystick values along with the time
-			print_joystick(axis, button,t);
+			//print_joystick(axis, button,t);
 			loopRate = 0;
 		}
 	}

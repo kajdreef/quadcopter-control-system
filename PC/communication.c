@@ -13,15 +13,19 @@
 
 #define SERIAL_DEVICE 	"/dev/ttyUSB0"
 
-#define DEBUG_MESSAGES_SEND 1
-#define DEBUG_MESSAGES_RECEIVE 0
+#define DEBUG_MESSAGES_SEND 0
+#define DEBUG_MESSAGES_RECEIVE 1
 
 #define NANO 1000000000L
+#define FIFO_SIZE 512
 
 int fd;
-char rMsg[255];
-int messagePointer = 0;
-int MESSAGE_LENGTH = 0;
+int flag_MSG_RECEIVED = 0;
+
+char fifo_buffer[FIFO_SIZE] = {};
+int rear = 0, front = 0;
+
+char message[255] = {};
 
 extern int DAQ_mes[8];
 struct sigaction saio;           /* definition of signal action */
@@ -60,98 +64,112 @@ int send (char* msg, int msgSize) {
 	#endif
 		clock_gettime(CLOCK_MONOTONIC, &startTime);
 		start = startTime.tv_sec*NANO + startTime.tv_nsec;
-		
+
 		while(current-start < 1000){
 			clock_gettime(CLOCK_MONOTONIC, &currentTime);
 			current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
-			
+
 		}
 
 		send_char(*(msg+k));
 	}
-	
+
 	enable_interrupts();
 
 	return 0;
 }
 
 /*------------------------------------------------------------------
- *	receive -- receive a string of characters
- *		return amount of read bytes
- *	Author: Kaj Dreef
+ * getchar -- get a character from the fifo buffer
+ * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-int receive () {
-	char buf[255];
-	int j = 0;
-	int res = read(fd,buf,255);
-	static int error_flag = 0;
+int get_char(void)
+{
+	char c;    
+	int temp = rear;
+    c = fifo_buffer[rear++];
+	if(rear >= FIFO_SIZE){
+		rear = 0;
+	}
+	return c;
+}
 
-	#if DEBUG_MESSAGES_RECEIVE
-		printf("Received Message: Bytes=%d, \t", res);
-	#endif
+/*------------------------------------------------------------------
+ *	detect_message -- receive a string of characters
+ *		return amount of read bytes
+ *	Author: Bastiaan Oosterhuis / Kaj Dreef
+ *------------------------------------------------------------------
+ */
+void detect_message (char data) {
 
-	MESSAGE_LENGTH = message_length(rMsg[0]);
+	static int receive_count = 0;
+	static int sync = 0;
+ 	static int prev = END;
+	static int MESSAGE_LENGTH = 0;
+	static char message_type = '0';
 
-	// Read the buffer out and place it in the message
-	for(j = 0; j < res; j++){
-
-		// Check if message is full
-		if(messagePointer == MESSAGE_LENGTH - 1){
-			// Check if the char is of type END
-			if ((rMsg[MESSAGE_LENGTH - 1] & 11000000) == END){
-				decode (rMsg, MESSAGE_LENGTH/3, DAQ_mes);
-				clear_rMsg();
-			}
-			else {	// if not Error
-				error_flag = 1;
-				clear_rMsg();
-			}
-		}
-
-		// If error wait till next End message comes along
-		if(error_flag == 1){
-			if((buf[j] & 11000000) == END){
-				error_flag = 0;
-			}
+	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
+	{	
+		sync = 1; //We now have synched with a message
+		message[receive_count] = data;		
+		receive_count++;
+		message_type = data & END;
+	}
+	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1)
+	{	//place data in message array
+		message[receive_count] = data;
+		receive_count++; 	
+	}		
+	else
+	{
+		if( (data&END) != END && sync != 0 ){
+			memset(message, 0, sizeof(message));
+			receive_count = 0;
 		}
 		else {
-			rMsg[messagePointer] = buf[j];
+			//successful receival of a message
+			message[receive_count] = data;
+			decode(message, receive_count, DAQ_mes);
+			flag_MSG_RECEIVED = TRUE;
 		}
-		#if DEBUG_MESSAGES_RECEIVE
-			printf("%i ", rMsg[messagePointer]);
-		#endif
-		messagePointer++;
 	}
-	#if DEBUG_MESSAGES_RECEIVE
-		printf("\n");
-	#endif
-
-	return res;
+	
+	prev = data&END;
 }
 
 
 /*------------------------------------------------------------------
- *	clear_rMsg -- clear the array of the received message and set i back to 0
- *	Author: Kaj Dreef
- *------------------------------------------------------------------
- */
-void clear_rMsg(){
-	messagePointer = 0;
-	memset(rMsg, 0, sizeof(rMsg));
-}
-
-
-/*------------------------------------------------------------------
- *	received_new_IO -- Call the receive function to set the data in rMsg
+ *	received_new_IO -- Put the received data into the FIFO
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void received_new_IO (int status){
-	#if DEBUG_MESSAGES_RECEIVE
-		printf("New data is available!\n");
-	#endif
-	receive();
+	char buf[255] = {};
+	int j = 0;
+	int res = read(fd,buf,255);
+
+	for(j; j < res; j++){
+		fifo_buffer[front++] = buf[j];
+
+		if(front >= FIFO_SIZE){
+			front = 0;
+		}
+	}
+}
+
+/*------------------------------------------------------------------
+ * isr_char_available -- checks if a character is available in the FIFO buffer
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int is_char_available(void){
+	if(front != rear){
+		return 1;
+	}	
+	else{
+		return 0;		
+	}
 }
 
 /*------------------------------------------------------------------
@@ -236,4 +254,3 @@ int rs232_open (void) {
 
 	return fd;
 }
-

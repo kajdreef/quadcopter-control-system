@@ -4,7 +4,7 @@
 
 #define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
-#define DEBUG 1
+#define DEBUG 0
 
 extern int DAQ_mes[8];
 extern int ERR_mes;
