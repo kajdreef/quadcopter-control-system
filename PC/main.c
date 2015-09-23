@@ -10,7 +10,9 @@
 #define CONTINUOUS 1
 #define JOYSTICK 0
 #define KEYBOARD 1
+
 #define SEND_MESSAGE_PRINT 0
+#define RECEIVED_MSG_PRINT 1
 
 #include "communication.h"
 #include "messages.h"
@@ -49,16 +51,22 @@ int main (void) {
 	int new_mode = 0;
 
 	int lift = 32767, roll = 0, pitch = 0, yaw = 0;
-	
 	unsigned int t;
 	int fd;
+
+	#if JOYSTICK
+		struct js_event js;
+		struct js_event *js_ptr = &js;
+	#endif
 
 	// Timer for 50 hz
 	struct timespec currentTime;
 	struct timespec startTime;
 
 	long long start, current;
-	
+
+	extern int flag_MSG_RECEIVED;
+
 	// initialize keyboard listening
 #if KEYBOARD
 	int keyboard_input;
@@ -75,8 +83,6 @@ int main (void) {
 	}
 
 #if JOYSTICK
-	struct js_event js;
-	struct js_event *js_ptr = &js;
 	//open and configure the joystick
 	js_fd = configure_joystick();
 #endif
@@ -91,22 +97,34 @@ int main (void) {
 
 	// Loop that runs on 50 Hz
 	while (1)
-	{		
+	{
 
 #if KEYBOARD
-		if((keyboard_input = term_getchar_nb()) != -1)
-		{	int temp = 0;
-			
+		int temp = 0;
+		keyboard_input = -1;
+		while((temp = term_getchar_nb())!= -1){
+			keyboard_input = temp;		
+		}
+		
+		if(keyboard_input != -1)
+		{	
+			int temp = 0;
+			//printf("Keyboard input: %X\n", keyboard_input);
 			if((temp = process_keyboard(keyboard_input, trimming)) != -1)
 			{
 				new_mode = temp;
 			}
-			
+
 		}
-#endif						
+#endif
 		clock_gettime(CLOCK_MONOTONIC, &currentTime);
 		current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
-		
+
+		// Read fifo buffer for new messages
+		while(is_char_available()){
+			detect_message(get_char());
+		}
+
 		// If 40 ms (25 Hz) has passed then run.40000000L
 		if( current - start > 40000000L)
 		{
@@ -133,54 +151,54 @@ int main (void) {
 				if (button[10])
 				{
 					new_mode = 2;
-					
+
 				}
-				
+
 				lift = axis[LIFT] + trimming[TRIM_LIFT];
-				roll = axis[ROLL] + trimming[TRIM_ROLL]; 
+				roll = axis[ROLL] + trimming[TRIM_ROLL];
 				pitch = axis[PITCH] + trimming[TRIM_PITCH];
-				yaw = axis[YAW] + trimming[TRIM_YAW];	
-				
+				yaw = axis[YAW] + trimming[TRIM_YAW];
+
 			}
 			else {
 				// Joystick read out failed so send MODE = 0
 				JS_mes[JS_MODE]  = 0;
 			}
-// No joystick
-	#else	
+	// No joystick
+	#else
 			lift = 32767 + trimming[TRIM_LIFT];
-			roll = trimming[TRIM_ROLL]; 
+			roll = trimming[TRIM_ROLL];
 			pitch = trimming[TRIM_PITCH];
-			yaw = trimming[TRIM_YAW];	
+			yaw = trimming[TRIM_YAW];
 	#endif
 			JS_mes[JS_LIFT] = lift;
 			JS_mes[JS_ROLL] = roll;
 			JS_mes[JS_PITCH] = pitch;
-			JS_mes[JS_YAW] = yaw;	
-		
+			JS_mes[JS_YAW] = yaw;
+
 			if((new_mode != mode ) && (new_mode != 0) && (new_mode != 1) && new_mode >=0 && new_mode <=5)
 			{
 				if (lift == 32767 && roll == 0 && pitch == 0 && yaw == 0)
 				{
-					mode = new_mode;				
-				}	
+					mode = new_mode;
+				}
 				else
-				{	
-					printf("Make joystick and trimming values neutral\n");	
-					new_mode = mode;				
-				}			
-			}	
+				{
+					printf("Make joystick and trimming values neutral\n");
+					new_mode = mode;
+				}
+			}
 			else
 			{	if(new_mode != mode && new_mode >=0 && new_mode <= 5){
-					mode = new_mode;	
-				}		
+					mode = new_mode;
+				}
 			}
-			
+
 			if(new_mode == 999)
 			{	//abort, escape pressed
-				mode = 0; 				
+				mode = 0;
 			}
-			
+
 			JS_mes[JS_MODE]  = mode;
 
 			// Encode message and send it
@@ -190,9 +208,22 @@ int main (void) {
 
 		if(loopRate >= 10)
 		{
-			//print the joystick values along with the time
-			//print_joystick(axis, button,t);
-			printf("mode: %d, lift: %d, roll: %d, pitch: %d, yaw: %d\n",mode, lift, roll, pitch, yaw);
+			#if RECEIVED_MSG_PRINT
+			if(flag_MSG_RECEIVED){
+				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+				printf("Received data:\n");	
+				printf("QR mode: %d\n", DAQ_mes[DAQ_MODE]);
+				printf("Roll: %d\t Pitch: %d\t Yaw_rate: %d\t\n", DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE]);
+				printf("Motor values: \n");
+				printf("AE1: %d\t AE2: %d\t AE3: %d\t AE4: %d\n", DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
+				printf("\n\n");
+
+				printf("Transmitted data:\n");
+				printf("Mode: %d lift: %d Roll: %d Pitch: %d Yaw: %d\n", mode, lift, roll, pitch, yaw);
+
+				flag_MSG_RECEIVED = 0;
+			}
+			#endif
 			loopRate = 0;
 		}
 	}
@@ -221,8 +252,7 @@ int main (void) {
 
 #if KEYBOARD
 	term_exitio();
-
-#endif	
+#endif
 
 	return 0;
 }

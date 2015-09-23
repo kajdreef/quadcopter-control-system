@@ -149,7 +149,7 @@ int main(void)
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];
 			DAQ_mes[DAQ_AE4] = ae[3];
-			DAQ_mes[DAQ_TSTAMP] = X32_clock_us;
+			DAQ_mes[DAQ_MODE] =  mode;
 								
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
 
@@ -159,7 +159,7 @@ int main(void)
 
 		if(SEND_MESSAGE_FLAG == TRUE)
 		{
-			send_message(output_buffer, sizeof(DAQ_mes));		
+			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));		
 			SEND_MESSAGE_FLAG = FALSE;
 		}
 

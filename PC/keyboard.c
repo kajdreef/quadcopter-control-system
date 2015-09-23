@@ -57,12 +57,10 @@ int	term_getchar(void){
  */
 int process_keyboard(char c, int *trim)
 {		
-	//for detecting arrows
-	static char prev[2] = {0};
-
 	switch(c){
 		case 0x1B:
-		//escape		
+		//escape	
+		
 		return 999;
 		
 			break;
@@ -104,31 +102,28 @@ int process_keyboard(char c, int *trim)
 			break;
 		//left arrow	
 		case 0x44:
-			if(prev[0] == 0x1B && prev[1] == 0x5B)
-			{
+			
 				*(trim + TRIM_ROLL) += TRIM;
-			}
+			
 		break;
 		//right arrow	
 		case 0x43:
-			if(prev[0] == 0x1B && prev[1] == 0x5B)
-			{
+			 
 				*(trim + TRIM_ROLL) -= TRIM;
-			}
+			
 			break;
 		//up arrow		
 		case 0x41:
-			if(prev[0] == 0x1B && prev[1] == 0x5B)
-			{
+		
+				
 				*(trim + TRIM_PITCH) -= TRIM;
-			}
+			
 			break;
 		//down arrow		
 		case 0x42:
-			if(prev[0] == 0x1B && prev[1] == 0x5B)
-			{
+			
 				*(trim + TRIM_PITCH) += TRIM;
-			}
+			
 			break;
 		/*
 			Controller tuning
@@ -157,8 +152,7 @@ int process_keyboard(char c, int *trim)
 		default:
 		;
 }
-	prev[0] = prev[1];
-	prev[1] = c;
+	
 
 	return -1;
 
