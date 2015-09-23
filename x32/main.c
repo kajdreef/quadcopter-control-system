@@ -148,7 +148,7 @@ int main(void)
 
 		if(SEND_MESSAGE_FLAG == TRUE)
 		{
-			send_message(output_buffer, sizeof(DAQ_mes));		
+			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));		
 			SEND_MESSAGE_FLAG = FALSE;
 		}
 

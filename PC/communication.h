@@ -9,7 +9,6 @@
 #define TRUE 1
 #define FALSE 0
 
-
 int rs232_open (void);
 
 int send_char (char c);

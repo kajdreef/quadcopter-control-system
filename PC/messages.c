@@ -5,9 +5,10 @@
 #define CHECK_SIGN_BIT(input) ((input) & (1<<(5)))
 
 #define DEBUG 0
+#define DEBUG_MESSAGE_LENGTH 0
 
 extern int DAQ_mes[8];
-extern int ERR_mes;
+extern int ERR_mes[1];
 extern char DEB_mes[24];
 extern int JS_mes[5];
 extern int CON_mes[3];
@@ -105,23 +106,43 @@ void decode (char* input, int msg_length, int* dest ){
 
 		final_result ^= (result1 ^ result2 ^ result3);
 		*(dest + i) = final_result;
+
+		#if DEBUG
+			printBits(sizeof(final_result), &final_result);
+		#endif
 	}
 }
 
 /*------------------------------------------------------------------
- *	message_length() -- Returns the length in bytes of the message type
- *	Author: Kaj Dreef
+ *	message_length -- Return the length of the message to be received
+ *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-int message_length(char msg) {
-	
-	switch(msg & 11000000){
-		case DAQ_MASK:
-			return sizeof(DAQ_mes)/sizeof(DAQ_mes[0])*3;
-		case ERR_MASK:
-		case DEB_MASK:
+int message_length(char data)
+{
+	switch(data & 0xC0){
+		case(DAQ_MASK):
+			#if DEBUG_MESSAGE_LENGTH
+				printf("DAQ MESSAGE\n");
+			#endif
+			return 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]);
+			break;
+		case(ERR_MASK):
+			#if DEBUG_MESSAGE_LENGTH
+				printf("ERR MESSAGE\n");
+			#endif
+			return 3*sizeof(ERR_mes)/sizeof(ERR_mes[0]);
+			break;
+		case(DEB_MASK):
+			#if DEBUG_MESSAGE_LENGTH
+				printf("DEB MESSAGE\n");
+			#endif
+			return 3*sizeof(DEB_mes)/sizeof(DEB_mes[0]);
+			break;
 		default:
-			return -1;
-	}
+			#if DEBUG_MESSAGE_LENGTH
+				printf("FAILURE -1\n");
+			#endif
+			return -1;	
+	}	
 }
-

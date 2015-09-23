@@ -145,13 +145,8 @@ int main (void) {
 				encode_message(JS_MASK, 5, JS_mes, msg);
 				send(msg, 15);
 			}
-// No joystick
+	// No joystick
 	#else
-			JS_mes[0] = 32767;
-			JS_mes[1] = 10;
-			JS_mes[2] = 20;
-			JS_mes[3] = 30;
-			JS_mes[4] = 2;
 			// Encode message and send it
 			encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
 			send(msg, sizeof(msg)/sizeof(msg[0]));
@@ -161,17 +156,18 @@ int main (void) {
 		if(loopRate >= 10)
 		{
 			#if RECEIVED_MSG_PRINT
-			if(	flag_MSG_RECEIVED){
-				printf("Time %d \tRoll %d\t Pitch %d\t Yaw_rate %d\t AE1 %d\t AE2 %d\t AE3 %d\t AE4 %d\n",
-							DAQ_mes[DAQ_TSTAMP], DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE],
-								DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
+			if(flag_MSG_RECEIVED){
+				printf("Time %7d \tRoll %7d\t Pitch %7d\t Yaw_rate %7d\t AE1 %7d\t AE2 %7d\t AE3 %7d\t AE4 %7d\n",
+							DAQ_mes[DAQ_TSTAMP], DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE], DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
 
 				flag_MSG_RECEIVED = 0;
 			}
 			#endif
 
+			#if JOYSTICK
 			//print the joystick values along with the time
-			//print_joystick(axis, button,t);
+			print_joystick(axis, button,t);
+			#endif
 			loopRate = 0;
 		}
 	}
