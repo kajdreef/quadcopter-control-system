@@ -7,7 +7,7 @@
 
 extern int state;
 extern enum QR mode;
-
+extern int ae[];
 /*
  * Set the actuators to the RPM defined in the global array ae
  * The interrupts need to be disabled in order for the values to 

@@ -14,6 +14,7 @@ extern int state;
 extern int isr_controller_time;
 extern enum QR mode;
 extern int filtered_r;
+extern int ae[];
 
 void manual_lift(Factors *F){
 	
@@ -57,7 +58,7 @@ void apply_mot_fact(Factors *F,int *ae){
 void isr_controller()
 {	
 	static Factors F={0,0,0,0};
-	static int ae[4] = {0,0,0,0};
+	//ae[4] = {0,0,0,0};
 
 	int old = X32_clock_us;
 

@@ -5,6 +5,7 @@
 #include "supervisor.h"
 #include "controller.h"
 #include "filter.h"
+#include "actuators.h"
 
 //Debugging
 //The controller, Communication and actuators have defines statements as well
@@ -28,7 +29,7 @@ int JS_mes[5];
 int CON_mes[3];
 
 //actuator values
-int ae[4];
+int ae[4] = {0};
 
 //Buffer where the message is stored
 char message[3*sizeof(JS_mes)/sizeof(JS_mes[0])] = {0};
