@@ -13,7 +13,7 @@
 
 #define SERIAL_DEVICE 	"/dev/ttyUSB0"
 
-#define DEBUG_MESSAGES_SEND 1
+#define DEBUG_MESSAGES_SEND 0
 #define DEBUG_MESSAGES_RECEIVE 0
 
 #define NANO 1000000000L
@@ -25,56 +25,6 @@ int MESSAGE_LENGTH = 0;
 
 extern int DAQ_mes[8];
 struct sigaction saio;           /* definition of signal action */
-
-/*------------------------------------------------------------------
- *	rs232_open -- setup connection
- *	Author: Kaj Dreef
- *------------------------------------------------------------------
- */
-int rs232_open (void) {
-	char *name;
-	int result;
-	struct termios config;
-
-	fd = open(SERIAL_DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if(fd == -1) {
-		return -1;
-	}
-
-	// Initialise interrupts
-	//initSig();
-	//enable_interrupts(fd);
-
-	result = isatty(fd);
-	assert(result == 1);
-
-	name = ttyname(fd);
-	assert(name != 0);
-
-	result = tcgetattr(fd, &config);
-	assert(result == 0);
-
-	config.c_iflag = IGNBRK; /* ignore break condition */
-	config.c_oflag = 0;
-	config.c_lflag = 0;
-
-	config.c_cflag = (config.c_cflag & ~CSIZE) | CS8; /* 8 bits-per-character */
-	config.c_cflag |= CLOCAL | CREAD; /* Ignore model status + read input */
-
-	cfsetospeed(&config, B115200); /* set output baud rate */
-	cfsetispeed(&config, B115200); /* set input baud rate */
-
-	config.c_cc[VMIN]  = 0;    /* NOT blocking read until 1 character arrives */
-	config.c_cc[VTIME] = 0;
-
-	config.c_iflag &= ~(IXON|IXOFF|IXANY);
-
-	result = tcsetattr (fd, TCSANOW, &config); /* non-canonical */
-
-	tcflush(fd, TCIOFLUSH); /* flush I/O buffer */
-
-	return fd;
-}
 
 /*------------------------------------------------------------------
  *	send_char -- Send one character
@@ -235,5 +185,55 @@ void disable_interrupts(void) {
 	sigaction(SIGIO,NULL,NULL);
 	fcntl(fd, F_SETOWN, NULL);
 	fcntl(fd, F_SETFL, FASYNC | O_NONBLOCK);
+}
+
+/*------------------------------------------------------------------
+ *	rs232_open -- setup connection
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+int rs232_open (void) {
+	char *name;
+	int result;
+	struct termios config;
+
+	fd = open(SERIAL_DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if(fd == -1) {
+		return -1;
+	}
+
+	// Initialise interrupts
+	initSig();
+	enable_interrupts();
+
+	result = isatty(fd);
+	assert(result == 1);
+
+	name = ttyname(fd);
+	assert(name != 0);
+
+	result = tcgetattr(fd, &config);
+	assert(result == 0);
+
+	config.c_iflag = IGNBRK; /* ignore break condition */
+	config.c_oflag = 0;
+	config.c_lflag = 0;
+
+	config.c_cflag = (config.c_cflag & ~CSIZE) | CS8; /* 8 bits-per-character */
+	config.c_cflag |= CLOCAL | CREAD; /* Ignore model status + read input */
+
+	cfsetospeed(&config, B115200); /* set output baud rate */
+	cfsetispeed(&config, B115200); /* set input baud rate */
+
+	config.c_cc[VMIN]  = 0;    /* NOT blocking read until 1 character arrives */
+	config.c_cc[VTIME] = 0;
+
+	config.c_iflag &= ~(IXON|IXOFF|IXANY);
+
+	result = tcsetattr (fd, TCSANOW, &config); /* non-canonical */
+
+	tcflush(fd, TCIOFLUSH); /* flush I/O buffer */
+
+	return fd;
 }
 

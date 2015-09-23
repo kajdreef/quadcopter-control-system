@@ -8,13 +8,17 @@
 
 //Debugging
 //The controller, Communication and actuators have defines statements as well
-#define VERBOSE_JS
+//#define VERBOSE_JS
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
 
-#define MESSAGE_TIME_THRESHOLD 200000 //in microseconds
+//Time after which connection is considered lost in us
+#define MESSAGE_TIME_THRESHOLD 200000 
+
+//period used for the sending of a DAQ message in us
+#define DAQ_MESSAGE_PERIOD	100000
 
 //Messages
 int DAQ_mes[8];
@@ -51,8 +55,18 @@ void status_led(void);
 void toggle_led(int i);
 void pc_link_led(int status);
 
+/*------------------------------------------------------------------
+ *	Main function of the x32 application
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 int main(void) 
 {		
+	
+	//Flag set when a message needs to be send
+	int SEND_MESSAGE_FLAG = FALSE;
+	int send_message_time = X32_clock_us;
+	
 	//Time of the last received complete message
 	int last_message_time = 0;
 	
@@ -121,7 +135,29 @@ int main(void)
 							
 			MESSAGE_FLAG = FALSE;
 		}
-		
+
+		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
+		{
+			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
+			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
+			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW];
+			DAQ_mes[DAQ_AE1] = ae[0];
+			DAQ_mes[DAQ_AE2] = ae[1];
+			DAQ_mes[DAQ_AE3] = ae[2];
+			DAQ_mes[DAQ_AE4] = ae[3];
+			DAQ_mes[DAQ_TSTAMP] = X32_clock_us;
+								
+			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
+
+			SEND_MESSAGE_FLAG = TRUE;
+			send_message_time = X32_clock_us;
+		}		
+
+		if(SEND_MESSAGE_FLAG == TRUE)
+		{
+			send_message(output_buffer, sizeof(DAQ_mes));		
+			SEND_MESSAGE_FLAG = FALSE;
+		}
 
 	}
 
