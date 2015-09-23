@@ -1,11 +1,15 @@
 #include "filter.h"
 #include "fixed_point.h"
+#include "supervisor.h"
 
 int filtered_phi = 0;
 int filtered_thet = 0;
 int filtered_p = 0;
 int filtered_q = 0;
 int filtered_r = 0;
+
+
+extern enum QR mode;
 
 /*
  * A second order butterworth filter
@@ -26,6 +30,13 @@ int BF_2nd(int x,int *xy, Filt_Param *Filt){
 	xy[3] = MULT_FIXED(Filt->a0,xy[0]) + MULT_FIXED(Filt->a1,xy[1]) + MULT_FIXED(Filt->a2,xy[2]) - MULT_FIXED(Filt->b1,xy[4]) - MULT_FIXED(Filt->b2,xy[5]);
 
 	return xy[3];
+}
+
+int F_1st(int x, int prev_out, Filt_Param *Filt){
+	//Shift the y values and calculate the new value for y(n)
+	int y = prev_out + MULT_FIXED(Filt->alph,(x-prev_out));
+
+	return y; 
 }
 
 int rem_absurd_val(int x, int prev_x, Filt_Param *Filt){
@@ -69,29 +80,48 @@ void isr_sensor(){
 	static int prev_x_r = 0;
 	static int bias_phi = 0;
 	static int bias_thet = 0;
+	static int prev_lp_r = 0;
 
 	static int phi_bias = 0;
 	static int thet_bias= 0;
 
-	// Get the latest and greatest sensor values AND remove absurd values
-	phi = rem_absurd_val( INT_TO_FIXED(X32_QR_S0) ,xy_phi[0],&Filt_phi);
-	thet = rem_absurd_val( INT_TO_FIXED(X32_QR_S1) ,xy_thet[0],&Filt_thet);
-	p = rem_absurd_val( INT_TO_FIXED(X32_QR_S3) ,prev_x_p,&Filt_phi); // NOT COMPLETE!! Filter params
-	q = rem_absurd_val( INT_TO_FIXED(X32_QR_S4) ,prev_x_q,&Filt_phi); // NOT COMPLETE!! Filter params
-	r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_phi); // NOT COMPLETE!! Filter params
+	static int r_lp =0;
 
-	// Filter the accelerometer values
-	phi = BF_2nd(phi,xy_phi,&Filt_phi);
-	thet = BF_2nd(thet,xy_thet,&Filt_thet);
+	switch(mode){
+		case YAW_CONTROL:
+			// Get the latest and greatest sensor values AND remove absurd values
+			r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_r); 
 
-	// Anti-drift the gyro values
-	
+			// Anti-drift the gyro values
+			r_lp = F_1st(r, prev_lp_r, &Filt_r);
+			prev_lp_r = r_lp;
+			filtered_r = r - r_lp;
 
-	// Kalman filter OWYEAH
-	kalman(phi,p, &phi_bias,&filtered_phi,&filtered_p,&Filt_phi);
-	kalman(thet,q,&thet_bias,&filtered_thet,&filtered_q,&Filt_thet);
+			break;
 
 
+		case FULL_CONTROL:
+			// Get the latest and greatest sensor values AND remove absurd values
+			phi = rem_absurd_val( INT_TO_FIXED(X32_QR_S0) ,xy_phi[0],&Filt_phi);
+			thet = rem_absurd_val( INT_TO_FIXED(X32_QR_S1) ,xy_thet[0],&Filt_thet);
+			p = rem_absurd_val( INT_TO_FIXED(X32_QR_S3) ,prev_x_p,&Filt_phi); // NOT COMPLETE!! Filter params
+			q = rem_absurd_val( INT_TO_FIXED(X32_QR_S4) ,prev_x_q,&Filt_thet); // NOT COMPLETE!! Filter params
+			r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_r); // NOT COMPLETE!! Filter params
+
+			// Filter the accelerometer values
+			phi = BF_2nd(phi,xy_phi,&Filt_phi);
+			thet = BF_2nd(thet,xy_thet,&Filt_thet);
+
+			// Anti-drift the gyro values
+			
+
+			// Kalman filter OWYEAH
+			kalman(phi,p, &phi_bias,&filtered_phi,&filtered_p,&Filt_phi);
+			kalman(thet,q,&thet_bias,&filtered_thet,&filtered_q,&Filt_thet);
+
+			break;
+
+	}
 	prev_x_p = p;
 	prev_x_q = q;
 	prev_x_r = r;

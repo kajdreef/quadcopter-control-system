@@ -15,8 +15,7 @@
 
 #define DEBUG_MESSAGES_SEND 0
 #define DEBUG_MESSAGES_RECEIVE 1
-
-#define RECEIVED_CHAR_DEBUG 0
+#define DEBUG_RECEIVED_CHAR 0
 
 #define NANO 1000000000L
 #define FIFO_SIZE 512
@@ -88,7 +87,7 @@ int send (char* msg, int msgSize) {
  */
 int get_char(void)
 {
-	char c;    
+	char c;
     c = fifo_buffer[rear++];
 	if(rear >= FIFO_SIZE){
 		rear = 0;
@@ -107,23 +106,23 @@ void detect_message (char data) {
 	static int sync = 0;
  	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
-	
-	#if RECEIVED_CHAR_DEBUG
+
+	#if DEBUG_RECEIVED_CHAR
 		printf("Received char: ");
 		printBits(sizeof(data), &data);
 	#endif
 
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
-	{	
+	{
 		sync = 1; //We now have synched with a message
-		message[receive_count] = data;		
+		message[receive_count] = data;
 		receive_count++;
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1)
 	{	//place data in message array
 		message[receive_count] = data;
-		receive_count++; 	
-	}		
+		receive_count++;
+	}
 	else
 	{
 		if( (data&END) != END && sync != 0 ){
@@ -135,9 +134,9 @@ void detect_message (char data) {
 			decode(message, receive_count, DAQ_mes);
 			flag_MSG_RECEIVED = TRUE;
 		}
-		receive_count = 0;			
+		receive_count = 0;
 	}
-	
+
 	prev = data&END;
 }
 
@@ -169,9 +168,9 @@ void received_new_IO (int status){
 int is_char_available(void){
 	if(front != rear){
 		return 1;
-	}	
+	}
 	else{
-		return 0;		
+		return 0;
 	}
 }
 

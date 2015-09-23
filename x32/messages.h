@@ -51,5 +51,6 @@ void printBits(size_t const size, void const * const ptr);
 void encode(int value, char* buffer,int index, int mask, int end);
 void decode (char* buffer, int msg_length, int* dest );
 int message_length(char data);
+void encode_message(int mask, int message_length, int *input, char *output_buffer);
 
 #endif

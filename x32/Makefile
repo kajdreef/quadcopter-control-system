@@ -1,6 +1,6 @@
 CC=lcc-x32
 CFLAGS=-I$(X32INC)
-OBJS=main.o communication.o messages.o supervisor.o controller.o actuators.o
+OBJS=main.o communication.o messages.o supervisor.o controller.o actuators.o filter.o
 
 .PHONY: clean stubbed stubbedrun uploadrun test
 
