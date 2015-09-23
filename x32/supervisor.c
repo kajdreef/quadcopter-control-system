@@ -10,6 +10,7 @@
 
 extern int panic_time;
 extern int JS_mes[];
+extern int calibrated;
 /*------------------------------------------------------------------
  * supervisor_received_mode --  Check the received mode and change it if needed
  * Author: Bastiaan Oosterhuis
@@ -140,7 +141,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			{
 				*mode = new_mode;
 			}
-			else if(new_mode == YAW_CONTROL)
+			else if(new_mode == YAW_CONTROL && calibrated)
 			{
 				*mode  = new_mode;
 			};
@@ -177,6 +178,10 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	if(new_mode == PANIC )
 	{
 		panic_time = X32_clock_us;
+	}
+	if(new_mode == SAFE)
+	{
+		calibrated = 0;
 	}
    	X32_leds &= 7;
 	X32_leds |= (*mode+1) << 3;	 

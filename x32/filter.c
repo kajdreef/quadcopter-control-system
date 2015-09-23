@@ -7,7 +7,7 @@ int filtered_thet = 0;
 int filtered_p = 0;
 int filtered_q = 0;
 int filtered_r = 0;
-
+int calibrated = 0;
 
 extern enum QR mode;
 
@@ -66,6 +66,12 @@ void kalman(int sphi, int sp, int *bias, int *phi, int *p, Filt_Param *Filt){
 	*bias = *bias + DIV_FIXED(e,Filt->C2);
 }
 
+void setup_sensor_interrupts(int prio){
+	SET_INTERRUPT_VECTOR(INTERRUPT_XUFO, &isr_sensor);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_XUFO, prio);
+	ENABLE_INTERRUPT(INTERRUPT_XUFO);
+}
+
 void isr_sensor(){
 	static int phi=0;	// Roll, fixed point
 	static int thet=0;	// Pitch, fixed point
@@ -88,6 +94,11 @@ void isr_sensor(){
 	static int r_lp =0;
 
 	switch(mode){
+		case CALIBRATION:
+			prev_lp_r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_r); 
+			calibrated = 1;
+			break;
+
 		case YAW_CONTROL:
 			// Get the latest and greatest sensor values AND remove absurd values
 			r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_r); 
