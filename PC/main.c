@@ -100,9 +100,16 @@ int main (void) {
 	{
 
 #if KEYBOARD
-		if((keyboard_input = term_getchar_nb()) != -1)
-		{	int temp = 0;
-
+		int temp = 0;
+		keyboard_input = -1;
+		while((temp = term_getchar_nb())!= -1){
+			keyboard_input = temp;		
+		}
+		
+		if(keyboard_input != -1)
+		{	
+			int temp = 0;
+			printf("Keyboard input: %X\n", keyboard_input);
 			if((temp = process_keyboard(keyboard_input, trimming)) != -1)
 			{
 				new_mode = temp;
@@ -205,6 +212,7 @@ int main (void) {
 			if(flag_MSG_RECEIVED){
 				printf("Mode %7d \tRoll %7d\t Pitch %7d\t Yaw_rate %7d\t AE1 %7d\t AE2 %7d\t AE3 %7d\t AE4 %7d\n",
 							DAQ_mes[DAQ_MODE], DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE], DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
+				printf("Mode %7d \tlift %7d \tRoll %7d\t Pitch %7d\t Yaw %7d\n", mode, lift, roll, pitch, yaw);
 
 				flag_MSG_RECEIVED = 0;
 			}
