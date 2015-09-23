@@ -95,11 +95,11 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			//SAFE mode has 0 RPM per definition enforced by the actuators
 				if(new_mode == YAW_CONTROL)
 				{
-					;
+					*mode = CALIBRATION;
 				}
 				else if(new_mode == CALIBRATION)
 				{
-					;			
+					*mode = new_mode;			
 				}
 				else if(new_mode == MANUAL)
 				{  
@@ -134,12 +134,15 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				*mode = PANIC;
 				new_mode = PANIC;
 			}
-			break;
 
 		case CALIBRATION:
 			if(new_mode == SAFE)
 			{
 				*mode = new_mode;
+			}
+			else if(new_mode == YAW_CONTROL)
+			{
+				*mode  = new_mode;
 			};
 			break;
 
