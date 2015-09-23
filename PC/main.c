@@ -5,9 +5,11 @@
 #include <stdio.h>
 #include <errno.h>
 #include <time.h>
+#include "keyboard.h"
 
 #define CONTINUOUS 1
-#define JOYSTICK 1
+#define JOYSTICK 0
+#define KEYBOARD 1
 #define SEND_MESSAGE_PRINT 0
 
 #include "communication.h"
@@ -37,12 +39,17 @@ char msg[15];
  *------------------------------------------------------------------
  */
 int main (void) {
+
 	int	axis[6] = {0,0,0,32767,0,0};		// Initialize with lift at minimum
 	int	button[12];
 	int js_fd;
+
+	int trimming[4] = {0};
 	int mode = 0;
-	struct js_event js;
-	struct js_event *js_ptr = &js;
+	int new_mode = 0;
+
+	int lift = 32767, roll = 0, pitch = 0, yaw = 0;
+	
 	unsigned int t;
 	int fd;
 
@@ -51,6 +58,12 @@ int main (void) {
 	struct timespec startTime;
 
 	long long start, current;
+	
+	// initialize keyboard listening
+#if KEYBOARD
+	int keyboard_input;
+	term_initio();
+#endif
 
 	// initialise communication
 	printf("Opening connection... \n");
@@ -62,6 +75,8 @@ int main (void) {
 	}
 
 #if JOYSTICK
+	struct js_event js;
+	struct js_event *js_ptr = &js;
 	//open and configure the joystick
 	js_fd = configure_joystick();
 #endif
@@ -76,10 +91,22 @@ int main (void) {
 
 	// Loop that runs on 50 Hz
 	while (1)
-	{
+	{		
+
+#if KEYBOARD
+		if((keyboard_input = term_getchar_nb()) != -1)
+		{	int temp = 0;
+			
+			if((temp = process_keyboard(keyboard_input, trimming)) != -1)
+			{
+				new_mode = temp;
+			}
+			
+		}
+#endif						
 		clock_gettime(CLOCK_MONOTONIC, &currentTime);
 		current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
-
+		
 		// If 40 ms (25 Hz) has passed then run.40000000L
 		if( current - start > 40000000L)
 		{
@@ -105,46 +132,67 @@ int main (void) {
 				// Go to manual mode if Joystick is in neutral
 				if (button[10])
 				{
-					if (axis[LIFT] == 32767 && axis[ROLL] == 0
-							&& axis[PITCH] == 0 && axis[YAW] == 0){
-						mode = 2;
-					}
-					else {
-						printf("Please put joystick (including lift) in neutral mode\n");
-					}
+					new_mode = 2;
+					
 				}
-
-				// Put data from joystick into a message
-				JS_mes[JS_LIFT] = axis[LIFT];
-				JS_mes[JS_ROLL] = axis[ROLL];
-				JS_mes[JS_PITCH] = axis[PITCH];
-				JS_mes[JS_YAW] = axis[YAW];
-				JS_mes[JS_MODE]  = mode;
-
-				// Encode and send the data
-				encode_message(JS_MASK, 5, JS_mes, msg);
-				send(msg, 15);//sizeof(msg)/sizeof(msg[0]));
+				
+				lift = axis[LIFT] + trimming[TRIM_LIFT];
+				roll = axis[ROLL] + trimming[TRIM_ROLL]; 
+				pitch = axis[PITCH] + trimming[TRIM_PITCH];
+				yaw = axis[YAW] + trimming[TRIM_YAW];	
+				
 			}
 			else {
 				// Joystick read out failed so send MODE = 0
 				JS_mes[JS_MODE]  = 0;
-
-				// Encode and send the data
-				encode_message(JS_MASK, 5, JS_mes, msg);
-				send(msg, 15);
 			}
 // No joystick
-	#else
+	#else	
+			lift = 32767 + trimming[TRIM_LIFT];
+			roll = trimming[TRIM_ROLL]; 
+			pitch = trimming[TRIM_PITCH];
+			yaw = trimming[TRIM_YAW];	
+	#endif
+			JS_mes[JS_LIFT] = lift;
+			JS_mes[JS_ROLL] = roll;
+			JS_mes[JS_PITCH] = pitch;
+			JS_mes[JS_YAW] = yaw;	
+		
+			if((new_mode != mode ) && (new_mode != 0) && (new_mode != 1) && new_mode >=0 && new_mode <=5)
+			{
+				if (lift == 32767 && roll == 0 && pitch == 0 && yaw == 0)
+				{
+					mode = new_mode;				
+				}	
+				else
+				{	
+					printf("Make joystick and trimming values neutral\n");	
+					new_mode = mode;				
+				}			
+			}	
+			else
+			{	if(new_mode != mode && new_mode >=0 && new_mode <= 5){
+					mode = new_mode;	
+				}		
+			}
+			
+			if(new_mode == 999)
+			{	//abort, escape pressed
+				mode = 0; 				
+			}
+			
+			JS_mes[JS_MODE]  = mode;
+
 			// Encode message and send it
 			encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
 			send(msg, sizeof(msg)/sizeof(msg[0]));
-	#endif
 		}
 
 		if(loopRate >= 10)
 		{
 			//print the joystick values along with the time
-			print_joystick(axis, button,t);
+			//print_joystick(axis, button,t);
+			printf("mode: %d, lift: %d, roll: %d, pitch: %d, yaw: %d\n",mode, lift, roll, pitch, yaw);
 			loopRate = 0;
 		}
 	}
@@ -170,6 +218,11 @@ int main (void) {
 	// close communication
 	printf("Closing connection...\n");
 	close(fd);
+
+#if KEYBOARD
+	term_exitio();
+
+#endif	
 
 	return 0;
 }

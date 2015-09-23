@@ -19,7 +19,6 @@
 //period used for the sending of a DAQ message in us
 #define DAQ_MESSAGE_PERIOD	100000
 
-
 //Messages
 int DAQ_mes[8];
 int ERR_mes;
@@ -55,6 +54,11 @@ void status_led(void);
 void toggle_led(int i);
 void pc_link_led(int status);
 
+/*------------------------------------------------------------------
+ *	Main function of the x32 application
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 int main(void) 
 {		
 	
@@ -142,6 +146,7 @@ int main(void)
 			DAQ_mes[DAQ_TSTAMP] = X32_clock_us;
 								
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
+		
 			SEND_MESSAGE_FLAG = TRUE;
 			send_message_time = X32_clock_us;
 		}		
