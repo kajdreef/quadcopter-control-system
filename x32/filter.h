@@ -18,12 +18,20 @@ struct Filt_param {
 	int C1;
 	int C2;
 	int dt;
+	int alph;
 };
 
 typedef struct Filt_param Filt_Param;
 
-Filt_Param Filt_phi = { 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0};
-Filt_Param Filt_thet ={ 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0};
+Filt_Param Filt_phi = { 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0, 0};
+Filt_Param Filt_thet ={ 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0, 0};
+Filt_Param Filt_r ={ 0, 0, 0, 0, 0, 262144, -262144, 0, 0, 0, 1};	// Min=-1024, Max=1024, alpha is as low as possible
+
+int BF_2nd(int x,int *xy, Filt_Param *Filt);
+int F_1st(int x, int prev_out, Filt_Param *Filt);
+int rem_absurd_val(int x, int prev_x, Filt_Param *Filt);
+void kalman(int sphi, int sp, int *bias, int *phi, int *p, Filt_Param *Filt);
+void isr_sensor();
 
 
 # define X32_QR_S0 peripherals[PERIPHERAL_XUFO_S0]		// roll

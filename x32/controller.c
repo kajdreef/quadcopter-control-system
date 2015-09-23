@@ -7,13 +7,13 @@
 
 //#define VERBOSE_CONTROLLER
 
-
+#define INV_P_Y 1024
 
 extern int JS_mes[5];
 extern int state;
 extern int isr_controller_time;
 extern enum QR mode;
-
+extern int filtered_r;
 
 void manual_lift(Factors *F){
 	
@@ -33,7 +33,7 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-
+	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/32 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
 }
 
 void control_pitch(Factors *F){

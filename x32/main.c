@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "supervisor.h"
 #include "controller.h"
+#include "filter.h"
 
 //Debugging
 //The controller, Communication and actuators have defines statements as well
@@ -71,6 +72,7 @@ int main(void)
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
 	supervisor_set_mode(&mode, SAFE);
+
  /*
 	Operation
 */
@@ -120,6 +122,7 @@ int main(void)
 			MESSAGE_FLAG = FALSE;
 		}
 		
+
 	}
 
 	
