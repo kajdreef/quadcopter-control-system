@@ -109,7 +109,7 @@ int main (void) {
 		if(keyboard_input != -1)
 		{	
 			int temp = 0;
-			printf("Keyboard input: %X\n", keyboard_input);
+			//printf("Keyboard input: %X\n", keyboard_input);
 			if((temp = process_keyboard(keyboard_input, trimming)) != -1)
 			{
 				new_mode = temp;
@@ -210,9 +210,16 @@ int main (void) {
 		{
 			#if RECEIVED_MSG_PRINT
 			if(flag_MSG_RECEIVED){
-				printf("Mode %7d \tRoll %7d\t Pitch %7d\t Yaw_rate %7d\t AE1 %7d\t AE2 %7d\t AE3 %7d\t AE4 %7d\n",
-							DAQ_mes[DAQ_MODE], DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE], DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
-				printf("Mode %7d \tlift %7d \tRoll %7d\t Pitch %7d\t Yaw %7d\n", mode, lift, roll, pitch, yaw);
+				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+				printf("Received data:\n");	
+				printf("QR mode: %d\n", DAQ_mes[DAQ_MODE]);
+				printf("Roll: %d\t Pitch: %d\t Yaw_rate: %d\t\n", DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE]);
+				printf("Motor values: \n");
+				printf("AE1: %d\t AE2: %d\t AE3: %d\t AE4: %d\n", DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
+				printf("\n\n");
+
+				printf("Transmitted data:\n");
+				printf("Mode: %d lift: %d Roll: %d Pitch: %d Yaw: %d\n", mode, lift, roll, pitch, yaw);
 
 				flag_MSG_RECEIVED = 0;
 			}
