@@ -82,11 +82,11 @@ void decode (char* input, int msg_length, int* dest ){
 	int result1;
 	int result2;
 	int result3;
-	char DECODE_MASK = input[0] & 11000000;
+	char DECODE_MASK = input[0] & 0xc0;
 
 	for(i = 0; i < msg_length; i++){
 		final_result = 0;
-		if( CHECK_SIGN_BIT(input[i*3 + 0])){
+		if( CHECK_SIGN_BIT(input[i*3])){
 			#if DEBUG
 			printf("SIGNED BIT FOUND\n");
 			#endif
@@ -97,11 +97,12 @@ void decode (char* input, int msg_length, int* dest ){
 		result2 = (input[i*3 + 1] ^ DECODE_MASK) << 6;
 
 		if(i == msg_length-1){
-			char test = (input[i*3 + 2] ^ 11000000);
-			result3 = test;
+			char test = (input[i*3 + 2] ^ END);
+			result3 =  test;
 		}
 		else {
-			result3 = (input[i*3 + 2] ^ DECODE_MASK);
+			char test = (input[i*3 + 2] ^ DECODE_MASK);
+			result3 = test;
 		}
 
 		final_result ^= (result1 ^ result2 ^ result3);

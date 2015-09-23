@@ -14,7 +14,7 @@
 #define SERIAL_DEVICE 	"/dev/ttyUSB0"
 
 #define DEBUG_MESSAGES_SEND 0
-#define DEBUG_MESSAGES_RECEIVE 1
+#define DEBUG_MESSAGES_RECEIVE 0
 #define DEBUG_RECEIVED_CHAR 0
 
 #define NANO 1000000000L
@@ -109,7 +109,7 @@ void detect_message (char data) {
 
 	#if DEBUG_RECEIVED_CHAR
 		printf("Received char: ");
-		printBits(sizeof(data), &data);
+		printf("%x\n", data);
 	#endif
 
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
@@ -131,7 +131,7 @@ void detect_message (char data) {
 		else {
 			//successful receival of a message
 			message[receive_count] = data;
-			decode(message, receive_count, DAQ_mes);
+			decode(message, MESSAGE_LENGTH/3, DAQ_mes);
 			flag_MSG_RECEIVED = TRUE;
 		}
 		receive_count = 0;

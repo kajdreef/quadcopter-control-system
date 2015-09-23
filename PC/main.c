@@ -203,8 +203,8 @@ int main (void) {
 		{
 			#if RECEIVED_MSG_PRINT
 			if(flag_MSG_RECEIVED){
-				printf("Time %7d \tRoll %7d\t Pitch %7d\t Yaw_rate %7d\t AE1 %7d\t AE2 %7d\t AE3 %7d\t AE4 %7d\n",
-							DAQ_mes[DAQ_TSTAMP], DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE], DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
+				printf("Mode %7d \tRoll %7d\t Pitch %7d\t Yaw_rate %7d\t AE1 %7d\t AE2 %7d\t AE3 %7d\t AE4 %7d\n",
+							DAQ_mes[DAQ_MODE], DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE], DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
 
 				flag_MSG_RECEIVED = 0;
 			}

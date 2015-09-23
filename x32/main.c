@@ -145,7 +145,7 @@ int main(void)
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];
 			DAQ_mes[DAQ_AE4] = ae[3];
-			DAQ_mes[DAQ_TSTAMP] = X32_clock_us;
+			DAQ_mes[DAQ_MODE] =  mode;
 								
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
 
