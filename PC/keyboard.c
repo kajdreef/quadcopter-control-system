@@ -89,10 +89,23 @@ int process_keyboard(char c, int *trim)
 			trimming:
 		*/
 		case 'a':
-			*(trim + TRIM_LIFT) += TRIM;		
+			
+			trim[TRIM_LIFT] += TRIM;
+	
+			if(trim[TRIM_LIFT] > 0 )
+			{
+				trim[TRIM_LIFT]	= 0;		
+			}
+				
 			break;
 		case 'z':
 			*(trim + TRIM_LIFT) -= TRIM;
+				
+			if(trim[TRIM_LIFT] < -65534 )
+			{
+				trim[TRIM_LIFT]	= -65534;		
+			}				
+			
 			break;
 		case 'w':
 			*(trim + TRIM_YAW) += TRIM;		
@@ -102,7 +115,7 @@ int process_keyboard(char c, int *trim)
 			break;
 		//left arrow	
 		case 0x44:
-			
+			//	if(*(trim+TRIM_ROLL)> 
 				*(trim + TRIM_ROLL) += TRIM;
 			
 		break;
