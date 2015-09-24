@@ -54,6 +54,10 @@ int main (void) {
 	unsigned int t;
 	int fd;
 
+	//For printing an error in the user interface
+	char error_message[50];
+	strncpy(error_message, "\n", 50);
+	
 	#if JOYSTICK
 		struct js_event js;
 		struct js_event *js_ptr = &js;
@@ -181,10 +185,12 @@ int main (void) {
 				if (lift == 32767 && roll == 0 && pitch == 0 && yaw == 0)
 				{
 					mode = new_mode;
+					strncpy(error_message, "\n", 50);
+	
 				}
 				else
 				{
-					printf("Make joystick and trimming values neutral\n");
+						strncpy(error_message, "Make joystick and trimming values neutral\n", 50);
 					new_mode = mode;
 				}
 			}
@@ -210,17 +216,23 @@ int main (void) {
 		{
 			#if RECEIVED_MSG_PRINT
 			if(flag_MSG_RECEIVED){
-				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-				printf("Received data:\n");	
-				printf("QR mode: %d\n", DAQ_mes[DAQ_MODE]);
-				printf("Roll: %d\t Pitch: %d\t Yaw_rate: %d\t\n", DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE]);
+				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+				printf("*****************\n");
+				printf("* Received data *\n");
+				printf("*****************\n");
+	
+				printf("QR mode: \t%d\n", DAQ_mes[DAQ_MODE]);
+				printf("Roll: \t\t%d\nPitch: \t\t%d\nYaw_rate: \t%d\n\n", DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE]);
 				printf("Motor values: \n");
 				printf("AE1: %d\t AE2: %d\t AE3: %d\t AE4: %d\n", DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
-				printf("\n\n");
+				printf("\n");
 
-				printf("Transmitted data:\n");
-				printf("Mode: %d lift: %d Roll: %d Pitch: %d Yaw: %d\n", mode, lift, roll, pitch, yaw);
-
+				printf("*****************\n");
+				printf("*    PC data    *\n");
+				printf("*****************\n");
+	
+				printf("Mode: \t\t%d\nlift: \t\t%d\nRoll: \t\t%d\nPitch: \t\t%d\nYaw: \t\t%d\n", mode, lift, roll, pitch, yaw);
+				printf("%s",error_message);
 				flag_MSG_RECEIVED = 0;
 			}
 			#endif
