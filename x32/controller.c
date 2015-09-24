@@ -121,18 +121,3 @@ void setup_controller_interrupts(int prio){
 
 }
 
-// int main() 
-// {
-// 	setup_controller_interrupts();
-// 	/* 
-// 		Enable global interrupts
-// 	 */
-//     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
-
-// 	X32_display = 0xABCD;
-	
-	
-//     DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-
-// 	return 0;
-// }

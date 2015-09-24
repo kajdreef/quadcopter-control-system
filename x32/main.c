@@ -112,18 +112,18 @@ int main(void)
 	
 		while(is_char_available())
 		{//Get characters out of the fifo ready for processing			
-		
 			detect_message(get_char());
-						
 		}
 
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
 			last_message_time = X32_clock_us;
 			
-			//Decode the message						
+			//Decode the message
+			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);						
 			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
-				
+			ENABLE_INTERRUPT(INTERRUPT_GLOBAL);	
+					
 			//Check if the mode needs to be switched
 			supervisor_received_mode(&mode, JS_mes[JS_MODE]);
 
@@ -146,10 +146,13 @@ int main(void)
 			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
 			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
 			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW];
+			
+			//Possible switch of the interrupts
 			DAQ_mes[DAQ_AE1] = ae[0];
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];
 			DAQ_mes[DAQ_AE4] = ae[3];
+			//
 			DAQ_mes[DAQ_MODE] =  mode;
 								
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
@@ -172,6 +175,11 @@ int main(void)
 	return 0;
 }
 
+/*------------------------------------------------------------------
+ * check_pc_led -- CHecks what the status of the PC link is
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 int check_pc_link(int last_message_time, int com_started){
 
 	if(com_started == 1)
@@ -193,6 +201,11 @@ int check_pc_link(int last_message_time, int com_started){
 
 }
 
+/*------------------------------------------------------------------
+ * pc_link_led -- Sets the led that shows the status of the pc link
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void pc_link_led(int status){
 
 	

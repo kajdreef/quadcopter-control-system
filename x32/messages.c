@@ -126,6 +126,7 @@ void decode (char* input, int msg_length, int* dest ){
 		}
 
 		final_result ^= (result1 ^ result2 ^ result3);
+		
 		*(dest + i) = final_result;
 
 		#if DEBUG
