@@ -14,6 +14,7 @@
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
+#define SENSOR_INTERRUPT
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000 
@@ -78,12 +79,15 @@ int main(void)
 	JS_mes[JS_LIFT] = 32767;	
 
 #ifdef MESSAGE_INTERRUPT
-	setup_uart_interrupts(9);
+	setup_uart_interrupts(8);
 #endif 
 #ifdef CONTROLLER_INTERRUPT
 	setup_controller_interrupts(10);
 #endif 
-
+#ifdef SENSOR_INTERRUPT
+	setup_sensor_interrupts(9);
+#endif
+	
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
 	supervisor_set_mode(&mode, SAFE);
