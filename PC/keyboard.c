@@ -89,9 +89,7 @@ int process_keyboard(char c, int *trim)
 			trimming:
 		*/
 		case 'a':
-			
 			trim[TRIM_LIFT] += TRIM;
-	
 			if(trim[TRIM_LIFT] > 0 )
 			{
 				trim[TRIM_LIFT]	= 0;		
@@ -99,8 +97,7 @@ int process_keyboard(char c, int *trim)
 				
 			break;
 		case 'z':
-			*(trim + TRIM_LIFT) -= TRIM;
-				
+			trim[TRIM_LIFT] -= TRIM;
 			if(trim[TRIM_LIFT] < -65534 )
 			{
 				trim[TRIM_LIFT]	= -65534;		
@@ -108,35 +105,54 @@ int process_keyboard(char c, int *trim)
 			
 			break;
 		case 'w':
-			*(trim + TRIM_YAW) += TRIM;		
+			trim[TRIM_YAW] += TRIM;		
+			if(trim[TRIM_YAW] > 32767)
+			{
+				trim[TRIM_YAW] = 32767;			
+			}			
+			
+	
 			break;
 		case 'q':
-			*(trim + TRIM_YAW) -= TRIM;
+			trim[TRIM_YAW] -= TRIM;		
+			if(trim[TRIM_YAW] < -32767)
+			{
+				trim[TRIM_YAW] = -32767;			
+			}			
 			break;
 		//left arrow	
 		case 0x44:
-			//	if(*(trim+TRIM_ROLL)> 
-				*(trim + TRIM_ROLL) += TRIM;
-			
-		break;
+			trim[TRIM_ROLL] += TRIM;
+			if(trim[TRIM_YAW] > 32767)
+			{
+				trim[TRIM_YAW] = 32767;			
+			}	
+			break;
 		//right arrow	
 		case 0x43:
-			 
-				*(trim + TRIM_ROLL) -= TRIM;
-			
+			 trim[TRIM_ROLL] -= TRIM;
+			if(trim[TRIM_ROLL] < -32767)
+			{
+				trim[TRIM_ROLL] = -32767;
+			}
+							
 			break;
 		//up arrow		
 		case 0x41:
-		
-				
-				*(trim + TRIM_PITCH) -= TRIM;
-			
+			trim[TRIM_PITCH] -= TRIM;
+	
+			if(trim[TRIM_PITCH] < -32767)
+			{
+				trim[TRIM_PITCH] = -32767;
+			}
 			break;
 		//down arrow		
 		case 0x42:
-			
-				*(trim + TRIM_PITCH) += TRIM;
-			
+			trim[TRIM_PITCH] += TRIM;
+			if(trim[TRIM_PITCH] > 32767)
+			{
+				trim[TRIM_PITCH] = 32767;			
+			}	
 			break;
 		/*
 			Controller tuning
