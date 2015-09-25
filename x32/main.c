@@ -90,7 +90,6 @@ int main(void)
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);
 #endif
-
 	supervisor_set_mode(&mode, SAFE);
 	
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
@@ -136,18 +135,26 @@ int main(void)
 		if(MESSAGE_FLAG == TRUE){
 		
 			//Decode the message
-			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
-			
-			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
-			//check if the received inputs make sense
-			if(check_inputs(JS_mes_unchecked, JS_mes))
+			if(message_type == JS_MASK)
 			{
-				last_message_time = X32_clock_us;			
+				decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
+				
+				DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
+				//check if the received inputs make sense
+				if(check_inputs(JS_mes_unchecked, JS_mes))
+				{
+					last_message_time = X32_clock_us;			
+				}
+				ENABLE_INTERRUPT(INTERRUPT_GLOBAL);	
+		
+				//Check if the mode needs to be switched
+				supervisor_received_mode(&mode, JS_mes[JS_MODE]);
+
 			}
-			ENABLE_INTERRUPT(INTERRUPT_GLOBAL);	
-					
-			//Check if the mode needs to be switched
-			supervisor_received_mode(&mode, JS_mes[JS_MODE]);
+			else if(message_type == CON_MASK)
+			{
+				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
+			}
 
 			if(com_started == 0)
 			{	//To not switch to panic mode when the system starts and is not yet connected
