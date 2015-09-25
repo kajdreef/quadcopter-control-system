@@ -26,7 +26,7 @@
 int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
-int JS_mes[5];
+int JS_mes[5]= {32767};
 int JS_mes_unchecked[5];
 int CON_mes[3];
 

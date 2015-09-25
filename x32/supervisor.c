@@ -86,108 +86,112 @@ void supervisor_check_panic(enum QR *mode){
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
-	switch(*mode){
-		case SAFE:
-			/*
-				Only allowed to execute everything below if if RPM = 0 and if LIFT/ROLL/PITCH/YAW are neutral 
-			*/
+	if(*mode != new_mode){
+		switch(*mode){
+			case SAFE:
+				/*
+					Only allowed to execute everything below if if RPM = 0 and if LIFT/ROLL/PITCH/YAW are neutral 
+				*/
 
-			if(neutral_input()){
-			//SAFE mode has 0 RPM per definition enforced by the actuators
-				if(new_mode == YAW_CONTROL)
-				{
-					*mode = CALIBRATION;
+				if(neutral_input()){
+				//SAFE mode has 0 RPM per definition enforced by the actuators
+					if(new_mode == YAW_CONTROL)
+					{
+						*mode = CALIBRATION;
+					}
+					else if(new_mode == CALIBRATION)
+					{
+						*mode = new_mode;			
+					}
+					else if(new_mode == MANUAL)
+					{  
+						//JS_mes[JS_LIFT] = 32767;		// Set minimum lift, probably not needed anymore!
+						*mode = new_mode;
+					}			
 				}
-				else if(new_mode == CALIBRATION)
-				{
-					*mode = new_mode;			
-				}
-				else if(new_mode == MANUAL)
-				{  
-					//JS_mes[JS_LIFT] = 32767;		// Set minimum lift, probably not needed anymore!
-					*mode = new_mode;
-				}			
-			}
-			break;
+				break;
 	
-		case PANIC:
-#ifdef DEBUG_SUPERVISOR
-			printf("Panic mode time %d:\r\n", X32_clock_us-panic_time);
-			printf("new mode: %d\r\n", new_mode);	
-			printf("panic time %d \r\n", panic_time);			
+			case PANIC:
+	#ifdef DEBUG_SUPERVISOR
+				printf("Panic mode time %d:\r\n", X32_clock_us-panic_time);
+				printf("new mode: %d\r\n", new_mode);	
+				printf("panic time %d \r\n", panic_time);			
 		
-#endif		
+	#endif		
 
-			if(new_mode == SAFE && panic_time !=0 && (X32_clock_us - panic_time > PANIC_US))
-			{
-				*mode = new_mode;
-				panic_time = 0;
-			}
-			break;
+				if(new_mode == SAFE && panic_time !=0 && (X32_clock_us - panic_time > PANIC_US))
+				{
+					*mode = new_mode;
+					panic_time = 0;
+				}
+				break;
 	
-		case MANUAL:
-			if(new_mode == PANIC)
-			{
-				*mode = new_mode;
-			}
-			if(new_mode == SAFE)
-			{//panic will switch to safe automatically
-				*mode = PANIC;
-				new_mode = PANIC;
-			}
-			break;
-		case CALIBRATION:
-			if(new_mode == SAFE)
-			{
-				*mode = new_mode;
-			}
-			else if(new_mode == YAW_CONTROL && calibrated)
-			{
-				*mode  = new_mode;
-			};
-			break;
+			case MANUAL:
+				if(new_mode == PANIC)
+				{
+					*mode = new_mode;
+				}
+				if(new_mode == SAFE)
+				{//panic will switch to safe automatically
+					*mode = PANIC;
+					new_mode = PANIC;
+				}
+				break;
+			case CALIBRATION:
+				if(new_mode == SAFE)
+				{
+					*mode = new_mode;
+				}
+				else if(new_mode == YAW_CONTROL && calibrated)
+				{
+					*mode  = new_mode;
+				};
+				break;
 
-		case YAW_CONTROL:
-			if(new_mode == PANIC)
-			{
-				*mode = new_mode;
-			}
-			if(new_mode == SAFE)
-			{
-				*mode = PANIC;
-				new_mode = PANIC;
-			};
-			break;
+			case YAW_CONTROL:
+				if(new_mode == PANIC)
+				{
+					*mode = new_mode;
+				}
+				if(new_mode == SAFE)
+				{
+					*mode = PANIC;
+					new_mode = PANIC;
+				};
+				break;
 
-		case FULL_CONTROL:
-			if(new_mode == PANIC)
-			{
-				*mode = new_mode;
-			}
-			if(new_mode == SAFE)
-			{//panic will switch to safe automatically
-				*mode = PANIC;
-				new_mode = PANIC;
-			}
-			break;
+			case FULL_CONTROL:
+				if(new_mode == PANIC)
+				{
+					*mode = new_mode;
+				}
+				if(new_mode == SAFE)
+				{//panic will switch to safe automatically
+					*mode = PANIC;
+					new_mode = PANIC;
+				}
+				break;
 
-		default:
-		*mode = PANIC;
+			default:
+			*mode = PANIC;
+		}
+
+		if(new_mode == PANIC )
+		{
+			panic_time = X32_clock_us;
+		}
+		if(new_mode == SAFE)
+		{
+			calibrated = 0;
+		}
 	}
 
-	if(new_mode == PANIC )
-	{
-		panic_time = X32_clock_us;
-	}
-	if(new_mode == SAFE)
-	{
-		calibrated = 0;
-	}
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
    	X32_leds &= 7;
 	X32_leds |= (*mode+1) << 3;	 
 
 	
-	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
 }
 
 

@@ -1,7 +1,5 @@
 #include "communication.h"
 
-//#define VERBOSE_COMM
-
 #define PACKETS_PANIC_THRESHOLD 75
 
 #define FIFO_SIZE 128
@@ -65,7 +63,6 @@ int is_char_available(void){
 
 }
 
-
 /*------------------------------------------------------------------
  * isr_getchar -- get a character from the fifo buffer
  * Author: Bastiaan Oosterhuis
@@ -85,7 +82,7 @@ int get_char(void)
 
 /*------------------------------------------------------------------
  * detect_message -- Detect a message by searching for a pattern in the received messages
- * Returns the status of the PC link. If too many packages losses the system will switch to panic mode
+ * If too many packages losses the system will switch to panic mode
  * 
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
@@ -99,56 +96,43 @@ void detect_message(char data){
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
 
-	//X32_display = data;
-#ifdef VERBOSE_COMM
-	//	printf("received data: 0X%X\r\n",data);
-	//	printf("message_length: %d \r\n", message_length(data));
-		//printf("receive count: %d\r\n", receive_count);
-	//	printf("prev: 0X%X\r\n",prev);
-		//printf("END: 0X%X\r\n", END);
-#endif	
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
-#ifdef VERBOSE_COMM
-	//	printf("Synchronization\r\n");
-#endif
-		sync = 1; //We now have synched with a message
+
 		message[receive_count] = data;		
 		receive_count++;
 		message_type = data & END;
 		
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1 && message_length(data) == MESSAGE_LENGTH)
-	{	//place data in message array
+	{
+		//Receival of a packet of correct message type
 		message[receive_count] = data;
 		receive_count++; 	
 	}		
+	else if(receive_count == (MESSAGE_LENGTH-1) && (data&END) == END)
+	{
+		//end of a message is detected succesfully
+		message[receive_count] = data;
+		MESSAGE_FLAG = TRUE;
+	
+		//message finished so reset count
+		receive_count = 0;	
+		lost_packets = 0;
+	}
 	else
-	{		
-		if(( (data&END)!= END && sync != 0) | receive_count == 0){// message_length(data) != MESSAGE_LENGTH){
-			//Error
-			lost_packets++;
-			
-#ifdef VERBOSE_COMM
-			printf("lost package(%d)\r\n", lost_packets);
-#endif
-			if(lost_packets >= PACKETS_PANIC_THRESHOLD){
-			//too much packets lost, set panic mode
-				supervisor_set_mode(&mode, PANIC);		
-				lost_packets = 0;
-				
-			}		
-		}
-		else
-		{	//successful receival of a message
-			message[receive_count] = data;
-			MESSAGE_FLAG = TRUE;
+	{	
+		//1. No synchronization yet
+		//2. Synchronization but during message wrong first 2 bits
+		//3. End of message expected but final byte has the wrong first 2 bits
+		
+		lost_packets++;
+		if(lost_packets >= PACKETS_PANIC_THRESHOLD)
+		{
+			supervisor_set_mode(&mode, PANIC);		
 			lost_packets = 0;
-			
-#ifdef VERBOSE_COMM
-			//printf("Message type %c received successfully\r\n", message_type);
-#endif
-		}
+		}		
+	
 		receive_count = 0;			
 	}
 	
