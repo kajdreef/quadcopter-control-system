@@ -14,7 +14,7 @@
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
-#define SENSOR_INTERRUPT
+//#define SENSOR_INTERRUPT
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000 
@@ -27,6 +27,7 @@ int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5];
+int JS_mes_unchecked[5];
 int CON_mes[3];
 
 //actuator values
@@ -123,8 +124,11 @@ int main(void)
 			last_message_time = X32_clock_us;
 			
 			//Decode the message
-			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);						
-			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
+							
+			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
+			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
+				check_inputs(JS_mes_unchecked, JS_mes);
+
 			ENABLE_INTERRUPT(INTERRUPT_GLOBAL);	
 					
 			//Check if the mode needs to be switched

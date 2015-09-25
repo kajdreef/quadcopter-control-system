@@ -135,7 +135,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				*mode = PANIC;
 				new_mode = PANIC;
 			}
-
+			break;
 		case CALIBRATION:
 			if(new_mode == SAFE)
 			{
@@ -209,4 +209,27 @@ int neutral_input(void)
 
 }
 
+void check_inputs(int *unchecked, int *checked)
+{	int i;
+	int flag = 0;	
+	for(i =0; i < 4; i++)
+	{
+		if(unchecked[i] > 32767 || unchecked[i] < -32767)
+		{
+			flag = 1;			
+		}
+	}
+		
+	if(unchecked[4] > 6 || unchecked[4] < 0 )
+	{
+		flag = 1;
+	}
+
+	if( flag == 0)
+	{
+		for(i = 0; i <5; i++){
+			checked[i] = unchecked[i];
+		}
+	}
+}
 

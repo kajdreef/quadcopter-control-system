@@ -1,6 +1,6 @@
 #include "communication.h"
 
-#define VERBOSE_COMM
+//#define VERBOSE_COMM
 
 #define PACKETS_PANIC_THRESHOLD 75
 
@@ -118,14 +118,14 @@ void detect_message(char data){
 		message_type = data & END;
 		
 	}
-	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1)
+	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1 && message_length(data) == MESSAGE_LENGTH)
 	{	//place data in message array
 		message[receive_count] = data;
 		receive_count++; 	
 	}		
 	else
 	{		
-		if(( (data&END)!= END && sync != 0) | receive_count == 0){
+		if(( (data&END)!= END && sync != 0) | receive_count == 0){// message_length(data) != MESSAGE_LENGTH){
 			//Error
 			lost_packets++;
 			
