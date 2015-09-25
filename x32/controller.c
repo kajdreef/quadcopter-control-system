@@ -7,7 +7,7 @@
 
 //#define VERBOSE_CONTROLLER
 
-#define INV_P_Y 1024
+#define INV_P_Y 512
 
 extern int JS_mes[5];
 extern int state;
@@ -34,7 +34,7 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/32 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
+	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/64 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
 }
 
 void control_pitch(Factors *F){
