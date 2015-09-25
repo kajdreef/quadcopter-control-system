@@ -7,6 +7,11 @@
 char fifo_buffer[FIFO_SIZE] = {0};
 int rear = 0, front = 0;
 
+void toggle_led(int i) 
+{
+	X32_leds = (X32_leds ^ (1 << i));
+}
+
 
 /*------------------------------------------------------------------
  * send_message -- send characters from an array
@@ -133,7 +138,8 @@ void detect_message(char data){
 			lost_packets = 0;
 		}		
 	
-		receive_count = 0;			
+		receive_count = 0;		
+		toggle_led(6);	
 	}
 	
 	prev = data&END;

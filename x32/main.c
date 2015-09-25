@@ -27,7 +27,7 @@ int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5]= {32767};
 int JS_mes_unchecked[5];
-int CON_mes[3];
+int CON_mes[3] = {1,1,1};
 
 //actuator values
 int ae[4] = {0};
@@ -152,7 +152,8 @@ int main(void)
 
 			}
 			else if(message_type == CON_MASK)
-			{
+			{	
+				toggle_led(7);
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
 			}
 
@@ -179,7 +180,7 @@ int main(void)
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];
 			DAQ_mes[DAQ_AE4] = ae[3];
-			//
+			
 			DAQ_mes[DAQ_MODE] =  mode;
 								
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);

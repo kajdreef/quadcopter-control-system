@@ -51,6 +51,44 @@ int	term_getchar(void){
 }
 
 /*------------------------------------------------------------------
+ *	keyboard_control_input Check whether the keyboard input is related
+ *  to tuning the controller
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int keyboard_control_input(char input)
+{	
+	
+	switch(input){
+		case 'u':
+			return 1;
+		break;		
+		case 'j':
+			return 1;
+		break;
+		case 'i':
+			return 1;
+		break;
+		case 'k':
+			return 1;
+		break;
+		case 'o':
+			return 1;
+		break;
+		case 'l':
+			return 1;
+		break;	
+		default:
+		return -1;
+	
+	}
+	
+	
+
+}
+
+
+/*------------------------------------------------------------------
  *	process_keyboard function used to process the keymap
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------

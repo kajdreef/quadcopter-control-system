@@ -20,5 +20,6 @@ void term_puts(char *s);
 void term_putchar(char c); 
 int	term_getchar_nb();  
 int	term_getchar(); 
+int keyboard_control_input(char input);
 
 #endif

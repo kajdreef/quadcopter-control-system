@@ -29,7 +29,7 @@ int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
-int CON_mes[3];
+int CON_mes[3] = {1,1,1};
 
 char msg[15];
 
@@ -46,7 +46,6 @@ int main (void) {
 	int js_fd;
 
 	int trimming[4] = {0};
-	int control_p[3] = {1,1,1};
 	int mode = 0;
 	int new_mode = 0;
 
@@ -112,13 +111,20 @@ int main (void) {
 		
 		if(keyboard_input != -1)
 		{	
-			int temp = 0;
+			int rv = 0;
 			//printf("Keyboard input: %X\n", keyboard_input);
-			if((temp = process_keyboard(keyboard_input, trimming, control_p)) != -1)
+			if((rv = process_keyboard(keyboard_input, trimming, CON_mes)) != -1)
 			{
-				new_mode = temp;
+				new_mode = rv;
 			}
 
+		}
+
+		if(keyboard_control_input(keyboard_input) != -1)
+		{
+			//send a control message
+			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
+			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
 		}
 #endif
 		clock_gettime(CLOCK_MONOTONIC, &currentTime);
@@ -233,9 +239,9 @@ int main (void) {
 				printf("*****************\t********************\n");
 				printf("*    PC data    *\t*   Control param  *\n");
 				printf("*****************\t********************\n");
-				printf("Mode: \t\t%d\t Yaw P(u/j): \t%d\n",mode, control_p[0]);
-				printf("lift(a/z):\t%d\t R/P(i/k) P1: \t%d\n",lift, control_p[1]);
-				printf("roll: \t\t%d\t R/P P2(o/l): \t%d\n",roll, control_p[2]);
+				printf("Mode: \t\t%d\t Yaw P(u/j): \t%d\n",mode, CON_mes[0]);
+				printf("lift(a/z):\t%d\t R/P(i/k) P1: \t%d\n",lift, CON_mes[1]);
+				printf("roll: \t\t%d\t R/P P2(o/l): \t%d\n",roll, CON_mes[2]);
 				printf("Pitch: \t\t%d\n", pitch);
 				printf("Yaw(q/w): \t%d\n",yaw);
 				printf("%s",error_message);
