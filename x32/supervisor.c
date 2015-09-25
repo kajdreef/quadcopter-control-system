@@ -85,14 +85,10 @@ void supervisor_check_panic(enum QR *mode){
  */
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-
 	if(*mode != new_mode){
 		switch(*mode){
 			case SAFE:
-				/*
-					Only allowed to execute everything below if if RPM = 0 and if LIFT/ROLL/PITCH/YAW are neutral 
-				*/
-
+				
 				if(neutral_input()){
 				//SAFE mode has 0 RPM per definition enforced by the actuators
 					if(new_mode == YAW_CONTROL)
@@ -116,7 +112,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				printf("Panic mode time %d:\r\n", X32_clock_us-panic_time);
 				printf("new mode: %d\r\n", new_mode);	
 				printf("panic time %d \r\n", panic_time);			
-		
 	#endif		
 
 				if(new_mode == SAFE && panic_time !=0 && (X32_clock_us - panic_time > PANIC_US))
@@ -138,9 +133,9 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				}
 				break;
 			case CALIBRATION:
-				if(new_mode == SAFE)
+				if(new_mode == SAFE | new_mode == PANIC)
 				{
-					*mode = new_mode;
+					*mode = SAFE;
 				}
 				else if(new_mode == YAW_CONTROL && calibrated)
 				{
@@ -187,10 +182,9 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	}
 
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-   	X32_leds &= 7;
+	//set the mode on the LEDs
+	X32_leds &= 7;
 	X32_leds |= (*mode+1) << 3;	 
-
-	
 	
 }
 
