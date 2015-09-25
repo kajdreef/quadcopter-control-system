@@ -8,7 +8,7 @@
 #include "keyboard.h"
 
 #define CONTINUOUS 1
-#define JOYSTICK 0
+#define JOYSTICK 1
 #define KEYBOARD 1
 
 #define SEND_MESSAGE_PRINT 0
@@ -166,7 +166,8 @@ int main (void) {
 			}
 			else {
 				// Joystick read out failed so send MODE = 0
-				JS_mes[JS_MODE]  = 0;
+				strncpy(error_message, "joystick readout failed\n", 50);
+				mode  = 0;
 			}
 	// No joystick
 	#else

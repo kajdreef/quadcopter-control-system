@@ -53,6 +53,9 @@ int panic_time = 0;
 //Variables for profiling
 int isr_controller_time = 0;
 
+//filtered yaw rate
+extern int filtered_r;
+
 void status_led(void);
 void toggle_led(int i);
 void pc_link_led(int status);
@@ -145,7 +148,7 @@ int main(void)
 		{
 			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
 			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
-			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW];
+			DAQ_mes[DAQ_YAW_RATE] = filtered_r;//JS_mes[JS_YAW];
 			
 			//Possible switch of the interrupts
 			DAQ_mes[DAQ_AE1] = ae[0];

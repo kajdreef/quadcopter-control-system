@@ -52,7 +52,7 @@ int read_joystick(int jfd, struct js_event *js, int axis[], int button[]){
 	
 	if (errno != EAGAIN) 
 	{
-		perror("\njs: error reading (EAGAIN)");
+	//	perror("\njs: error reading (EAGAIN)");
 		return -1;
 	}
 	
