@@ -8,7 +8,7 @@
 #include "keyboard.h"
 
 #define CONTINUOUS 1
-#define JOYSTICK 1
+#define JOYSTICK 0
 #define KEYBOARD 1
 
 #define SEND_MESSAGE_PRINT 0
@@ -47,6 +47,7 @@ int main (void) {
 	int js_fd;
 
 	int trimming[4] = {0};
+	int yaw_p = 1, p1 = 1, p2 = 2;
 	int mode = 0;
 	int new_mode = 0;
 
@@ -218,21 +219,31 @@ int main (void) {
 			#if RECEIVED_MSG_PRINT
 			if(flag_MSG_RECEIVED){
 				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-				printf("*****************\n");
-				printf("* Received data *\n");
-				printf("*****************\n");
+				printf("*****************\t*********************\n");
+				printf("* Received data *\t*         QR        *\n");
+				printf("*****************\t*********************\n");
 	
-				printf("QR mode: \t%d\n", DAQ_mes[DAQ_MODE]);
-				printf("Roll: \t\t%d\nPitch: \t\t%d\nYaw_rate: \t%d\n\n", DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE]);
-				printf("Motor values: \n");
+				printf("QR mode: \t%d\t         %03d\n", DAQ_mes[DAQ_MODE],DAQ_mes[DAQ_AE1]);
+				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
+				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
+				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
+				printf("\t\t\t          |\n");
+				printf("\t\t\t          |\n");
+				printf("\t\t\t         %03d\n\n", DAQ_mes[DAQ_AE3]);
+
+			/*	printf("Motor values: \n");
 				printf("AE1: %d\t AE2: %d\t AE3: %d\t AE4: %d\n", DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
 				printf("\n");
+			*/
 
-				printf("*****************\n");
-				printf("*    PC data    *\n");
-				printf("*****************\n");
-	
-				printf("Mode: \t\t%d\nlift: \t\t%d\nRoll: \t\t%d\nPitch: \t\t%d\nYaw: \t\t%d\n", mode, lift, roll, pitch, yaw);
+				
+				printf("*****************\t********************\n");
+				printf("*    PC data    *\t*   Control param  *\n");
+				printf("*****************\t********************\n");
+				printf("Mode: \t\t%d\t Yaw P: \t%d\n",mode, yaw_p);
+				printf("lift: \t\t%d\t R/P P1: \t%d\n",lift, p1);
+				printf("roll: \t\t%d\t R/P P2: \t%d\n",roll, p2);
+				printf("Pitch: \t\t%d\nYaw: \t\t%d\n", pitch, yaw);
 				printf("%s",error_message);
 				flag_MSG_RECEIVED = 0;
 			}
