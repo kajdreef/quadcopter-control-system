@@ -14,7 +14,7 @@
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
-#define SENSOR_INTERRUPT
+//#define SENSOR_INTERRUPT
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000 
@@ -27,6 +27,7 @@ int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5];
+int JS_mes_unchecked[5];
 int CON_mes[3];
 
 //actuator values
@@ -52,6 +53,9 @@ int panic_time = 0;
 
 //Variables for profiling
 int isr_controller_time = 0;
+
+//filtered yaw rate
+extern int filtered_r;
 
 void status_led(void);
 void toggle_led(int i);
@@ -120,8 +124,11 @@ int main(void)
 			last_message_time = X32_clock_us;
 			
 			//Decode the message
-			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);						
-			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes);
+							
+			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
+			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
+				check_inputs(JS_mes_unchecked, JS_mes);
+
 			ENABLE_INTERRUPT(INTERRUPT_GLOBAL);	
 					
 			//Check if the mode needs to be switched
@@ -145,7 +152,7 @@ int main(void)
 		{
 			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
 			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
-			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW];
+			DAQ_mes[DAQ_YAW_RATE] = filtered_r;//JS_mes[JS_YAW];
 			
 			//Possible switch of the interrupts
 			DAQ_mes[DAQ_AE1] = ae[0];
