@@ -9,7 +9,6 @@
 
 //Debugging
 //The controller, Communication and actuators have defines statements as well
-//#define VERBOSE_JS
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
@@ -91,42 +90,56 @@ int main(void)
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);
 #endif
+
+	supervisor_set_mode(&mode, SAFE);
 	
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
-	supervisor_set_mode(&mode, SAFE);
-
- /*
+/*
 	Operation
 */
 	while (1){
 		
+		/*
+		 Blink the status led(1Hz)
+		 */
 		status_led();		
 		
+		/*
+		 Check if the system is in panic mode and if it can already switch to safe mode
+		*/
 		supervisor_check_panic(&mode);		
 		
+		/*
+		 Check the status of the PC link and determine whether to panic
+		*/
 		if(!check_pc_link(last_message_time, com_started))
-		{//Too long since last received message	
+		{	//Too long since last received message	
 			if(mode != PANIC)
 			{
 				supervisor_set_mode(&mode, PANIC);
 				pc_link_led(0);
 			}
 		}	
-	
+		
+		/*
+		 Check whether characters are avaiable in the FIFO and detect a message
+		*/
 		while(is_char_available())
-		{//Get characters out of the fifo ready for processing			
+		{			
 			detect_message(get_char());
 		}
 
+		/*
+		 A message is detected and needs processing
+		*/		
 		if(MESSAGE_FLAG == TRUE){
-			//A complete message is received
-			
-			
+		
 			//Decode the message
-							
 			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
+			
 			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
+			//check if the received inputs make sense
 			if(check_inputs(JS_mes_unchecked, JS_mes))
 			{
 				last_message_time = X32_clock_us;			
@@ -137,19 +150,17 @@ int main(void)
 			supervisor_received_mode(&mode, JS_mes[JS_MODE]);
 
 			if(com_started == 0)
-			{
+			{	//To not switch to panic mode when the system starts and is not yet connected
 				com_started = 1;
 			}
 			pc_link_led(1);
-
-#ifdef VERBOSE_JS
-			printf("Lift: %d, Pitch: %d, Roll: %d, Yaw: %d, received mode: %d \r\n", JS_mes[JS_LIFT], JS_mes[JS_PITCH], JS_mes[JS_ROLL], JS_mes[JS_YAW], JS_mes[JS_MODE]);
-		printf("contr time: %d\r\n", isr_controller_time);
-#endif
-							
+	
 			MESSAGE_FLAG = FALSE;
 		}
 
+		/*
+		 Send a Data Acquisition message(10Hz)	
+		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
 			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
@@ -170,6 +181,9 @@ int main(void)
 			send_message_time = X32_clock_us;
 		}		
 
+		/*
+		 A message is encoded and ready to be sent
+		*/	
 		if(SEND_MESSAGE_FLAG == TRUE)
 		{
 			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));		
