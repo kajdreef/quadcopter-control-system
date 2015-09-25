@@ -55,7 +55,7 @@ int	term_getchar(void){
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-int process_keyboard(char c, int *trim)
+int process_keyboard(char c, int *trim, int *control_p)
 {		
 	switch(c){
 		case 0x1B:
@@ -159,23 +159,23 @@ int process_keyboard(char c, int *trim)
 		*/
 		//YAW CONTROL
 		case 'u':
-			;
+			control_p[0] += TUNE; 
 			break;
 		case 'j':
-			;
+			control_p[0] -= TUNE;
 			break;
 		//ROLL/PITCH Control
 		case 'i':
-			;
+			control_p[1] += TUNE; 
 			break;
 		case 'k':
-			;
+			control_p[1] -= TUNE; 
 			break;
 		case 'o':
-			;
+			control_p[2] += TUNE; 
 			break;
 		case 'l':
-			;
+			control_p[2] -= TUNE; 
 			break;
 			
 		default:

@@ -7,7 +7,7 @@
 #include <string.h>
 
 #define TRIM		100
-#define TUNE		100
+#define TUNE		10
 
 #define TRIM_LIFT 	0
 #define	TRIM_ROLL	1	

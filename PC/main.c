@@ -24,7 +24,6 @@
 
 #define NANO 1000000000L
 
-
 //Message
 int DAQ_mes[8];
 int ERR_mes;
@@ -47,7 +46,7 @@ int main (void) {
 	int js_fd;
 
 	int trimming[4] = {0};
-	int yaw_p = 1, p1 = 1, p2 = 2;
+	int control_p[3] = {1,1,1};
 	int mode = 0;
 	int new_mode = 0;
 
@@ -115,7 +114,7 @@ int main (void) {
 		{	
 			int temp = 0;
 			//printf("Keyboard input: %X\n", keyboard_input);
-			if((temp = process_keyboard(keyboard_input, trimming)) != -1)
+			if((temp = process_keyboard(keyboard_input, trimming, control_p)) != -1)
 			{
 				new_mode = temp;
 			}
@@ -231,19 +230,14 @@ int main (void) {
 				printf("\t\t\t          |\n");
 				printf("\t\t\t         %03d\n\n", DAQ_mes[DAQ_AE3]);
 
-			/*	printf("Motor values: \n");
-				printf("AE1: %d\t AE2: %d\t AE3: %d\t AE4: %d\n", DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
-				printf("\n");
-			*/
-
-				
 				printf("*****************\t********************\n");
 				printf("*    PC data    *\t*   Control param  *\n");
 				printf("*****************\t********************\n");
-				printf("Mode: \t\t%d\t Yaw P: \t%d\n",mode, yaw_p);
-				printf("lift: \t\t%d\t R/P P1: \t%d\n",lift, p1);
-				printf("roll: \t\t%d\t R/P P2: \t%d\n",roll, p2);
-				printf("Pitch: \t\t%d\nYaw: \t\t%d\n", pitch, yaw);
+				printf("Mode: \t\t%d\t Yaw P(u/j): \t%d\n",mode, control_p[0]);
+				printf("lift(a/z):\t%d\t R/P(i/k) P1: \t%d\n",lift, control_p[1]);
+				printf("roll: \t\t%d\t R/P P2(o/l): \t%d\n",roll, control_p[2]);
+				printf("Pitch: \t\t%d\n", pitch);
+				printf("Yaw(q/w): \t%d\n",yaw);
 				printf("%s",error_message);
 				flag_MSG_RECEIVED = 0;
 			}
