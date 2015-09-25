@@ -14,7 +14,7 @@
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
-//#define SENSOR_INTERRUPT
+#define SENSOR_INTERRUPT
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000 
@@ -121,14 +121,16 @@ int main(void)
 
 		if(MESSAGE_FLAG == TRUE){
 			//A complete message is received
-			last_message_time = X32_clock_us;
+			
 			
 			//Decode the message
 							
 			decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
 			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
-				check_inputs(JS_mes_unchecked, JS_mes);
-
+			if(check_inputs(JS_mes_unchecked, JS_mes))
+			{
+				last_message_time = X32_clock_us;			
+			}
 			ENABLE_INTERRUPT(INTERRUPT_GLOBAL);	
 					
 			//Check if the mode needs to be switched
@@ -152,7 +154,7 @@ int main(void)
 		{
 			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
 			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
-			DAQ_mes[DAQ_YAW_RATE] = filtered_r;//JS_mes[JS_YAW];
+			DAQ_mes[DAQ_YAW_RATE] = (filtered_r>>8);//JS_mes[JS_YAW];
 			
 			//Possible switch of the interrupts
 			DAQ_mes[DAQ_AE1] = ae[0];

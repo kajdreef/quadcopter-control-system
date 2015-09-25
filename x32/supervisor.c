@@ -209,7 +209,7 @@ int neutral_input(void)
 
 }
 
-void check_inputs(int *unchecked, int *checked)
+int check_inputs(int *unchecked, int *checked)
 {	int i;
 	int flag = 0;	
 	for(i =0; i < 4; i++)
@@ -230,6 +230,11 @@ void check_inputs(int *unchecked, int *checked)
 		for(i = 0; i <5; i++){
 			checked[i] = unchecked[i];
 		}
+		return 1;
+	}
+	else
+	{
+		return 0;	
 	}
 }
 
