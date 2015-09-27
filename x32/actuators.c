@@ -3,6 +3,7 @@
 #include "messages.h"
 #include "supervisor.h"
 
+#define MAX_ACC 10
 //#define VERBOSE_ACTUATORS
 
 extern int state;
@@ -17,6 +18,8 @@ extern int ae[];
  * Author: Gijs Bruining
  */
 void set_actuators(int *ae){
+
+	static int prev_ae[4];
 
 	int i;
 	
@@ -42,8 +45,16 @@ void set_actuators(int *ae){
 					ae[i]=0x00000100;
 				else if(ae[i]>0x000003ff)
 					ae[i]=0x000003ff;
+
+				if(prev_ae[i]-ae[i]>MAX_ACC)		// De-accalerating
+					ae[i] = prev_ae[i] - MAX_ACC;
+				else if(ae[i]-prev_ae[i]>MAX_ACC)	// Accalerating
+					ae[i] = prev_ae[i] + MAX_ACC;
+
 				break;
 		}
+
+		prev_ae[i] = ae[i];
 	}
 	
 	peripherals[PERIPHERAL_XUFO_A0] = ae[0];

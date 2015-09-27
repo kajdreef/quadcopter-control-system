@@ -24,13 +24,12 @@
 
 #define NANO 1000000000L
 
-
 //Message
 int DAQ_mes[8];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
-int CON_mes[3];
+int CON_mes[3] = {1,1,1};
 
 char msg[15];
 
@@ -112,13 +111,20 @@ int main (void) {
 		
 		if(keyboard_input != -1)
 		{	
-			int temp = 0;
+			int rv = 0;
 			//printf("Keyboard input: %X\n", keyboard_input);
-			if((temp = process_keyboard(keyboard_input, trimming)) != -1)
+			if((rv = process_keyboard(keyboard_input, trimming, CON_mes)) != -1)
 			{
-				new_mode = temp;
+				new_mode = rv;
 			}
 
+		}
+
+		if(keyboard_control_input(keyboard_input) != -1)
+		{
+			//send a control message
+			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
+			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
 		}
 #endif
 		clock_gettime(CLOCK_MONOTONIC, &currentTime);
@@ -161,7 +167,8 @@ int main (void) {
 			}
 			else {
 				// Joystick read out failed so send MODE = 0
-				JS_mes[JS_MODE]  = 0;
+				strncpy(error_message, "joystick readout failed\n", 50);
+				mode  = 0;
 			}
 	// No joystick
 	#else
@@ -228,21 +235,26 @@ int main (void) {
 			#if RECEIVED_MSG_PRINT
 			if(flag_MSG_RECEIVED){
 				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-				printf("*****************\n");
-				printf("* Received data *\n");
-				printf("*****************\n");
+				printf("*****************\t*********************\n");
+				printf("* Received data *\t*         QR        *\n");
+				printf("*****************\t*********************\n");
 	
-				printf("QR mode: \t%d\n", DAQ_mes[DAQ_MODE]);
-				printf("Roll: \t\t%d\nPitch: \t\t%d\nYaw_rate: \t%d\n\n", DAQ_mes[DAQ_ROLL], DAQ_mes[DAQ_PITCH], DAQ_mes[DAQ_YAW_RATE]);
-				printf("Motor values: \n");
-				printf("AE1: %d\t AE2: %d\t AE3: %d\t AE4: %d\n", DAQ_mes[DAQ_AE1], DAQ_mes[DAQ_AE2], DAQ_mes[DAQ_AE3], DAQ_mes[DAQ_AE4]);
-				printf("\n");
+				printf("QR mode: \t%d\t         %03d\n", DAQ_mes[DAQ_MODE],DAQ_mes[DAQ_AE1]);
+				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
+				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
+				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
+				printf("\t\t\t          |\n");
+				printf("\t\t\t          |\n");
+				printf("\t\t\t         %03d\n\n", DAQ_mes[DAQ_AE3]);
 
-				printf("*****************\n");
-				printf("*    PC data    *\n");
-				printf("*****************\n");
-	
-				printf("Mode: \t\t%d\nlift: \t\t%d\nRoll: \t\t%d\nPitch: \t\t%d\nYaw: \t\t%d\n", mode, lift, roll, pitch, yaw);
+				printf("*****************\t********************\n");
+				printf("*    PC data    *\t*   Control param  *\n");
+				printf("*****************\t********************\n");
+				printf("Mode: \t\t%d\t Yaw P(u/j): \t%d\n",mode, CON_mes[0]);
+				printf("lift(a/z):\t%d\t R/P(i/k) P1: \t%d\n",lift, CON_mes[1]);
+				printf("roll: \t\t%d\t R/P P2(o/l): \t%d\n",roll, CON_mes[2]);
+				printf("Pitch: \t\t%d\n", pitch);
+				printf("Yaw(q/w): \t%d\n",yaw);
 				printf("%s",error_message);
 				flag_MSG_RECEIVED = 0;
 			}

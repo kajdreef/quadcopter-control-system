@@ -7,7 +7,7 @@
 
 //#define VERBOSE_CONTROLLER
 
-#define INV_P_Y 1024
+#define INV_P_Y 50
 
 extern int JS_mes[5];
 extern int state;
@@ -34,7 +34,7 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/32 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
+	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/1024 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
 }
 
 void control_pitch(Factors *F){
@@ -62,20 +62,8 @@ void isr_controller()
 
 	int old = X32_clock_us;
 
-	//simulate 1ms workload
-	//int i;
-	//DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	
-	//for(i = 0; i<100; i++)
-	//{;}	
-
-	//X32_display = 0x0001;
 	manual_lift(&F);
 	switch (mode){
-		case SAFE:
-			// TURN CONTROLLER OFF
-			// Gijs: Dit is waarschijnlijk niet nodig, aangezien de output al wordt beveiligd
-			break;
 		case MANUAL:
 			// Manual mode
 			manual_yaw(&F);

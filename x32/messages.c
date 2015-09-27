@@ -12,9 +12,9 @@ extern char DEB_mes[24];
 extern int JS_mes[5];
 extern int CON_mes[3];
 
-
 /*------------------------------------------------------------------
- *	message_length -- Return the length of the message to be received
+ *	message_length -- Return the number of bytes to be received for 
+ *  a specific message type
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -31,28 +31,6 @@ int message_length(char data)
 		default:
 			return -1;	
 	}	
-}
-
-/*------------------------------------------------------------------
- *	decode -- Decode the messeges
- *	Author: Internet (stackexchange) only use for debugging
- *------------------------------------------------------------------
- */void printBits(size_t const size, void const * const ptr)
-{
-    unsigned char *b = (unsigned char*) ptr;
-    unsigned char byte;
-    int i, j;
-
-    for (i=size-1;i>=0;i--)
-    {
-        for (j=7;j>=0;j--)
-        {
-            byte = b[i] & (1<<j);
-            byte >>= j;
-            printf("%u", byte);
-        }
-    }
-    puts("");
 }
 
 /*------------------------------------------------------------------
@@ -92,6 +70,7 @@ void encode(int value, char* buffer,int index, int mask, int end){
 
 /*------------------------------------------------------------------
  *	decode -- Decode the messeges into int messages (Can only do int messages)
+ *  Msg length are the number of ints encoded in the message	
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
