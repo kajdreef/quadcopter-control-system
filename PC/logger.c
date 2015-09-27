@@ -2,33 +2,30 @@
 #include <stdlib.h>
 #include "logger.h"
 
-#define FILE_NAME "log.txt"
-
-
 FILE *logFile = NULL;
-char* filename = FILE_NAME;
+char* filename = "log.txt";
+int LOG_EXIST = 0;
 
+int log_write_char(char c){
 
-int log_open(void){
-	
-	logFile = fopen(filename, "w");
-	if(logFile == NULL){
-		printf("ERROR: Failed to open log file!\n");
-		exit(EXIT_FAILURE);
+	// Open Log file
+	if(!LOG_EXIST){
+		logFile = fopen(filename, "w");
+		if(logFile == NULL){
+			return -1;
+		}
+		LOG_EXIST = 1;
 	}
-}
-
-void log_write_char(char c){
-	fputc(c, logFile); 
-}
-
-void log_write_string(char * str, int length){
-	int i = 0;
-	for (i = 0; i < length; i++){
-		fputc(str[i], logFile);
+	else{
+		logFile = fopen(filename, "a");
 	}
+
+	// Add char to the log file
+	if(logFile != NULL){
+		fputc(c, logFile);
+		fclose(logFile);
+	}
+
+	return 1;
 }
 
-void log_close(void){
-	fclose(logFile);
-}

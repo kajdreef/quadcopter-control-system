@@ -6,6 +6,7 @@
 #include "controller.h"
 #include "filter.h"
 #include "actuators.h"
+#include "logger.h"
 
 //Debugging
 //The controller, Communication and actuators have defines statements as well
@@ -91,7 +92,8 @@ int main(void)
     ENABLE_INTERRUPT(INTERRUPT_GLOBAL); 
 
 	supervisor_set_mode(&mode, SAFE);
-
+	
+	log_start();
  /*
 	Operation
 */
@@ -163,8 +165,14 @@ int main(void)
 
 		if(SEND_MESSAGE_FLAG == TRUE)
 		{
+			log_acc_data(X32_clock_us, 10, 20, 30);
 			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));		
 			SEND_MESSAGE_FLAG = FALSE;
+		}
+
+		if( mode == ABORT){
+			log_stop();
+			log_print();
 		}
 
 	}

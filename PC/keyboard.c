@@ -85,6 +85,9 @@ int process_keyboard(char c, int *trim)
 		case '5':
 			return 5;
 		break;
+		case '6':
+			return 6;
+		break;
 		/*
 			trimming:
 		*/

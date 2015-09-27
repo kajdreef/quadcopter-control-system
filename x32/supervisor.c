@@ -28,7 +28,7 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 	printf("Check flag: %d\r\n", check_flag);
 #endif	
 
-	if(received_mode <= 5 && received_mode >= 0 && *mode != PANIC){
+	if(received_mode <= 6 && received_mode >= 0 && *mode != PANIC){
 	//range is valid
 		
 		if(received_mode != *mode )
@@ -84,6 +84,7 @@ void supervisor_check_panic(enum QR *mode){
  *------------------------------------------------------------------
  */
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
+	static int ABORT_FLAG = 0;
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	switch(*mode){
@@ -106,7 +107,11 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				{  
 					//JS_mes[JS_LIFT] = 32767;		// Set minimum lift, probably not needed anymore!
 					*mode = new_mode;
-				}			
+				}
+				else if(ABORT_FLAG == 1 || new_mode == ABORT)
+				{
+					*mode = ABORT;
+				}
 			}
 			break;
 	
@@ -135,6 +140,13 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				*mode = PANIC;
 				new_mode = PANIC;
 			}
+			if(new_mode == ABORT)
+			{
+				ABORT_FLAG = 1;
+				*mode = PANIC;
+				new_mode = PANIC;
+			}
+			break;
 
 		case CALIBRATION:
 			if(new_mode == SAFE)
@@ -145,6 +157,11 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			{
 				*mode  = new_mode;
 			};
+			if(new_mode == ABORT)
+			{
+				*mode = SAFE;
+				new_mode = ABORT;
+			}
 			break;
 
 		case YAW_CONTROL:
@@ -157,6 +174,12 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				*mode = PANIC;
 				new_mode = PANIC;
 			};
+			if(new_mode == ABORT)
+			{
+				ABORT_FLAG = 1;
+				*mode = PANIC;
+				new_mode = PANIC;
+			}
 			break;
 
 		case FULL_CONTROL:
@@ -168,6 +191,20 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			{//panic will switch to safe automatically
 				*mode = PANIC;
 				new_mode = PANIC;
+			}
+			if(new_mode == ABORT)
+			{
+				ABORT_FLAG = 1;
+				*mode = PANIC;
+				new_mode = PANIC;
+			}
+			break;
+
+		case ABORT:
+			if(new_mode == SAFE)
+			{
+				ABORT_FLAG = 0;
+				*mode = new_mode;
 			}
 			break;
 

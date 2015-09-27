@@ -1,6 +1,7 @@
 CC=lcc-x32
 CFLAGS=-I$(X32INC)
-OBJS=main.o communication.o messages.o supervisor.o controller.o actuators.o filter.o
+SRCS= $(wildcard *.c)
+OBJS = $(SRCS:.c=.o)
 
 .PHONY: clean stubbed stubbedrun uploadrun test
 

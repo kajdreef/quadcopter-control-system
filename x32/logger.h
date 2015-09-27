@@ -6,7 +6,7 @@
 
 void log_acc_data(int timestamp, int x, int y, int z);
 void log_start(void);
-void log_start(void);
+void log_stop(void);
 void log_print(void);
 
 #endif
