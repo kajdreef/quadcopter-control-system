@@ -217,6 +217,7 @@ int main (void) {
 		
 		if(mode == 6){
 			strncpy(error_message, "Transferring log...\n", 50);
+			sleep(1000);
 		}
 		while(is_char_available()){
 			if (mode == 6){
