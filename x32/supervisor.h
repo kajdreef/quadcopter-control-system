@@ -11,7 +11,8 @@ enum QR{
 	MANUAL = 2,
 	CALIBRATION = 3,
 	YAW_CONTROL = 4,
-	FULL_CONTROL = 5
+	FULL_CONTROL = 5,
+	ABORT = 6
 };
 
 void supervisor_set_mode(enum QR *mode, enum QR new_mode);

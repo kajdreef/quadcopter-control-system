@@ -51,11 +51,49 @@ int	term_getchar(void){
 }
 
 /*------------------------------------------------------------------
+ *	keyboard_control_input Check whether the keyboard input is related
+ *  to tuning the controller
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int keyboard_control_input(char input)
+{	
+	
+	switch(input){
+		case 'u':
+			return 1;
+		break;		
+		case 'j':
+			return 1;
+		break;
+		case 'i':
+			return 1;
+		break;
+		case 'k':
+			return 1;
+		break;
+		case 'o':
+			return 1;
+		break;
+		case 'l':
+			return 1;
+		break;	
+		default:
+		return -1;
+	
+	}
+	
+	
+
+}
+
+
+/*------------------------------------------------------------------
  *	process_keyboard function used to process the keymap
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-int process_keyboard(char c, int *trim)
+int process_keyboard(char c, int *trim, int *control_p)
 {		
 	switch(c){
 		case 0x1B:
@@ -84,6 +122,9 @@ int process_keyboard(char c, int *trim)
 		break ;
 		case '5':
 			return 5;
+		break;
+		case '6':
+			return 6;
 		break;
 		/*
 			trimming:
@@ -159,23 +200,23 @@ int process_keyboard(char c, int *trim)
 		*/
 		//YAW CONTROL
 		case 'u':
-			;
+			control_p[0] += TUNE; 
 			break;
 		case 'j':
-			;
+			control_p[0] -= TUNE;
 			break;
 		//ROLL/PITCH Control
 		case 'i':
-			;
+			control_p[1] += TUNE; 
 			break;
 		case 'k':
-			;
+			control_p[1] -= TUNE; 
 			break;
 		case 'o':
-			;
+			control_p[2] += TUNE; 
 			break;
 		case 'l':
-			;
+			control_p[2] -= TUNE; 
 			break;
 			
 		default:

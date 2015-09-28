@@ -14,3 +14,4 @@ $(TARGET): $(OBJECTS)
 
 clean:
 	rm -rf $(TARGET) $(OBJECTS)
+	rm -rf log.txt
