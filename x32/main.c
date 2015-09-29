@@ -24,7 +24,7 @@
 #define DAQ_MESSAGE_PERIOD	100000
 
 //Messages
-int DAQ_mes[8];
+int DAQ_mes[10];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5]= {32767};
@@ -54,6 +54,7 @@ int panic_time = 0;
 
 //Variables for profiling
 int isr_controller_time = 0;
+int isr_filter_time = 0;
 
 //filtered yaw rate
 extern int filtered_r;
@@ -183,6 +184,9 @@ int main(void)
 			DAQ_mes[DAQ_AE4] = ae[3];
 
 			DAQ_mes[DAQ_MODE] =  mode;
+
+			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time; 
+			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;				
 
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
 

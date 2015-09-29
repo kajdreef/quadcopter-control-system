@@ -25,7 +25,7 @@
 #define NANO 1000000000L
 
 //Message
-int DAQ_mes[8];
+int DAQ_mes[10];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
@@ -235,7 +235,7 @@ int main (void) {
 		{
 			#if RECEIVED_MSG_PRINT
 			if(flag_MSG_RECEIVED){
-				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+				printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 				printf("*****************\t*********************\n");
 				printf("* Received data *\t*         QR        *\n");
 				printf("*****************\t*********************\n");
@@ -244,18 +244,18 @@ int main (void) {
 				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
 				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
 				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
-				printf("\t\t\t          |\n");
-				printf("\t\t\t          |\n");
+				printf("Contr t(us): \t%d\t          |\n",DAQ_mes[DAQ_CONTR_TIME]);
+				printf("Filter t(us): \t%d\t          |\n", DAQ_mes[DAQ_FILTER_TIME]);
 				printf("\t\t\t         %03d\n\n", DAQ_mes[DAQ_AE3]);
 
 				printf("*****************\t********************\n");
 				printf("*    PC data    *\t*   Control param  *\n");
 				printf("*****************\t********************\n");
-				printf("Mode: \t\t%d\t Yaw P(u/j): \t%d\n",mode, CON_mes[0]);
-				printf("lift(a/z):\t%d\t R/P(i/k) P1: \t%d\n",lift, CON_mes[1]);
-				printf("roll: \t\t%d\t R/P P2(o/l): \t%d\n",roll, CON_mes[2]);
+				printf("Mode: \t\t%d\t Yaw P\t(u/j): \t%d\n",mode, CON_mes[0]);
+				printf("lift\t(a/z):\t%d\t R/P P1\t(i/k): \t%d\n",lift, CON_mes[1]);
+				printf("roll: \t\t%d\t R/P P2\t(o/l): \t%d\n",roll, CON_mes[2]);
 				printf("Pitch: \t\t%d\n", pitch);
-				printf("Yaw(q/w): \t%d\n",yaw);
+				printf("Yaw\t(q/w): \t%d\n",yaw);
 				printf("%s",error_message);
 				flag_MSG_RECEIVED = 0;
 			}

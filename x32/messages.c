@@ -6,7 +6,7 @@
 
 #define DEBUG 0
 
-extern int DAQ_mes[8];
+extern int DAQ_mes[10];//[10];
 extern int ERR_mes;
 extern char DEB_mes[24];
 extern int JS_mes[5];
