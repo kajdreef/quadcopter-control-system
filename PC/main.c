@@ -48,6 +48,7 @@ int main (void) {
 	int trimming[4] = {0};
 	int mode = 0;
 	int new_mode = 0;
+	int ABORT_PROGRAM = 0;
 
 	int lift = 32767, roll = 0, pitch = 0, yaw = 0;
 	unsigned int t;
@@ -56,7 +57,7 @@ int main (void) {
 	//For printing an error in the user interface
 	char error_message[50];
 	strncpy(error_message, "\n", 50);
-	
+
 	#if JOYSTICK
 		struct js_event js;
 		struct js_event *js_ptr = &js;
@@ -67,6 +68,12 @@ int main (void) {
 	struct timespec startTime;
 
 	long long start, current;
+
+	// Logger timers
+	struct timespec currentTimeLog;
+	struct timespec previousTimeLog;
+
+	long long lastLogCharTime, currentLogTime;
 
 	extern int flag_MSG_RECEIVED;
 
@@ -99,7 +106,7 @@ int main (void) {
 	int loopRate = 0;
 
 	// Loop that runs on 50 Hz
-	while (1)
+	while (!ABORT_PROGRAM)
 	{
 
 #if KEYBOARD
@@ -215,20 +222,39 @@ int main (void) {
 
 		}
 		
+		// Write log data to log file if in ABORT mode
 		if(mode == 6){
 			strncpy(error_message, "Transferring log...\n", 50);
-			sleep(1000);
-		}
-		while(is_char_available()){
-			if (mode == 6){
-				log_write_char(get_char());
+			while(is_char_available()){
+				if (mode == 6){
+					// Get time of last new char
+					clock_gettime(CLOCK_MONOTONIC, &previousTimeLog);
+					lastLogCharTime = previousTimeLog.tv_sec*NANO + previousTimeLog.tv_nsec;
+					currentLogTime = lastLogCharTime;
+					log_write_char(get_char());
+				}
 			}
-			else{
+
+			// Get current time
+			clock_gettime(CLOCK_MONOTONIC, &currentTimeLog);
+			currentLogTime = currentTimeLog.tv_sec*NANO + currentTimeLog.tv_nsec;
+			
+			// If the last character was received over 1 seconds ago shut down the program
+			if (currentLogTime - lastLogCharTime > 1000000000L){
+				strncpy(error_message, "Log transfer completed\n", 50);
+
+				// this is done so it will print an updated UI.
+				loopRate = 10; 
+				flag_MSG_RECEIVED = 1;
+
+				ABORT_PROGRAM = 1;
+			}
+		}
+		else{
+			// Read messages from the QR
+			while(is_char_available()){
 				detect_message(get_char());
 			}
-		}
-		if(mode == 6){
-			strncpy(error_message, "Log transfer completed\n", 50);
 		}
 
 		if(loopRate >= 10)
