@@ -8,6 +8,7 @@ int filtered_p = 0;
 int filtered_q = 0;
 int filtered_r = 0;
 int calibrated = 0;
+extern int isr_filter_time;
 
 extern enum QR mode;
 
@@ -73,6 +74,8 @@ void setup_sensor_interrupts(int prio){
 }
 
 void isr_sensor(){
+	int old = X32_clock_us;
+
 	static int phi=0;	// Roll, fixed point
 	static int thet=0;	// Pitch, fixed point
 	static int p = 0; 	// Roll speed, fixed point
@@ -143,4 +146,6 @@ void isr_sensor(){
 	prev_x_p = p;
 	prev_x_q = q;
 	prev_x_r = r;
+
+	isr_filter_time = X32_clock_us - old;
 }

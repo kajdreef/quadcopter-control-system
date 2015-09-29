@@ -18,5 +18,6 @@
 #endif
 
 void set_actuators(int *ae);
+int F_sqrt(int x);
 
 #endif

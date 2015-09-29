@@ -42,6 +42,8 @@
 #define DAQ_AE3			5
 #define DAQ_AE4			6
 #define DAQ_MODE		7
+#define DAQ_CONTR_TIME	8
+#define	DAQ_FILTER_TIME 9
 
 //CON_mes
 #define CON_P1	0
