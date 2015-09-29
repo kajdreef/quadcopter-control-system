@@ -130,11 +130,6 @@ int main (void) {
 		clock_gettime(CLOCK_MONOTONIC, &currentTime);
 		current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
 
-		// Read fifo buffer for new messages
-		while(is_char_available()){
-			detect_message(get_char());
-		}
-
 		// If 40 ms (25 Hz) has passed then run.40000000L
 		if( current - start > 40000000L)
 		{
@@ -202,7 +197,7 @@ int main (void) {
 				}
 			}
 			else
-			{	if(new_mode != mode && new_mode >=0 && new_mode <= 5){
+			{	if(new_mode != mode && new_mode >=0 && new_mode <= 6){
 					mode = new_mode;
 				}
 			}
@@ -217,6 +212,23 @@ int main (void) {
 			// Encode message and send it
 			encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
 			send(msg, sizeof(msg)/sizeof(msg[0]));
+
+		}
+		
+		if(mode == 6){
+			strncpy(error_message, "Transferring log...\n", 50);
+			sleep(1000);
+		}
+		while(is_char_available()){
+			if (mode == 6){
+				log_write_char(get_char());
+			}
+			else{
+				detect_message(get_char());
+			}
+		}
+		if(mode == 6){
+			strncpy(error_message, "Log transfer completed\n", 50);
 		}
 
 		if(loopRate >= 10)

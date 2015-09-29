@@ -98,8 +98,15 @@ void isr_sensor(){
 
 	switch(mode){
 		case CALIBRATION:
-			prev_lp_r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_r); 
-			calibrated = 1;
+			// Get the latest and greatest sensor values AND remove absurd values
+			r = rem_absurd_val( INT_TO_FIXED(X32_QR_S5) ,prev_x_r,&Filt_r); 
+
+			// Anti-drift the gyro values
+			r_lp = F_1st(r, prev_lp_r, &Filt_r);
+			calibrated = r>(r_lp-16) && r<(r_lp+16);
+			prev_lp_r = r_lp;
+
+			
 			break;
 
 		case YAW_CONTROL:
