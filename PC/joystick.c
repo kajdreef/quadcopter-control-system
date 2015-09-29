@@ -1,9 +1,22 @@
 #include "joystick.h"
 #include "config.h"
+#include "fixed_point.h"
 
 extern int	axis[6];
 extern int	button[12];
 
+/*------------------------------------------------------------------
+ * scale_joystick_lift -- scales the value of the lift to 0 -1 in
+ * fixed point representation 
+ * 	
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int scale_joystick_lift(int lift){
+	
+	return (INT_TO_FIXED((-1*lift+0x00007FFF)/64) >> FRACT_PART);	
+
+}
 
 /*------------------------------------------------------------------
  * configure_joystick -- open the joystick and configure it

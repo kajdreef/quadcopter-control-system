@@ -17,24 +17,33 @@ extern int filtered_r;
 extern int ae[];
 
 void manual_lift(Factors *F){
-	
-	F->f_l = INT_TO_FIXED((-1*JS_mes[JS_LIFT]+0x00007FFF)/64);	//Max 1023 0x03FF
+	F->f_l = INT_TO_FIXED((-1*JS_mes[JS_LIFT]+0x00007FFF)/64);	
+	// 0-1023
+    //0 1	
+	//10 bits precisie
+
 }
 
 void manual_yaw(Factors *F){
 	F->f_y = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_YAW]),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
+	// -0.5 - 0.5
 }
 
 void manual_pitch(Factors *F){
 	F->f_p = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_PITCH]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+	// -0.5 - 0.5
 }
 
 void manual_roll(Factors *F){
 	F->f_r = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_ROLL]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+	// -0.5 - 0.5
 }
 
 void control_yaw(Factors *F){
+	
 	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/1024 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
+	
+
 }
 
 void control_pitch(Factors *F){
@@ -50,9 +59,8 @@ void apply_mot_fact(Factors *F,int *ae){
 	ae[1] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y - F->f_r)) );
 	ae[2] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y - F->f_p)) );
 	ae[3] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y + F->f_r)) );
-
-	// Data aqcuisition:
-	//memcpy(DAQ_mes.ae,ae,sizeof(ae));
+		
+	//0-1023	
 }
 
 void isr_controller()

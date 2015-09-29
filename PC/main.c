@@ -177,7 +177,7 @@ int main (void) {
 			pitch = trimming[TRIM_PITCH];
 			yaw = trimming[TRIM_YAW];
 	#endif
-			JS_mes[JS_LIFT] = lift;
+			JS_mes[JS_LIFT] = scale_joystick_lift(lift);
 			JS_mes[JS_ROLL] = roll;
 			JS_mes[JS_PITCH] = pitch;
 			JS_mes[JS_YAW] = yaw;
