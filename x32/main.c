@@ -7,6 +7,7 @@
 #include "filter.h"
 #include "actuators.h"
 #include "logger.h"
+#include "actuators.h"
 
 //Debugging
 //The controller, Communication and actuators have defines statements as well

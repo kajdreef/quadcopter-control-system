@@ -12,9 +12,9 @@
 	n bits for the fraction part
 	Resolution is 2^-Fract_part
 */
-#define INT_PART	8	
-#define FRACT_PART	8
-#define FACTOR 		256	//2^FRACT_PART
+#define INT_PART	22	
+#define FRACT_PART	10
+#define FACTOR 		1024	//2^FRACT_PART
 
 /*
 	Conversions:

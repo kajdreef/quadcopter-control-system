@@ -2,6 +2,7 @@
 #include "actuators.h"
 #include "messages.h"
 #include "supervisor.h"
+#include "fixed_point.h"
 
 #define MAX_ACC 10
 //#define VERBOSE_ACTUATORS
@@ -67,4 +68,18 @@ void set_actuators(int *ae){
 #endif
 	
 
+}
+
+
+int F_sqrt(int x){
+	int y;
+
+	y = -147*x + 419840;		// Change these values as the precision changes!!!
+	y = MULT_FIXED(y,x) + 749568;			// Change these values as the precision changes!!!
+	y >>= 10;
+	y = y - DIV_FIXED( MULT_FIXED(y,y)-(x+1024)/2 ,2*y); // Change these values as the precision changes!!!
+	y <<= 10;
+
+
+	return y;
 }
