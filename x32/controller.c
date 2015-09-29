@@ -70,7 +70,7 @@ void isr_controller()
 
 	int old = X32_clock_us;
 
-	manual_lift(&F);
+	//manual_lift(&F);
 	switch (mode){
 		case MANUAL:
 			// Manual mode
