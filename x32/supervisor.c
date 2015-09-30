@@ -3,7 +3,7 @@
 //#define DEBUG_SUPERVISOR
 #define PANIC_US 2000000 //microseconds
 
-#define NEUTRAL_LIFT	32767
+#define NEUTRAL_LIFT	0
 #define NEUTRAL_ROLL	0
 #define NEUTRAL_PITCH	0
 #define NEUTRAL_YAW		0
@@ -91,7 +91,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			case SAFE:
 
 				if(neutral_input()){
-					if(ABORT_FLAG) {
+					if(ABORT_FLAG || ABORT) {
 						*mode = ABORT;
 					}
 				//SAFE mode has 0 RPM per definition enforced by the actuators
@@ -196,11 +196,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				break;
 
 			case ABORT:
-				if(new_mode == SAFE)
-				{
-					ABORT_FLAG = 0;
-					*mode = new_mode;
-				}
 				break;
 
 			default:

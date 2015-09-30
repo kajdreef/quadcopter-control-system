@@ -197,9 +197,10 @@ int main(void)
 		/*
 		 A message is encoded and ready to be sent
 		*/
-		if(SEND_MESSAGE_FLAG == TRUE)
-		{
-			log_acc_data(X32_clock_us, 10, 20, 30);
+		if((SEND_MESSAGE_FLAG == TRUE) && (mode != ABORT)){ 
+		
+			log_data(ACCEL, X32_clock_us, 10, 20, 30);
+			log_data(GYRO, X32_clock_us, 10, 20, 30);
 			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));
 			SEND_MESSAGE_FLAG = FALSE;
 		}
