@@ -91,7 +91,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			case SAFE:
 
 				if(neutral_input()){
-					if(ABORT_FLAG) {
+					if(ABORT_FLAG || ABORT) {
 						*mode = ABORT;
 					}
 				//SAFE mode has 0 RPM per definition enforced by the actuators
@@ -196,11 +196,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				break;
 
 			case ABORT:
-				if(new_mode == SAFE)
-				{
-					ABORT_FLAG = 0;
-					*mode = new_mode;
-				}
 				break;
 
 			default:

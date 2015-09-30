@@ -74,10 +74,10 @@ void set_actuators(int *ae){
 int F_sqrt(int x){
 	int y;
 
-	y = -147*x + 419840;		// Change these values as the precision changes!!!
-	y = MULT_FIXED(y,x) + 749568;			// Change these values as the precision changes!!!
+	y = -588*x + 1440768;		// Change these values as the precision changes!!!
+	y = MULT_FIXED(y,x) + 179200;			// Change these values as the precision changes!!!
 	y >>= 10;
-	y = y - DIV_FIXED( MULT_FIXED(y,y)-(x+1024)/2 ,2*y); // Change these values as the precision changes!!!
+	y = y - DIV_FIXED( MULT_FIXED(y,y)-x ,2*y);
 	y <<= 10;
 
 
