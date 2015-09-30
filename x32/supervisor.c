@@ -1,6 +1,6 @@
 #include "supervisor.h"
 #include "messages.h"
-//#define DEBUG_SUPERVISOR
+
 #define PANIC_US 2000000 //microseconds
 
 #define NEUTRAL_LIFT	0
@@ -86,15 +86,18 @@ void supervisor_check_panic(enum QR *mode){
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	static int ABORT_FLAG = 0;
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
 	if(*mode != new_mode){
 		switch(*mode){
 			case SAFE:
-
-				if(neutral_input()){
-					if(ABORT_FLAG || ABORT) {
+				
+				if(ABORT_FLAG || new_mode == ABORT) {
 						*mode = ABORT;
-					}
-				//SAFE mode has 0 RPM per definition enforced by the actuators
+						DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+				}
+				
+				if(neutral_input()){
+					//SAFE mode has 0 RPM per definition enforced by the actuators
 					if(new_mode == YAW_CONTROL)
 					{
 						*mode = CALIBRATION;
@@ -112,11 +115,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				break;
 
 			case PANIC:
-	#ifdef DEBUG_SUPERVISOR
-				printf("Panic mode time %d:\r\n", X32_clock_us-panic_time);
-				printf("new mode: %d\r\n", new_mode);
-				printf("panic time %d \r\n", panic_time);
-	#endif
 				if(new_mode == SAFE && panic_time !=0 && (X32_clock_us - panic_time > PANIC_US))
 				{
 					*mode = new_mode;
@@ -196,8 +194,8 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				break;
 
 			case ABORT:
+			;
 				break;
-
 			default:
 				*mode = PANIC;
 		}
