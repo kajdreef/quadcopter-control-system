@@ -90,7 +90,7 @@ void isr_controller()
 	}
 
 	apply_mot_fact(&F,ae);
-	set_actuators(ae);
+	//set_actuators(ae);
 	
 	
 	isr_controller_time = X32_clock_us - old;
