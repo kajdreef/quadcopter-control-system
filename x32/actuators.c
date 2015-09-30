@@ -42,10 +42,16 @@ void set_actuators(int *ae){
 				break;
 
 			default:
+				if(ae[i] != 0)
+					ae[i] = F_sqrt(ae[i]);
+				
+				
 				if(ae[i]<0x00000100 & ae[i] != 0)
 					ae[i]=0x00000100;
 				else if(ae[i]>0x000003ff)
 					ae[i]=0x000003ff;
+
+
 
 				if(prev_ae[i]-ae[i]>MAX_ACC)		// De-accalerating
 					ae[i] = prev_ae[i] - MAX_ACC;
