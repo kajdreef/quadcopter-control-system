@@ -44,6 +44,7 @@
 #define DAQ_MODE		7
 #define DAQ_CONTR_TIME	8
 #define	DAQ_FILTER_TIME 9
+#define DAQ_VOLTAGE		10
 
 //CON_mes
 #define CON_P1	0

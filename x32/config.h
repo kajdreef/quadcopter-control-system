@@ -9,7 +9,6 @@
 #define X32_clock_us peripherals[PERIPHERAL_US_CLOCK]
 #define X32_timer_period peripherals[PERIPHERAL_TIMER1_PERIOD]
 
-
 #define TRUE 1
 #define FALSE 0
 

@@ -9,7 +9,7 @@ int filtered_q = 0;
 int filtered_r = 0;
 int calibrated = 0;
 extern int isr_filter_time;
-
+extern int battery_voltage;
 extern enum QR mode;
 
 /*
@@ -96,6 +96,8 @@ void isr_sensor(){
 
 	static int r_lp =0;
 
+	battery_voltage = X32_QR_S6;
+
 	switch(mode){
 		case CALIBRATION:
 			// Get the latest and greatest sensor values AND remove absurd values
@@ -148,4 +150,6 @@ void isr_sensor(){
 	prev_x_r = r;
 
 	isr_filter_time = X32_clock_us - old;
+	
+ 
 }

@@ -7,7 +7,7 @@
 #define DEBUG 0
 #define DEBUG_MESSAGE_LENGTH 0
 
-extern int DAQ_mes[10];//10];//[8];
+extern int DAQ_mes[11];//10];//[8];
 extern int ERR_mes[1];
 extern char DEB_mes[24];
 extern int JS_mes[5];
