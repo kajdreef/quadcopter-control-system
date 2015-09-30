@@ -20,7 +20,7 @@ extern int ae[];
 void set_actuators(int *ae){
 
 	static int prev_ae[4];
-	
+	int i;
 	switch(mode){
 			case SAFE:
 				ae[0]=0;
@@ -48,8 +48,7 @@ void set_actuators(int *ae){
 				break;
 
 			default:
-				int i;
-	
+				
 				for(i=0;i<4;i++){
 					if(ae[i] != 0){
 						ae[i] = F_sqrt(ae[i]);
