@@ -139,7 +139,7 @@ void detect_message(char data){
 		}		
 	
 		receive_count = 0;		
-		toggle_led(6);	
+		//toggle_led(6);	
 	}
 	
 	prev = data&END;
