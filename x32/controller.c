@@ -7,7 +7,7 @@
 
 //#define VERBOSE_CONTROLLER
 
-#define INV_P_Y 50
+#define P_Y 1024
 
 extern int JS_mes[5];
 extern int state;
@@ -17,32 +17,27 @@ extern int filtered_r;
 extern int ae[];
 
 void manual_lift(Factors *F){
-	F->f_l = INT_TO_FIXED((-1*JS_mes[JS_LIFT]+0x00007FFF)/64);	
-	// 0-1023
-    //0 1	
-	//10 bits precisie
-
+	F->f_l = JS_mes[JS_LIFT];	
 }
 
 void manual_yaw(Factors *F){
-	F->f_y = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_YAW]),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
+	F->f_y = JS_mes[JS_YAW];		// Max 0.5
 	// -0.50 - 0.50
 }
 
 void manual_pitch(Factors *F){
-	F->f_p = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_PITCH]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+	F->f_p = JS_mes[JS_PITCH];	// Max 0.5
 	// -0.25 - 0.25
 }
 
 void manual_roll(Factors *F){
-	F->f_r = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_ROLL]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
+	F->f_r = JS_mes[JS_ROLL];		// Max 0.5
 	// -0.25 - 0.25
 }
 
 void control_yaw(Factors *F){
 	
-	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/1024 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
-
+	F->f_y = MULT_FIXED((JS_mes[JS_YAW] - (filtered_r/100)),P_Y);	
 }
 
 void control_pitch(Factors *F){
@@ -54,10 +49,11 @@ void control_roll(Factors *F){
 }
 
 void apply_mot_fact(Factors *F,int *ae){
-	ae[0] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y + F->f_p)) );
-	ae[1] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y - F->f_r)) );
-	ae[2] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y - F->f_p)) );
-	ae[3] = FIXED_TO_INT( MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y + F->f_r)) );
+
+	ae[0] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y + F->f_p));
+	ae[1] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y - F->f_r));
+	ae[2] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y - F->f_p));
+	ae[3] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y + F->f_r));
 		
 	//0-1023	
 }
@@ -69,13 +65,13 @@ void isr_controller()
 
 	int old = X32_clock_us;
 
-	//manual_lift(&F);
+	manual_lift(&F);
 	switch (mode){
 		case MANUAL:
 			// Manual mode
-			//manual_yaw(&F);
-			//manual_pitch(&F);
-			//manual_roll(&F);
+			manual_yaw(&F);
+			manual_pitch(&F);
+			manual_roll(&F);
 			break;
 
 		case YAW_CONTROL:
