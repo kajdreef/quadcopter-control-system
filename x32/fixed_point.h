@@ -21,7 +21,7 @@
 */
 #define INT_TO_FIXED(A)   (((int)A) << FRACT_PART) 
 //#define FIXED_TO_INT(A)   ((int)(A + 1<<(FRACT_PART-1)) >> FRACT_PART)
-#define FIXED_TO_INT(A)   ((int)(A + 64) >> FRACT_PART)
+#define FIXED_TO_INT(A)   ((int)(A + 256) >> FRACT_PART)
 #define FP_TO_FIXED(A) ((int)(A * FACTOR))  
 #define FIXED_TO_FP(A) (((float)A) / FACTOR)   
 

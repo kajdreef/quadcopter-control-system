@@ -19,6 +19,38 @@ int scale_joystick_lift(int lift){
 }
 
 /*------------------------------------------------------------------
+ * scale_joystick_yaw -- scales the value of the yaw to -0.5 0.5 in
+ * fixed point representation 
+ * 	
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int scale_joystick_yaw(int yaw){
+
+	int result = DIV_FIXED(INT_TO_FIXED(yaw),INT_TO_FIXED(0x0000FFFF));
+
+	return  result;
+}
+
+
+/*------------------------------------------------------------------
+ * scale_joystick_pr -- scales the value of the pitch or roll to -0.25 and 0.25 in
+ * fixed point representation 
+ * 	
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int scale_joystick_pr(int value){
+
+	int result = DIV_FIXED(INT_TO_FIXED(value),INT_TO_FIXED(0x0001FFFF));
+
+	return result;
+}
+
+
+
+
+/*------------------------------------------------------------------
  * configure_joystick -- open the joystick and configure it
  * 	
  * Author: Bastiaan Oosterhuis
