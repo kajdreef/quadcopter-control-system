@@ -99,7 +99,7 @@ int process_keyboard(char c, int *trim, int *control_p)
 		case 0x1B:
 		//escape	
 		
-		return 999;
+		return 6;
 		
 			break;
 		/*

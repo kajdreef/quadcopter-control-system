@@ -1,6 +1,8 @@
 #include "filter.h"
 #include "fixed_point.h"
 #include "supervisor.h"
+#include "logger.h"
+#include "config.h"
 
 int filtered_phi = 0;
 int filtered_thet = 0;
@@ -95,6 +97,11 @@ void isr_sensor(){
 	static int thet_bias= 0;
 
 	static int r_lp =0;
+	
+	// Log data
+	log_data(ACCEL, X32_clock_us, X32_QR_S0, X32_QR_S1, X32_QR_S2 ); // Accel
+	log_data(GYRO, X32_clock_us, X32_QR_S3, X32_QR_S4, X32_QR_S5); // gyro
+	log_data(BATTERY, X32_clock_us, X32_QR_S6, 0, 0); // battery
 
 	battery_voltage = X32_QR_S6;
 
