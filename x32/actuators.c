@@ -20,49 +20,57 @@ extern int ae[];
 void set_actuators(int *ae){
 
 	static int prev_ae[4];
-
-	int i;
 	
-	for(i=0;i<4;i++){
-		// Checking for states
-		switch(mode){
+	switch(mode){
 			case SAFE:
-				ae[i]=0;
+				ae[0]=0;
+				ae[1]=0;
+				ae[2]=0;
+				ae[3]=0;
 				break;
 
 			case PANIC:
-				if(ae[i] != 0)
-					ae[i] = 0x00000100;
+				if(ae[0] != 0)
+					ae[0] = 0x00000100;
+				if(ae[1] != 0)
+					ae[1] = 0x00000100;
+				if(ae[2] != 0)
+					ae[2] = 0x00000100;
+				if(ae[3] != 0)
+					ae[3] = 0x00000100;
 				break;
 
 			case CALIBRATION:
-				//is this allowed?
-				ae[i] =0;
+				ae[0] =0;
+				ae[1] =0;
+				ae[2] =0;
+				ae[3] =0;
 				break;
 
 			default:
-				if(ae[i] != 0)
-					ae[i] = F_sqrt(ae[i]);
-				
-				
-				if(ae[i]<0x00000100 & ae[i] != 0)
-					ae[i]=0x00000100;
-				else if(ae[i]>0x000003ff)
-					ae[i]=0x000003ff;
+				int i;
+	
+				for(i=0;i<4;i++){
+					if(ae[i] != 0){
+						ae[i] = F_sqrt(ae[i]);
+						
+						if(ae[i]<0x00000100)
+							ae[i]=0x00000100;
+						else if(ae[i]>0x000003ff)
+							ae[i]=0x000003ff;	
+					}
 
-
-
-				if(prev_ae[i]-ae[i]>MAX_ACC)		// De-accalerating
-					ae[i] = prev_ae[i] - MAX_ACC;
-				else if(ae[i]-prev_ae[i]>MAX_ACC)	// Accalerating
-					ae[i] = prev_ae[i] + MAX_ACC;
-
+					if(ae[i]-prev_ae[i]>MAX_ACC)	// Accalerating
+						ae[i] = prev_ae[i] + MAX_ACC;
+				}
 				break;
 		}
 
-		prev_ae[i] = ae[i];
-	}
-	
+	prev_ae[0] = ae[0];
+	prev_ae[1] = ae[1];
+	prev_ae[2] = ae[2];
+	prev_ae[3] = ae[3];
+
 	peripherals[PERIPHERAL_XUFO_A0] = ae[0];
 	peripherals[PERIPHERAL_XUFO_A1] = ae[1];
 	peripherals[PERIPHERAL_XUFO_A2] = ae[2];
