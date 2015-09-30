@@ -26,23 +26,22 @@ void manual_lift(Factors *F){
 
 void manual_yaw(Factors *F){
 	F->f_y = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_YAW]),INT_TO_FIXED(0x0000FFFF));		// Max 0.5
-	// -0.5 - 0.5
+	// -0.50 - 0.50
 }
 
 void manual_pitch(Factors *F){
 	F->f_p = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_PITCH]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
-	// -0.5 - 0.5
+	// -0.25 - 0.25
 }
 
 void manual_roll(Factors *F){
 	F->f_r = DIV_FIXED(INT_TO_FIXED(JS_mes[JS_ROLL]),INT_TO_FIXED(0x0001FFFF));	// Max 0.5
-	// -0.5 - 0.5
+	// -0.25 - 0.25
 }
 
 void control_yaw(Factors *F){
 	
 	F->f_y = (INT_TO_FIXED(JS_mes[JS_YAW])/1024 - filtered_r)/INV_P_Y;	//filtered_r in order of min/max 1024 -> F->fy in order of 1
-	
 
 }
 
@@ -74,9 +73,9 @@ void isr_controller()
 	switch (mode){
 		case MANUAL:
 			// Manual mode
-			manual_yaw(&F);
-			manual_pitch(&F);
-			manual_roll(&F);
+			//manual_yaw(&F);
+			//manual_pitch(&F);
+			//manual_roll(&F);
 			break;
 
 		case YAW_CONTROL:

@@ -3,7 +3,7 @@
 //#define DEBUG_SUPERVISOR
 #define PANIC_US 2000000 //microseconds
 
-#define NEUTRAL_LIFT	32767
+#define NEUTRAL_LIFT	0
 #define NEUTRAL_ROLL	0
 #define NEUTRAL_PITCH	0
 #define NEUTRAL_YAW		0

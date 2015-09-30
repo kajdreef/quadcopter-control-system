@@ -175,9 +175,9 @@ int main(void)
 		{
 			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
 			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
-			DAQ_mes[DAQ_YAW_RATE] = (filtered_r>>8);//JS_mes[JS_YAW];
+			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW];//(filtered_r>>8);//JS_mes[JS_YAW];
 
-			//Possible switch of the interrupts
+			//Possible switch of the interrupts;
 			DAQ_mes[DAQ_AE1] = ae[0];
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];

@@ -178,9 +178,9 @@ int main (void) {
 			yaw = trimming[TRIM_YAW];
 	#endif
 			JS_mes[JS_LIFT] = scale_joystick_lift(lift);
-			JS_mes[JS_ROLL] = roll;
-			JS_mes[JS_PITCH] = pitch;
-			JS_mes[JS_YAW] = yaw;
+			JS_mes[JS_ROLL] = scale_joystick_pr(roll);
+			JS_mes[JS_PITCH] = scale_joystick_pr(pitch);
+			JS_mes[JS_YAW] = scale_joystick_yaw(yaw);
 
 			if((new_mode != mode ) && (new_mode != 0) && (new_mode != 1) && new_mode >=0 && new_mode <=5)
 			{
@@ -243,7 +243,7 @@ int main (void) {
 				printf("QR mode: \t%d\t         %03d\n", DAQ_mes[DAQ_MODE],DAQ_mes[DAQ_AE1]);
 				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
 				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
-				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
+				printf("Yaw_rate: \t%x\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
 				printf("Contr t(us): \t%d\t          |\n",DAQ_mes[DAQ_CONTR_TIME]);
 				printf("Filter t(us): \t%d\t          |\n", DAQ_mes[DAQ_FILTER_TIME]);
 				printf("\t\t\t         %03d\n\n", DAQ_mes[DAQ_AE3]);
