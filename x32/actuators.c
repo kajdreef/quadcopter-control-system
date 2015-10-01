@@ -22,49 +22,49 @@ void set_actuators(int *ae){
 	static int prev_ae[4];
 	
 	switch(mode){
-			case SAFE:
-				ae[0]=0;
-				ae[1]=0;
-				ae[2]=0;
-				ae[3]=0;
-				break;
+		case SAFE:
+			ae[0]=0;
+			ae[1]=0;
+			ae[2]=0;
+			ae[3]=0;
+			break;
 
-			case PANIC:
-				if(ae[0] != 0)
-					ae[0] = 0x00000100;
-				if(ae[1] != 0)
-					ae[1] = 0x00000100;
-				if(ae[2] != 0)
-					ae[2] = 0x00000100;
-				if(ae[3] != 0)
-					ae[3] = 0x00000100;
-				break;
+		case PANIC:
+			if(ae[0] != 0)
+				ae[0] = 0x00000100;
+			if(ae[1] != 0)
+				ae[1] = 0x00000100;
+			if(ae[2] != 0)
+				ae[2] = 0x00000100;
+			if(ae[3] != 0)
+				ae[3] = 0x00000100;
+			break;
 
-			case CALIBRATION:
-				ae[0] =0;
-				ae[1] =0;
-				ae[2] =0;
-				ae[3] =0;
-				break;
+		case CALIBRATION:
+			ae[0] =0;
+			ae[1] =0;
+			ae[2] =0;
+			ae[3] =0;
+			break;
 
-			default:
-				int i;
-	
-				for(i=0;i<4;i++){
-					if(ae[i] != 0){
-						ae[i] = F_sqrt(ae[i]);
-						
-						if(ae[i]<0x00000100)
-							ae[i]=0x00000100;
-						else if(ae[i]>0x000003ff)
-							ae[i]=0x000003ff;	
-					}
+		default:
+			int i;
 
-					if(ae[i]-prev_ae[i]>MAX_ACC)	// Accalerating
-						ae[i] = prev_ae[i] + MAX_ACC;
+			for(i=0;i<4;i++){
+				if(ae[i] != 0){
+					ae[i] = F_sqrt(ae[i]);
+					
+					if(ae[i]<0x00000100)
+						ae[i]=0x00000100;
+					else if(ae[i]>0x000003ff)
+						ae[i]=0x000003ff;	
 				}
-				break;
-		}
+
+				if(ae[i]-prev_ae[i]>MAX_ACC)	// Accalerating
+					ae[i] = prev_ae[i] + MAX_ACC;
+			}
+			break;
+	}
 
 	prev_ae[0] = ae[0];
 	prev_ae[1] = ae[1];
