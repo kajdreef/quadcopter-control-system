@@ -20,7 +20,7 @@ extern int ae[];
 void set_actuators(int *ae){
 
 	static int prev_ae[4];
-	
+	int i;
 	switch(mode){
 		case SAFE:
 			ae[0]=0;
@@ -47,6 +47,7 @@ void set_actuators(int *ae){
 			ae[3] =0;
 			break;
 
+<<<<<<< HEAD
 		default:
 			int i;
 

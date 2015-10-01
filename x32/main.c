@@ -24,7 +24,7 @@
 #define DAQ_MESSAGE_PERIOD	100000
 
 //Messages
-int DAQ_mes[10];
+int DAQ_mes[11];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5]= {32767};
@@ -33,6 +33,7 @@ int CON_mes[3] = {1,1,1};
 
 //actuator values
 int ae[4] = {0};
+int battery_voltage = 10;
 
 //Buffer where the message is stored
 char message[3*sizeof(JS_mes)/sizeof(JS_mes[0])] = {0};
@@ -70,6 +71,8 @@ void pc_link_led(int status);
  */
 int main(void)
 {
+	// Flag that is set high after sending all the log data	
+	int ABORT_FLAG = 0;
 
 	//Flag set when a message needs to be send
 	int SEND_MESSAGE_FLAG = FALSE;
@@ -96,10 +99,12 @@ int main(void)
 	supervisor_set_mode(&mode, SAFE);
 
   ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-
+	
+	// Initialise and start the log
+	log_init();
 	log_start();
 
-	while (1){
+	while (!ABORT_FLAG){
 
 		/*
 		 Blink the status led(1Hz)
@@ -186,7 +191,8 @@ int main(void)
 			DAQ_mes[DAQ_MODE] =  mode;
 
 			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time; 
-			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;				
+			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;		
+			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;		
 
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
 
@@ -197,10 +203,7 @@ int main(void)
 		/*
 		 A message is encoded and ready to be sent
 		*/
-		if((SEND_MESSAGE_FLAG == TRUE) && (mode != ABORT)){ 
-		
-			log_data(ACCEL, X32_clock_us, 10, 20, 30);
-			log_data(GYRO, X32_clock_us, 10, 20, 30);
+		if((SEND_MESSAGE_FLAG == TRUE) && (mode != ABORT)){
 			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));
 			SEND_MESSAGE_FLAG = FALSE;
 		}
@@ -208,6 +211,7 @@ int main(void)
 		if( mode == ABORT){
 			log_stop();
 			log_print();
+			ABORT_FLAG = 1;
 		}
 
 	}

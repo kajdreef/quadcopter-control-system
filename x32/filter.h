@@ -31,6 +31,7 @@ int BF_2nd(int x,int *xy, Filt_Param *Filt);
 int F_1st(int x, int prev_out, Filt_Param *Filt);
 int rem_absurd_val(int x, int prev_x, Filt_Param *Filt);
 void kalman(int sphi, int sp, int *bias, int *phi, int *p, Filt_Param *Filt);
+void setup_sensor_interrupts(int prio);
 void isr_sensor();
 
 

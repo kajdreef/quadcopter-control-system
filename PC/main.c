@@ -25,7 +25,7 @@
 #define NANO 1000000000L
 
 //Message
-int DAQ_mes[10];
+int DAQ_mes[11];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
@@ -272,7 +272,7 @@ int main (void) {
 				printf("Yaw_rate: \t%x\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
 				printf("Contr t(us): \t%d\t          |\n",DAQ_mes[DAQ_CONTR_TIME]);
 				printf("Filter t(us): \t%d\t          |\n", DAQ_mes[DAQ_FILTER_TIME]);
-				printf("\t\t\t         %03d\n\n", DAQ_mes[DAQ_AE3]);
+				printf("Batt voltage: \t%d\t         %03d\n\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);
 
 				printf("*****************\t********************\n");
 				printf("*    PC data    *\t*   Control param  *\n");
