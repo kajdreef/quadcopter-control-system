@@ -7,8 +7,8 @@
 #include <string.h>
 
 #define TRIM		100
-#define TUNE		10
-
+#define TUNE_PLUS	DIV_FIXED(INT_TO_FIXED(11),INT_TO_FIXED(10))
+#define TUNE_MIN    DIV_FIXED(INT_TO_FIXED(9),INT_TO_FIXED(10))
 #define TRIM_LIFT 	0
 #define	TRIM_ROLL	1	
 #define TRIM_PITCH	2

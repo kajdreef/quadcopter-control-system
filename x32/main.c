@@ -162,6 +162,8 @@ int main(void)
 			{
 				toggle_led(7);
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
+				update_control_parameters(CON_mes[0], CON_mes[1], CON_mes[2]);
+				
 			}
 
 			if(com_started == 0)
