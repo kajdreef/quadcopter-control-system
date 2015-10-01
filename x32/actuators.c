@@ -47,10 +47,9 @@ void set_actuators(int *ae){
 			ae[3] =0;
 			break;
 
-<<<<<<< HEAD
-		default:
-			int i;
 
+		default:
+			
 			for(i=0;i<4;i++){
 				if(ae[i] != 0){
 					ae[i] = F_sqrt(ae[i]);

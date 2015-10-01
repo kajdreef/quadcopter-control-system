@@ -220,7 +220,7 @@ int main(void)
 
 
     DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-
+	X32_leds = 0;
 	return 0;
 }
 
