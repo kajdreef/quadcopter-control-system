@@ -1,6 +1,8 @@
 #include <stdio.h>
-#include "logger.h"
 #include <string.h>
+#include "logger.h"
+#include "communication.h"
+
 
 int START = 0;
 int PRINTED = 0;
@@ -87,12 +89,15 @@ void log_data(enum logType type, int timestamp, int x, int y, int z){
 void log_print(void){
 #if LOGGER
 	int i = 0;
+	char str[50];
 
 	if(PRINTED == 0){
 	#if ACCEL_LOG
 		// Print Accelerometer data
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
-			printf("%d %d %d %d\n", accelData[i][0], accelData[i][1], accelData[i][2], accelData[i][3]);
+			//printf("%d %d %d %d\n", accelData[i][0], accelData[i][1], accelData[i][2], accelData[i][3]);
+			sprintf(str, "%08d %08d %08d %08d\n", accelData[i][0], accelData[i][1], accelData[i][2], accelData[i][3]);
+			send_message(str,36);
 		}
 	#endif	
 
@@ -104,7 +109,9 @@ void log_print(void){
 	#if GYRO_LOG
 		// Print Gyroscope data
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
-			printf("%d %d %d %d\n", gyroData[i][0], gyroData[i][1], gyroData[i][2], gyroData[i][3]);
+			//printf("%d %d %d %d\n", gyroData[i][0], gyroData[i][1], gyroData[i][2], gyroData[i][3]);
+			sprintf(str, "%08d %08d %08d %08d\n", gyroData[i][0], gyroData[i][1], gyroData[i][2], gyroData[i][3]);
+			send_message(str,36);
 		}
 	#endif
 
@@ -116,7 +123,9 @@ void log_print(void){
 	#if BATTERY_LOG
 		// Print Gyroscope data
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
-			printf("%d %d\n", batteryData[i][0], batteryData[i][1]);
+			//printf("%d %d\n", batteryData[i][0], batteryData[i][1]);
+			sprintf(str, "%08d %08d\n", batteryData[i][0], batteryData[i][1]);
+			send_message(str,18);
 		}
 	#endif
 		PRINTED = 1;

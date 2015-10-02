@@ -242,7 +242,7 @@ int main (void) {
 			currentLogTime = currentTimeLog.tv_sec*NANO + currentTimeLog.tv_nsec;
 			
 			// If the last character was received over 1 seconds ago shut down the program
-			if (currentLogTime - lastLogCharTime > 1000000000L){
+			if (currentLogTime - lastLogCharTime > 2000000000L){
 				strncpy(error_message, "Log transfer completed\n", 50);
 
 				// this is done so it will print an updated UI.

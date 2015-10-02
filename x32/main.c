@@ -98,12 +98,12 @@ int main(void)
 #endif
 	supervisor_set_mode(&mode, SAFE);
 
-  ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	
 	// Initialise and start the log
 	log_init();
 	log_start();
 
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
 	while (!ABORT_FLAG){
 
 		/*
