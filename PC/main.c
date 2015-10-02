@@ -72,10 +72,10 @@ int main (void) {
 	long long start, current;
 
 	// Logger timers
-	struct timespec currentTimeLog;
-	struct timespec previousTimeLog;
+	struct timespec currentLogTimer;
+	struct timespec previousLogTimer;
 
-	long long lastLogCharTime, currentLogTime;
+	long long previousLog = 0, currentLog = 0;
 
 	extern int flag_MSG_RECEIVED;
 
@@ -201,7 +201,7 @@ int main (void) {
 				}
 				else
 				{
-						strncpy(error_message, "Make joystick and trimming values neutral\n", 50);
+					strncpy(error_message, "Make joystick and trimming values neutral\n", 50);
 					new_mode = mode;
 				}
 			}
@@ -213,7 +213,7 @@ int main (void) {
 
 			if(new_mode == 999)
 			{	//abort, escape pressed
-				mode = 0;
+				mode = 6;
 			}
 
 			JS_mes[JS_MODE]  = mode;
@@ -228,21 +228,22 @@ int main (void) {
 		if(mode == 6){
 			strncpy(error_message, "Transferring log...\n", 50);
 			while(is_char_available()){
-				if (mode == 6){
-					// Get time of last new char
-					clock_gettime(CLOCK_MONOTONIC, &previousTimeLog);
-					lastLogCharTime = previousTimeLog.tv_sec*NANO + previousTimeLog.tv_nsec;
-					currentLogTime = lastLogCharTime;
-					log_write_char(get_char());
-				}
+				// Get time of last new char
+				clock_gettime(CLOCK_MONOTONIC, &previousLogTimer);
+				previousLog = previousLogTimer.tv_sec*NANO + previousLogTimer.tv_nsec;
+				log_write_char(get_char());
 			}
 
 			// Get current time
-			clock_gettime(CLOCK_MONOTONIC, &currentTimeLog);
-			currentLogTime = currentTimeLog.tv_sec*NANO + currentTimeLog.tv_nsec;
+			clock_gettime(CLOCK_MONOTONIC, &currentLogTimer);
+			currentLog = currentLogTimer.tv_sec*NANO + currentLogTimer.tv_nsec;
 			
+			if(previousLog == 0 ){
+				previousLog = currentLog;
+			}
+
 			// If the last character was received over 1 seconds ago shut down the program
-			if (currentLogTime - lastLogCharTime > 2000000000L){
+			if (currentLog - previousLog > 2000000000L){
 				strncpy(error_message, "Log transfer completed\n", 50);
 
 				// this is done so it will print an updated UI.
