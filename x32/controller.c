@@ -14,13 +14,13 @@ extern enum QR mode;
 extern int filtered_r;
 extern int ae[];
 
-int P_Y = 1024;
+int P_Y = 3072;
 int P1 = 1024;
 int P2 = 1024;
 
 void update_control_parameters(int P1, int P2, int P3)
 {
-	P_Y = MULT_FIXED(P_Y, P1);	
+	P_Y = MULT_FIXED(1024, P1);	
 }
 
 void manual_lift(Factors *F){
@@ -44,7 +44,7 @@ void manual_roll(Factors *F){
 
 void control_yaw(Factors *F){
 	
-	F->f_y = MULT_FIXED((JS_mes[JS_YAW] - (filtered_r/100)),P_Y);	
+	F->f_y = MULT_FIXED((JS_mes[JS_YAW]/2 + (filtered_r/100)),P_Y);	
 }
 
 void control_pitch(Factors *F){
