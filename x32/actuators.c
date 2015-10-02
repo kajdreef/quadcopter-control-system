@@ -47,9 +47,8 @@ void set_actuators(int *ae){
 			ae[3] =0;
 			break;
 
-<<<<<<< HEAD
 		default:
-			int i;
+
 
 			for(i=0;i<4;i++){
 				if(ae[i] != 0){
