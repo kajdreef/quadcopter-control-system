@@ -9,7 +9,7 @@
 #include "fixed_point.h"
 
 #define CONTINUOUS 1
-#define JOYSTICK 0
+#define JOYSTICK 1
 #define KEYBOARD 1
 
 #define SEND_MESSAGE_PRINT 0
@@ -271,7 +271,7 @@ int main (void) {
 				printf("QR mode: \t%d\t         %03d\n", DAQ_mes[DAQ_MODE],DAQ_mes[DAQ_AE1]);
 				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
 				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
-				printf("Yaw_rate: \t%x\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
+				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
 				printf("Contr t(us): \t%d\t          |\n",DAQ_mes[DAQ_CONTR_TIME]);
 				printf("Filter t(us): \t%d\t          |\n", DAQ_mes[DAQ_FILTER_TIME]);
 				printf("Batt voltage: \t%d\t         %03d\n\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);

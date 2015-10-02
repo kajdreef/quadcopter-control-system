@@ -25,7 +25,8 @@ typedef struct Filt_param Filt_Param;
 
 Filt_Param Filt_phi = { 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0, 0};
 Filt_Param Filt_thet ={ 0, 0, 0, 0, 0, 9999, -9999, 0, 0, 0, 0};
-Filt_Param Filt_r ={ 0, 0, 0, 0, 0, 262144, -262144, 0, 0, 0, 1};	// Min=-1024, Max=1024, alpha is as low as possible
+//THINK ABOUT THE FRACTION OF THE FIXED POINT;
+Filt_Param Filt_r ={ 0, 0, 0, 0, 0, 1048576, -1048576, 0, 0, 0, 1};	// Min=-1024, Max=1024, alpha is as low as possible
 
 int BF_2nd(int x,int *xy, Filt_Param *Filt);
 int F_1st(int x, int prev_out, Filt_Param *Filt);
