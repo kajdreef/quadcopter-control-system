@@ -9,7 +9,7 @@
 #include "fixed_point.h"
 
 #define CONTINUOUS 1
-#define JOYSTICK 1
+#define JOYSTICK 0
 #define KEYBOARD 1
 
 #define SEND_MESSAGE_PRINT 0
@@ -46,7 +46,6 @@ int main (void) {
 	int	button[12];
 	int js_fd;
 		
-
 	int trimming[4] = {0};
 	int mode = 0;
 	int new_mode = 0;

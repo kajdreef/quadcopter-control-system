@@ -9,9 +9,6 @@
 #include "logger.h"
 #include "actuators.h"
 
-//Debugging
-//The controller, Communication and actuators have defines statements as well
-
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
@@ -33,9 +30,10 @@ int CON_mes[3] = {1,1,1};
 
 //actuator values
 int ae[4] = {0};
+//battery voltage set by sensor/filter isr
 int battery_voltage = 10;
 
-//Buffer where the message is stored
+//Buffer where a received is placed
 char message[3*sizeof(JS_mes)/sizeof(JS_mes[0])] = {0};
 
 //Output buffer for sending a message
@@ -71,22 +69,22 @@ void pc_link_led(int status);
  */
 int main(void)
 {
-	// Flag that is set high after sending all the log data	
-	int ABORT_FLAG = 0;
-
 	//Flag set when a message needs to be send
 	int SEND_MESSAGE_FLAG = FALSE;
+
+	//Variable for keeping track of time to determine when to send a DAQ message
 	int send_message_time = X32_clock_us;
 
 	//Time of the last received complete message
 	int last_message_time = 0;
 
-	//To indicate whether there has been communication yet
+	//To indicate whether communition is started. Initialized at no communication
 	int com_started = 0;
 
 	//default value corresponding to 0 lift
-	JS_mes[JS_LIFT] = 32767;
+	JS_mes[JS_LIFT] = 0;
 
+//Set up the different interrupts depending on the configuration
 #ifdef MESSAGE_INTERRUPT
 	setup_uart_interrupts(8);
 #endif
@@ -96,15 +94,17 @@ int main(void)
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);
 #endif
+
+	//Let the QR begin with a safe configuration
 	supervisor_set_mode(&mode, SAFE);
 
 	// Initialise and start the log
-	log_init();
-	log_start();
+	//log_init();
+	//log_start();
 
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	
-	while (!ABORT_FLAG){
+	while (1){
 
 		/*
 		 Blink the status led(1Hz)
@@ -129,7 +129,7 @@ int main(void)
 		}
 
 		/*
-		 Check whether characters are avaiable in the FIFO and detect a message
+		 Check whether characters are available in the FIFO and detect a message
 		*/
 		while(is_char_available())
 		{
@@ -143,7 +143,7 @@ int main(void)
 
 			//Decode the message
 			if(message_type == JS_MASK)
-			{
+			{	//If it is a joystick message containing inputs
 				decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
 
 				DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
@@ -159,7 +159,7 @@ int main(void)
 
 			}
 			else if(message_type == CON_MASK)
-			{
+			{	//if it is a controller message for tuning the P values
 				toggle_led(7);
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
 				update_control_parameters(CON_mes[0], CON_mes[1], CON_mes[2]);
@@ -205,19 +205,12 @@ int main(void)
 		/*
 		 A message is encoded and ready to be sent
 		*/
-		if((SEND_MESSAGE_FLAG == TRUE) && (mode != ABORT)){
+		if(SEND_MESSAGE_FLAG == TRUE){
 			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));
 			SEND_MESSAGE_FLAG = FALSE;
 		}
 
-		if( mode == ABORT){
-			log_stop();
-			log_print();
-			ABORT_FLAG = 1;
-		}
-
 	}
-
 
     DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	X32_leds = 0;
@@ -234,11 +227,11 @@ int check_pc_link(int last_message_time, int com_started){
 	if(com_started == 1)
 	{
 		if(X32_clock_us - last_message_time > MESSAGE_TIME_THRESHOLD)
-		{
+		{	//The time between two received messages was too long
 			return 0;
 		}
 		else
-		{
+		{	//The time received between two messages is OK
 			return 1;
 		}
 	}

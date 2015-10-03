@@ -21,14 +21,8 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 	static int received_mode_prev = 0;
 	static int new_mode_counter = 0;
 	static int check_flag = 0;
-#ifdef DEBUG_SUPERVISOR
-	printf("mode: %d\r\n", *mode);
-	printf("Received mode: %d\r\n", received_mode);
-	printf("Received mode prev: %d\r\n", received_mode_prev);
-	printf("Check flag: %d\r\n", check_flag);
-#endif
 
-	if(received_mode <= 6 && received_mode >= 0 && *mode != PANIC){
+	if(received_mode <= 5 && received_mode >= 0 && *mode != PANIC){
 	//range is valid
 
 		if(received_mode != *mode )
@@ -71,7 +65,6 @@ void supervisor_check_panic(enum QR *mode){
 
 	if(*mode == PANIC)
 	{
-
 		supervisor_set_mode(mode, SAFE);
 
 	}
@@ -79,7 +72,7 @@ void supervisor_check_panic(enum QR *mode){
 }
 
 /*------------------------------------------------------------------
- * supervisor_set_mode -- Change modes and enforce conditions for chaning modes.
+ * supervisor_set_mode -- Change modes and enforce conditions for changing modes.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -89,15 +82,12 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	
 	if(*mode != new_mode){
 		switch(*mode){
+		/* SAFE MODE:
+		 * The set actuators enforces that in safe mode the engines are turned off	
+		 * We are only allowed to switch from safe mode if the input is neutral as well
+		 */
 			case SAFE:
-				
-				if(ABORT_FLAG || new_mode == ABORT) {
-						*mode = ABORT;
-						DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-				}
-				
 				if(neutral_input()){
-					//SAFE mode has 0 RPM per definition enforced by the actuators
 					if(new_mode == YAW_CONTROL)
 					{
 						*mode = CALIBRATION;
@@ -108,12 +98,14 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					}
 					else if(new_mode == MANUAL)
 					{
-						//JS_mes[JS_LIFT] = 32767;		// Set minimum lift, probably not needed anymore!
 						*mode = new_mode;
 					}
 				}
 				break;
-
+		/* PANIC MODE:
+		 * The set actuators enforces that in panic mode the engines are set to 0x100	
+		 * After the systems is long enough in panic mode it will switch to safe automatically
+		 */
 			case PANIC:
 				if(new_mode == SAFE && panic_time !=0 && (X32_clock_us - panic_time > PANIC_US))
 				{
@@ -121,42 +113,42 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					panic_time = 0;
 				}
 				break;
-
+		/* MANUAL MODE:
+		 * In Manual mode we can always go to panic mode	
+		 * If we want to switch to safe mode we have to go through panic mode first
+		 * In MANUAL mode it is allowed to turn on the engines
+		 */
 			case MANUAL:
 				if(new_mode == PANIC)
 				{
 					*mode = new_mode;
 				}
 				if(new_mode == SAFE)
-				{//panic will switch to safe automatically
-					*mode = PANIC;
-					new_mode = PANIC;
-				}
-				if(new_mode == ABORT)
 				{
-					ABORT_FLAG = 1;
 					*mode = PANIC;
 					new_mode = PANIC;
 				}
 				break;
-
+		/* CALIBRATION MODE:
+		 * The set actuator enforces that the engines are turned off during calibration mode
+		 * In calibration mode we can always go to panic mode or safe mode
+		 * Once the system is calibrated we could also go to yaw mode
+		 */
 			case CALIBRATION:
 				if(new_mode == SAFE | new_mode == PANIC)
 				{
 					*mode = SAFE;
 				}
-				else if(new_mode == YAW_CONTROL && calibrated)
+				else if(new_mode == YAW_CONTROL && calibrated && neutral_input())
 				{
 					*mode  = new_mode;
 				}
-				if(new_mode == ABORT)
-				{
-					*mode = SAFE;
-					ABORT_FLAG = 1;
-					new_mode = ABORT;
-				}
 				break;
-
+		/* YAW CONTROL MODE:
+		 * Turning the engines on is allowed in yaw control mode.
+		 * We can always switch to panic mode
+		 * If we want to go to safe mode we can get there through panic mode
+		 */			
 			case YAW_CONTROL:
 				if(new_mode == PANIC)
 				{
@@ -167,40 +159,29 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					*mode = PANIC;
 					new_mode = PANIC;
 				}
-				if(new_mode == ABORT)
-				{
-					ABORT_FLAG = 1;
-					*mode = PANIC;
-					new_mode = PANIC;
-				}
 				break;
-
+		/* FULL CONTROL MODE:
+		 * Turning the engines on is allowed in full control mode.
+		 * We can always switch to panic mode
+		 * If we want to go to safe mode we can get there through panic mode
+		 */	
 			case FULL_CONTROL:
 				if(new_mode == PANIC)
 				{
 					*mode = new_mode;
 				}
 				if(new_mode == SAFE)
-				{//panic will switch to safe automatically
-					*mode = PANIC;
-					new_mode = PANIC;
-				}
-				if(new_mode == ABORT)
 				{
-					ABORT_FLAG = 1;
 					*mode = PANIC;
 					new_mode = PANIC;
 				}
-				break;
-
-			case ABORT:
-			;
 				break;
 			default:
+				//For safety purposes
 				*mode = PANIC;
 		}
 
-		if(new_mode == PANIC )
+		if(*mode != SAFE && new_mode == PANIC)
 		{
 			panic_time = X32_clock_us;
 		}
@@ -216,7 +197,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 	X32_leds |= (*mode+1) << 3;
 
 }
-
 
 /*------------------------------------------------------------------
  * neutral_input --  Function to check if the received inputs are neutral
@@ -247,7 +227,7 @@ int check_inputs(int *unchecked, int *checked)
 		}
 	}
 
-	if(unchecked[4] > 6 || unchecked[4] < 0 )
+	if(unchecked[4] > 5 || unchecked[4] < 0 )
 	{
 		flag = 1;
 	}

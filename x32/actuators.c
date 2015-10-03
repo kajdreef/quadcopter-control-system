@@ -4,23 +4,46 @@
 #include "supervisor.h"
 #include "fixed_point.h"
 
-#define MAX_ACC 10
+//max acceleration of the motors to prevent stalling
+#define MAX_ACC 2
 
 extern int state;
 extern enum QR mode;
 extern int ae[];
+
+void calc_actuators(int *ae, int *prev_ae)
+{
+	int i = 0;
+	for(i=0;i<4;i++){
+		if(ae[i] != 0){
+			ae[i] = F_sqrt(ae[i]);
+			
+			if(ae[i]<0x00000100){
+				ae[i]=0x00000100;
+			}
+			else if(ae[i]>0x000003ff){
+				ae[i]=0x000003ff;	
+			}
+		}
+
+		if(ae[i]-prev_ae[i]>MAX_ACC)	// Accelerating
+		{	
+			ae[i] = prev_ae[i] + MAX_ACC;
+		}	
+	}
+
+}
+
 /*
  * Set the actuators to the RPM defined in the global array ae
  * The interrupts need to be disabled in order for the values to 
  * not change after the clipping.
- * NEEDED: A global int array named "DAQ_mes.ae"
- * 
+ *  
  * Author: Gijs Bruining
  */
 void set_actuators(int *ae){
 
 	static int prev_ae[4];
-	int i;
 	switch(mode){
 		case SAFE:
 			ae[0]=0;
@@ -28,7 +51,6 @@ void set_actuators(int *ae){
 			ae[2]=0;
 			ae[3]=0;
 			break;
-
 		case PANIC:
 			if(ae[0] != 0)
 				ae[0] = 0x00000100;
@@ -46,24 +68,23 @@ void set_actuators(int *ae){
 			ae[2] =0;
 			ae[3] =0;
 			break;
-
-
-		default:
 			
-			for(i=0;i<4;i++){
-				if(ae[i] != 0){
-					ae[i] = F_sqrt(ae[i]);
-					
-					if(ae[i]<0x00000100)
-						ae[i]=0x00000100;
-					else if(ae[i]>0x000003ff)
-						ae[i]=0x000003ff;	
-				}
-
-				if(ae[i]-prev_ae[i]>MAX_ACC)	// Accalerating
-					ae[i] = prev_ae[i] + MAX_ACC;
-			}
+		case MANUAL:
+			calc_actuators(ae, prev_ae);
 			break;
+		case YAW_CONTROL:
+			calc_actuators(ae, prev_ae);	
+			break;
+		case FULL_CONTROL:
+			calc_actuators(ae, prev_ae);
+			break;
+		default:
+			ae[0]=0;
+			ae[1]=0;
+			ae[2]=0;
+			ae[3]=0;
+			break;
+			
 	}
 
 	prev_ae[0] = ae[0];
@@ -77,7 +98,6 @@ void set_actuators(int *ae){
 	peripherals[PERIPHERAL_XUFO_A3] = ae[3];
 
 }
-
 
 int F_sqrt(int x){
 //[0 1] fixed point	

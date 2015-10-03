@@ -50,8 +50,6 @@ void isr_rx_fifo(void){
 
 }
 
-
-
 /*------------------------------------------------------------------
  * isr_char_available -- checks if a character is available in the FIFO buffer
  * Author: Bastiaan Oosterhuis
@@ -139,7 +137,7 @@ void detect_message(char data){
 		}		
 	
 		receive_count = 0;		
-		//toggle_led(6);	
+		
 	}
 	
 	prev = data&END;
