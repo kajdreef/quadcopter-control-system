@@ -165,9 +165,9 @@ int process_keyboard(char c, int *trim, int *control_p)
 		//left arrow	
 		case 0x44:
 			trim[TRIM_ROLL] += TRIM;
-			if(trim[TRIM_YAW] > 32767)
+			if(trim[TRIM_ROLL] > 32767)
 			{
-				trim[TRIM_YAW] = 32767;			
+				trim[TRIM_ROLL] = 32767;			
 			}	
 			break;
 		//right arrow	
