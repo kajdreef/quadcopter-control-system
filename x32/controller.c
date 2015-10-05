@@ -5,13 +5,17 @@
 #include "actuators.h"
 #include "supervisor.h"
 
+#define LOOP_RATE_FACT 4
+
 //#define VERBOSE_CONTROLLER
 
 extern int JS_mes[5];
 extern int state;
 extern int isr_controller_time;
 extern enum QR mode;
-extern int filtered_r;
+extern int filtered_r;	// Yaw rate
+extern int filtered_p;	// Roll rate
+extern int filtered_q;	// Pitch rate
 extern int ae[];
 
 int P_Y = 3072;
@@ -43,12 +47,22 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-	
 	F->f_y = MULT_FIXED((JS_mes[JS_YAW]/2 + (filtered_r/100)),P_Y);	
 }
 
 void control_pitch(Factors *F){
+	static int count=0;
+	static int des_
 
+	// Position controller
+	if (count>=LOOP_RATE_FACT){
+
+	}
+
+	// Rate controller
+
+
+	count++;
 }
 
 void control_roll(Factors *F){
