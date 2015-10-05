@@ -11,8 +11,6 @@
 extern int MESSAGE_FLAG;
 //buffer to store a message in
 extern char message[];
-//type of the latest received message
-extern char message_type;
 
 extern enum QR mode;
 

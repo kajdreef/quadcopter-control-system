@@ -52,6 +52,30 @@ int	term_getchar(void){
 }
 
 /*------------------------------------------------------------------
+ *	keyboard_log_input Check whether the keyboard input is related
+ *  to logging
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int keyboard_log_input(char input)
+{
+	switch(input){
+		case 'b':
+			return 1;
+		break;		
+		case 'f':
+			return 1;
+		break;
+		case 't':
+			return 1;
+		break;
+		default:
+			return -1;
+	}
+
+}
+
+/*------------------------------------------------------------------
  *	keyboard_control_input Check whether the keyboard input is related
  *  to tuning the controller
  *	Author: Bastiaan Oosterhuis
@@ -84,8 +108,6 @@ int keyboard_control_input(char input)
 	
 	}
 	
-	
-
 }
 
 
@@ -94,7 +116,7 @@ int keyboard_control_input(char input)
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-int process_keyboard(char c, int *trim, int *control_p)
+int process_keyboard(char c, int *trim, int *control_p, int *log)
 {		
 	switch(c){
 		case 0x1B:
@@ -220,9 +242,21 @@ int process_keyboard(char c, int *trim, int *control_p)
 		//	control_p[2] -= TUNE; 
 			break;
 			
+		/*
+			LOGGING
+		*/
+		case 'b':
+			*log = 1;
+			break;
+		case 'f':
+			*log = 0;
+			break;
+		case 't':
+			*log = 2;
+			break;
 		default:
-		;
-}
+			;
+		}
 	
 
 	return -1;

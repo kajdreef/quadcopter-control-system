@@ -27,8 +27,7 @@
 
 //Message
 int DAQ_mes[11];
-int ERR_mes;
-char DEB_mes[24];
+int LOG_mes[1] = {0};
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
 int CON_mes[3] = {1024, 1024, 1024};
 
@@ -121,7 +120,7 @@ int main (void) {
 		{	
 			int rv = 0;
 			//printf("Keyboard input: %X\n", keyboard_input);
-			if((rv = process_keyboard(keyboard_input, trimming, CON_mes)) != -1)
+			if((rv = process_keyboard(keyboard_input, trimming, CON_mes, LOG_mes)) != -1)
 			{
 				new_mode = rv;
 			}
@@ -133,6 +132,13 @@ int main (void) {
 			//send a control message
 			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
 			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
+		}
+		
+		if(keyboard_log_input(keyboard_input) != -1)
+		{	//send a log message
+			encode_message(LOG_MASK, sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes, msg);
+			send(msg, 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
+
 		}
 #endif
 		clock_gettime(CLOCK_MONOTONIC, &currentTime);
@@ -284,6 +290,7 @@ int main (void) {
 				printf("roll: \t\t%5d %5d\t R/P P2\t(o/l): \t%5d %5d\n",roll,scale_joystick_pr(roll), CON_mes[2],FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[2])));
 				printf("Pitch: \t\t%5d %5d\n", pitch,scale_joystick_pr(pitch));
 				printf("Yaw\t(q/w): \t%5d %5d\n",yaw,scale_joystick_yaw(yaw));
+				printf("LOG\t(b/f/t):%5d\n",LOG_mes[0]);
 				printf("%s",error_message);
 				flag_MSG_RECEIVED = 0;
 			}

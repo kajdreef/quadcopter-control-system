@@ -22,8 +22,8 @@
 
 //Messages
 int DAQ_mes[11];
-int ERR_mes;
-char DEB_mes[24];
+int LOG_mes[1];
+
 int JS_mes[5]= {32767};
 int JS_mes_unchecked[5];
 int CON_mes[3] = {1,1,1};
@@ -40,7 +40,7 @@ char message[3*sizeof(JS_mes)/sizeof(JS_mes[0])] = {0};
 char output_buffer[3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0])];
 
 //message type received;
-char message_type = '0';
+int message_type = 0;
 
 //Flag set when a complete message is received
 int MESSAGE_FLAG = FALSE;
@@ -98,12 +98,10 @@ int main(void)
 	//Let the QR begin with a safe configuration
 	supervisor_set_mode(&mode, SAFE);
 
-	// Initialise and start the log
-	//log_init();
-	//log_start();
-
+	// Initialise the log
+	log_init();
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	
+
 	while (1){
 
 		/*
@@ -164,6 +162,32 @@ int main(void)
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
 				update_control_parameters(CON_mes[0], CON_mes[1], CON_mes[2]);
 				
+			}
+			else if(message_type == LOG_MASK)
+			{	//If it is a log message take appropriate action
+				
+				decode(message,sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes);
+				
+				switch(LOG_mes[0]){
+					case 0:
+						log_stop();
+						break;
+					case 1:
+						log_start();	
+						break;	
+					case 2:
+						if(mode == SAFE)
+						{
+							log_print();
+						}
+						else
+						{
+							log_stop();
+						}
+						break;
+					default:
+					;
+				}
 			}
 
 			if(com_started == 0)
@@ -276,3 +300,5 @@ void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
 }
+
+

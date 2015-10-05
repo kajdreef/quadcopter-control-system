@@ -6,6 +6,8 @@
 
 char fifo_buffer[FIFO_SIZE] = {0};
 int rear = 0, front = 0;
+//type of the latest received message
+extern int message_type;
 
 void toggle_led(int i) 
 {
@@ -101,10 +103,11 @@ void detect_message(char data){
 
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
-
+	
 		message[receive_count] = data;		
 		receive_count++;
-		message_type = data & END;
+		message_type = 0;
+		message_type ^= (data & END);
 		
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1 && message_length(data) == MESSAGE_LENGTH)
@@ -118,7 +121,6 @@ void detect_message(char data){
 		//end of a message is detected succesfully
 		message[receive_count] = data;
 		MESSAGE_FLAG = TRUE;
-	
 		//message finished so reset count
 		receive_count = 0;	
 		lost_packets = 0;

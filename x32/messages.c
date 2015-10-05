@@ -7,8 +7,7 @@
 #define DEBUG 0
 
 extern int DAQ_mes[11];//[10];
-extern int ERR_mes;
-extern char DEB_mes[24];
+extern int LOG_mes[1];
 extern int JS_mes[5];
 extern int CON_mes[3];
 
@@ -27,6 +26,9 @@ int message_length(char data)
 			break;
 		case(CON_MASK):
 			return 3*sizeof(CON_mes)/sizeof(CON_mes[0]);
+			break;
+		case(LOG_MASK):
+			return 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]);
 			break;
 		default:
 			return -1;	

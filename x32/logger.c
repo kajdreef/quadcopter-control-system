@@ -3,9 +3,23 @@
 #include "logger.h"
 #include "communication.h"
 
-
 int START = 0;
 int PRINTED = 0;
+
+void toggle_led(int i)
+{
+	X32_leds = (X32_leds ^ (1 << i));
+}
+
+void log_toggle_led(int i)
+{
+	static int count = 0;
+	count++;
+	if(count == 30){
+		X32_leds = (X32_leds ^ (1 << i));
+		count = 0;
+	}
+}
 
 /*------------------------------------------------------------------
  *	log_init -- initialise all the arrays to 0
@@ -95,6 +109,7 @@ void log_print(void){
 	#if ACCEL_LOG
 		// Print Accelerometer data
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
+			log_toggle_led(6);
 			//printf("%d %d %d %d\n", accelData[i][0], accelData[i][1], accelData[i][2], accelData[i][3]);
 			sprintf(str, "%08d %08d %08d %08d\n", accelData[i][0], accelData[i][1], accelData[i][2], accelData[i][3]);
 			send_message(str,36);
@@ -109,6 +124,7 @@ void log_print(void){
 	#if GYRO_LOG
 		// Print Gyroscope data
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
+			log_toggle_led(6);
 			//printf("%d %d %d %d\n", gyroData[i][0], gyroData[i][1], gyroData[i][2], gyroData[i][3]);
 			sprintf(str, "%08d %08d %08d %08d\n", gyroData[i][0], gyroData[i][1], gyroData[i][2], gyroData[i][3]);
 			send_message(str,36);
@@ -123,6 +139,7 @@ void log_print(void){
 	#if BATTERY_LOG
 		// Print Gyroscope data
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
+			log_toggle_led(6);
 			//printf("%d %d\n", batteryData[i][0], batteryData[i][1]);
 			sprintf(str, "%08d %08d\n", batteryData[i][0], batteryData[i][1]);
 			send_message(str,18);
@@ -139,7 +156,10 @@ void log_print(void){
  *------------------------------------------------------------------
  */
 void log_start(void){
+	toggle_led(6);
+
 #if LOGGER
+	PRINTED = 0;
 	START = 1;
 #endif
 }
@@ -150,6 +170,7 @@ void log_start(void){
  *------------------------------------------------------------------
  */
 void log_stop(void){
+	toggle_led(6);
 #if LOGGER
 	START = 0;
 #endif
