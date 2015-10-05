@@ -24,8 +24,7 @@ void control_roll(Factors *F);
 void apply_mot_fact(Factors *F,int *ae);
 void isr_controller();
 void setup_controller_interrupts(int prio);
-int main();
-
+void update_control_parameters(int P1, int P2, int P3);
 
 
 #endif

@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <time.h>
 #include "keyboard.h"
+#include "fixed_point.h"
 
 #define CONTINUOUS 1
 #define JOYSTICK 0
@@ -29,7 +30,7 @@ int DAQ_mes[11];
 int ERR_mes;
 char DEB_mes[24];
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
-int CON_mes[3] = {1,1,1};
+int CON_mes[3] = {1024, 1024, 1024};
 
 char msg[15];
 
@@ -44,6 +45,7 @@ int main (void) {
 	int	axis[6] = {0,0,0,32767,0,0};		// Initialize with lift at minimum
 	int	button[12];
 	int js_fd;
+		
 
 	int trimming[4] = {0};
 	int mode = 0;
@@ -277,7 +279,7 @@ int main (void) {
 				printf("*****************\t********************\n");
 				printf("*    PC data    *\t*   Control param  *\n");
 				printf("*****************\t********************\n");
-				printf("Mode: \t\t%d\t Yaw P\t(u/j): \t%d\n",mode, CON_mes[0]);
+				printf("Mode: \t\t%d\t Yaw P\t(u/j): \t%d\n",mode, FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[0])));
 				printf("lift\t(a/z):\t%d\t R/P P1\t(i/k): \t%d\n",lift, CON_mes[1]);
 				printf("roll: \t\t%d\t R/P P2\t(o/l): \t%d\n",roll, CON_mes[2]);
 				printf("Pitch: \t\t%d\n", pitch);

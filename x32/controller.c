@@ -7,14 +7,21 @@
 
 //#define VERBOSE_CONTROLLER
 
-#define P_Y 1024
-
 extern int JS_mes[5];
 extern int state;
 extern int isr_controller_time;
 extern enum QR mode;
 extern int filtered_r;
 extern int ae[];
+
+int P_Y = 1024;
+int P1 = 1024;
+int P2 = 1024;
+
+void update_control_parameters(int P1, int P2, int P3)
+{
+	P_Y = MULT_FIXED(P_Y, P1);	
+}
 
 void manual_lift(Factors *F){
 	F->f_l = JS_mes[JS_LIFT];	

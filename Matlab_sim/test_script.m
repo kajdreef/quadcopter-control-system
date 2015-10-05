@@ -1,4 +1,4 @@
-[a b] = butter(2,0.3);
+[a b] = butter(2,0.5);
 
 % Let op! a en b zijn gereversed in de definitie in de help van matlab!
 
@@ -15,14 +15,11 @@ Filt.dt = 0.001;
 
 xy = zeros(6,1);
 
-t = 0:0.001:100;
+t = 0:1/1270:1;
 
-x = sin(0.1*t*2*pi) + 0.2*sin(800*t*2*pi);
-x(245) = 5;
-x(781) = 4;
-x(45) = 3.8;
+x = 100*sin(t*2*pi) + 50*sin(100*t*2*pi);
 
-dx = cos(0.1*t*2*pi)+min(0.01*t,1);
+dx = 100*2*pi*cos(t*2*pi);
 
 bias = 0;
 phi = 0;
@@ -45,4 +42,3 @@ end
 plot(t,x_filt);
 plot(t,phi(2:end));
 plot(t,p(2:end));
-ylim([-2 2])

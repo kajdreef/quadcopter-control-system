@@ -1,4 +1,5 @@
 #include "keyboard.h"
+#include "fixed_point.h"
 
 /*---------------------------------------------------------
  * console I/O
@@ -200,23 +201,23 @@ int process_keyboard(char c, int *trim, int *control_p)
 		*/
 		//YAW CONTROL
 		case 'u':
-			control_p[0] += TUNE; 
+			control_p[0] = MULT_FIXED(TUNE_PLUS,control_p[0]); 
 			break;
 		case 'j':
-			control_p[0] -= TUNE;
+			control_p[0] = MULT_FIXED(TUNE_MIN,control_p[0]);
 			break;
 		//ROLL/PITCH Control
 		case 'i':
-			control_p[1] += TUNE; 
+			//control_p[1] += TUNE; 
 			break;
 		case 'k':
-			control_p[1] -= TUNE; 
+		//	control_p[1] -= TUNE; 
 			break;
 		case 'o':
-			control_p[2] += TUNE; 
+			//control_p[2] += TUNE; 
 			break;
 		case 'l':
-			control_p[2] -= TUNE; 
+		//	control_p[2] -= TUNE; 
 			break;
 			
 		default:

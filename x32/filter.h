@@ -23,9 +23,9 @@ struct Filt_param {
 
 typedef struct Filt_param Filt_Param;
 
-Filt_Param Filt_phi = { 0, 0, 0, 0, 0, 1048576, 0, 0, 0, 0, 1};
-Filt_Param Filt_thet ={ 0, 0, 0, 0, 0, 1048576, 0, 0, 0, 0, 1};
-Filt_Param Filt_r ={ 0, 0, 0, 0, 0, 1048576, 0, 0, 0, 0, 1};	// Min=0, Max=1024, alpha is as low as possible
+Filt_Param Filt_phi = { 1, 2, 1, -1957, 937, 2621440, -2621440, 5000, 250000, 1, 1};	//BF_freq=0.02*Fs = 25.4 Hz
+Filt_Param Filt_thet ={ 1, 2, 1, -1957, 937, 2621440, -2621440, 5000, 250000, 1, 1};
+Filt_Param Filt_r ={ 0, 0, 0, 0, 0, 2621440, -2621440, 0, 0, 0, 1};	// Min=0, Max=1024, alpha is as low as possible
 
 void kalman(int p[], Filt_Param *Filt);
 void BF_2nd(int p[], Filt_Param *Filt);
