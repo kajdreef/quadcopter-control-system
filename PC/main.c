@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
-#include <time.h>
+#include "timer.h"
 #include "keyboard.h"
 #include "fixed_point.h"
 
@@ -93,16 +93,7 @@ int main (void) {
 	#endif
 
 	// Timer for 50 hz
-	struct timespec currentTime;
-	struct timespec startTime;
-
-	long long start, current;
-
-	// Logger timers
-	struct timespec currentLogTimer;
-	struct timespec previousLogTimer;
-
-	long long previousLog = 0, currentLog = 0;
+	struct Timer timerLoop, timerLog;
 
 	extern int flag_MSG_RECEIVED;
 
@@ -124,8 +115,7 @@ int main (void) {
 #endif
 
 	// Initialise timer for start time.
-	clock_gettime(CLOCK_MONOTONIC, &startTime);
-	start = startTime.tv_sec*NANO + startTime.tv_nsec;
+	set_start_time(&timerLoop);
 	int loopRate = 0;
 
 	/************************************************************
@@ -140,16 +130,13 @@ int main (void) {
 			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
 		}
 
-		clock_gettime(CLOCK_MONOTONIC, &currentTime);
-		current = currentTime.tv_sec*NANO + currentTime.tv_nsec;
+		set_stop_time(&timerLoop);
 
 		// If 40 ms (25 Hz) has passed then run.40000000L
-		if( current - start > 40000000L)
+		if( get_diff_time(timerLoop) > 40000000L)
 		{
 			// Get start time of the loop
-			clock_gettime(CLOCK_MONOTONIC, &startTime);
-			start = startTime.tv_sec*NANO + startTime.tv_nsec;
-
+			set_start_time(&timerLoop);
 			loopRate++;
 
 	#if JOYSTICK
@@ -224,21 +211,19 @@ int main (void) {
 			strncpy(error_message, "Transferring log...\n", 50);
 			while(is_char_available()){
 				// Get time of last new char
-				clock_gettime(CLOCK_MONOTONIC, &previousLogTimer);
-				previousLog = previousLogTimer.tv_sec*NANO + previousLogTimer.tv_nsec;
+				set_start_timer(&timerLog);
 				log_write_char(get_char());
 			}
 
 			// Get current time
-			clock_gettime(CLOCK_MONOTONIC, &currentLogTimer);
-			currentLog = currentLogTimer.tv_sec*NANO + currentLogTimer.tv_nsec;
+			set_current_timer(&timerLog);
 
-			if(previousLog == 0 ){
-				previousLog = currentLog;
+			if(timerLog.start == 0 ){
+				timerLog.start = timerLog.stop;
 			}
 
 			// If the last character was received over 1 seconds ago shut down the program
-			if (currentLog - previousLog > 2000000000L){
+			if (get_diff_time(timerLog) > 2000000000L){
 				strncpy(error_message, "Log transfer completed\n", 50);
 
 				// this is done so it will print an updated UI.
