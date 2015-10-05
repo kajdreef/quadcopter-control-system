@@ -98,12 +98,12 @@ int main(void)
 #endif
 	supervisor_set_mode(&mode, SAFE);
 
-  ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	
 	// Initialise and start the log
 	log_init();
 	log_start();
 
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
 	while (!ABORT_FLAG){
 
 		/*
@@ -182,7 +182,7 @@ int main(void)
 		{
 			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
 			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
-			DAQ_mes[DAQ_YAW_RATE] = (filtered_r>>8);//JS_mes[JS_YAW];
+			DAQ_mes[DAQ_YAW_RATE] = filtered_r;//JS_mes[JS_YAW];
 
 			//Possible switch of the interrupts;
 			DAQ_mes[DAQ_AE1] = ae[0];

@@ -9,7 +9,7 @@
 #include "fixed_point.h"
 
 #define CONTINUOUS 1
-#define JOYSTICK 0
+#define JOYSTICK 1
 #define KEYBOARD 1
 
 #define SEND_MESSAGE_PRINT 0
@@ -72,10 +72,10 @@ int main (void) {
 	long long start, current;
 
 	// Logger timers
-	struct timespec currentTimeLog;
-	struct timespec previousTimeLog;
+	struct timespec currentLogTimer;
+	struct timespec previousLogTimer;
 
-	long long lastLogCharTime, currentLogTime;
+	long long previousLog = 0, currentLog = 0;
 
 	extern int flag_MSG_RECEIVED;
 
@@ -201,7 +201,7 @@ int main (void) {
 				}
 				else
 				{
-						strncpy(error_message, "Make joystick and trimming values neutral\n", 50);
+					strncpy(error_message, "Make joystick and trimming values neutral\n", 50);
 					new_mode = mode;
 				}
 			}
@@ -213,7 +213,7 @@ int main (void) {
 
 			if(new_mode == 999)
 			{	//abort, escape pressed
-				mode = 0;
+				mode = 6;
 			}
 
 			JS_mes[JS_MODE]  = mode;
@@ -228,21 +228,22 @@ int main (void) {
 		if(mode == 6){
 			strncpy(error_message, "Transferring log...\n", 50);
 			while(is_char_available()){
-				if (mode == 6){
-					// Get time of last new char
-					clock_gettime(CLOCK_MONOTONIC, &previousTimeLog);
-					lastLogCharTime = previousTimeLog.tv_sec*NANO + previousTimeLog.tv_nsec;
-					currentLogTime = lastLogCharTime;
-					log_write_char(get_char());
-				}
+				// Get time of last new char
+				clock_gettime(CLOCK_MONOTONIC, &previousLogTimer);
+				previousLog = previousLogTimer.tv_sec*NANO + previousLogTimer.tv_nsec;
+				log_write_char(get_char());
 			}
 
 			// Get current time
-			clock_gettime(CLOCK_MONOTONIC, &currentTimeLog);
-			currentLogTime = currentTimeLog.tv_sec*NANO + currentTimeLog.tv_nsec;
+			clock_gettime(CLOCK_MONOTONIC, &currentLogTimer);
+			currentLog = currentLogTimer.tv_sec*NANO + currentLogTimer.tv_nsec;
 			
+			if(previousLog == 0 ){
+				previousLog = currentLog;
+			}
+
 			// If the last character was received over 1 seconds ago shut down the program
-			if (currentLogTime - lastLogCharTime > 1000000000L){
+			if (currentLog - previousLog > 2000000000L){
 				strncpy(error_message, "Log transfer completed\n", 50);
 
 				// this is done so it will print an updated UI.
@@ -271,7 +272,7 @@ int main (void) {
 				printf("QR mode: \t%d\t         %03d\n", DAQ_mes[DAQ_MODE],DAQ_mes[DAQ_AE1]);
 				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
 				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
-				printf("Yaw_rate: \t%x\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
+				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
 				printf("Contr t(us): \t%d\t          |\n",DAQ_mes[DAQ_CONTR_TIME]);
 				printf("Filter t(us): \t%d\t          |\n", DAQ_mes[DAQ_FILTER_TIME]);
 				printf("Batt voltage: \t%d\t         %03d\n\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);
