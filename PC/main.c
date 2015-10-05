@@ -31,36 +31,12 @@ int CON_mes[3] = {1024, 1024, 1024};
 
 char msg[15];
 
-// Extracted methods from the main loop
-int keyboard_input_read(int *new_mode, int (*trimming)[4]);
-
 /*------------------------------------------------------------------
- *	Read keyboard input and send that to the
+ *	Extracted methods from the main loop
  *------------------------------------------------------------------
  */
-int keyboard_input_read(int *new_mode, int (*trimming)[4]){
-	int temp = 0;
-	int keyboard_input = -1;
-	while((temp = term_getchar_nb())!= -1){
-		keyboard_input = temp;
-	}
-
-	if(keyboard_input != -1)
-	{
-		int rv = 0;
-		if((rv = process_keyboard(keyboard_input, trimming, CON_mes)) != -1)
-		{
-			*new_mode = rv;
-		}
-	}
-
-	if(keyboard_control_input(keyboard_input) != -1)
-	{
-		return 1;
-	}
-
-	return 0;
-}
+int keyboard_input_read(int *new_mode, int (*trimming)[4]);
+int initialization(int *fd, int *js_fd);
 
 /*------------------------------------------------------------------
  *	Main function of the pc application
@@ -96,22 +72,10 @@ int main (void) {
 
 	extern int flag_MSG_RECEIVED;
 
-	// initialize keyboard listening
-	term_initio();
-
-	// initialise communication
-	printf("Opening connection... \n");
-	fd = rs232_open();
-
-	if (fd == -1) {
-		printf("Failed to open port!\n");
+	if( initialization(&fd, &js_fd) == -1 ){
+		printf("Failed to initialize... \n");
 		return -1;
 	}
-
-#if JOYSTICK
-	//open and configure the joystick
-	js_fd = configure_joystick();
-#endif
 
 	// Initialise timer for start time.
 	set_start_time(&timerLoop);
@@ -123,10 +87,16 @@ int main (void) {
 	while (!ABORT_PROGRAM)
 	{
 		// Read keyboard input and send it
-		if (keyboard_input_read(&new_mode, &trimming)){
+		int msg_type = keyboard_input_read(&new_mode, &trimming);
+		if (msg_type == 1){
 			//send a control message
 			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
 			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
+		}
+		else if (msg_type == 2){
+			//send a control message
+			encode_message(LOG_MASK, sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes, msg);
+			send(msg, 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
 		}
 
 		set_current_time(&timerLoop);
@@ -192,11 +162,6 @@ int main (void) {
 				}
 			}
 
-			if(new_mode == 999)
-			{	//abort, escape pressed
-				mode = 6;
-			}
-
 			JS_mes[JS_MODE]  = mode;
 
 			// Encode message and send it
@@ -205,11 +170,10 @@ int main (void) {
 
 		}
 
-		// Write log data to log file if in ABORT mode
-		if(mode == 6){
+		// Write log data to log file if in SAFE mode en log = sending (2)
+		if(DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2){
 			strncpy(error_message, "Transferring log...\n", 50);
 			while(is_char_available()){
-				// Get time of last new char
 				set_start_time(&timerLog);
 				log_write_char(get_char());
 			}
@@ -224,10 +188,6 @@ int main (void) {
 			// If the last character was received over 1 seconds ago shut down the program
 			if (get_diff_time(timerLog) > 2000000000L){
 				strncpy(error_message, "Log transfer completed\n", 50);
-
-				// this is done so it will print an updated UI.
-				loopRate = 10;
-				flag_MSG_RECEIVED = 1;
 			}
 		}
 		else{
@@ -275,9 +235,62 @@ int main (void) {
 	printf("Closing connection...\n");
 	close(fd);
 
-#if KEYBOARD
 	term_exitio();
-#endif
 
 	return 0;
+}
+
+/*------------------------------------------------------------------
+ *	Read keyboard input and send that to the
+ *------------------------------------------------------------------
+ */
+int keyboard_input_read(int *new_mode, int (*trimming)[4]){
+	int temp = 0;
+	int keyboard_input = -1;
+	while((temp = term_getchar_nb())!= -1){
+		keyboard_input = temp;
+	}
+
+	if(keyboard_input != -1)
+	{
+		int rv = 0;
+		if((rv = process_keyboard(keyboard_input, trimming, CON_mes, LOG_mes)) != -1)
+		{
+			*new_mode = rv;
+		}
+	}
+
+	if(keyboard_control_input(keyboard_input) != -1)
+	{
+		return 1;
+	}
+	else if(keyboard_log_input(keyboard_input) != -1)
+	{
+		return 2;
+	}
+
+	return 0;
+}
+
+/*------------------------------------------------------------------
+ *	Initialize keyboard, connection and joystick
+ *------------------------------------------------------------------
+ */
+int initialization(int *fd, int *js_fd){
+	// initialize keyboard listening
+	term_initio();
+
+	// initialise communication
+	printf("Opening connection... \n");
+	*fd = rs232_open();
+
+	if (*fd == -1) {
+		printf("Failed to open port!\n");
+		return -1;
+	}
+
+#if JOYSTICK
+	//open and configure the joystick
+	*js_fd = configure_joystick();
+#endif
 }
