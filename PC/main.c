@@ -94,9 +94,14 @@ int main (void) {
 			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
 		}
 		else if (msg_type == 2){
-			//send a control message
-			encode_message(LOG_MASK, sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes, msg);
-			send(msg, 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
+			//send a control message and check if x32 and PC are in safe mode before transferring log
+			if( (mode == 0 && DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2) || LOG_mes[0] != 2){
+				encode_message(LOG_MASK, sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes, msg);
+				send(msg, 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
+			}
+			else{
+				LOG_mes[0] = 0;
+			}
 		}
 
 		set_current_time(&timerLoop);
