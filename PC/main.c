@@ -88,6 +88,8 @@ int main (void) {
 	{
 		// Read keyboard input and send it
 		int msg_type = keyboard_input_read(&new_mode, trimming);
+
+		// Send messages depending on type
 		if (msg_type == 1){
 			//send a control message
 			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
@@ -194,8 +196,12 @@ int main (void) {
 
 			// If the last character was received over 1 seconds ago shut down the program
 			if (get_diff_time(timerLog) > 50000000L){
+
 				strncpy(error_message,"\n",50);
-				//strncpy(error_message, "Log transfer completed\n", 50);
+
+				timerLog.start = 0;
+				timerLog.stop = 0;
+
 				LOG_mes[0] = 0;
 			}
 		}
