@@ -8,11 +8,10 @@
 //from pc to x32
 #define JS_MASK 	(1<<6)
 #define CON_MASK 	0
+#define LOG_MASK	(2<<6)
 
 //from x32 to pc
 #define DAQ_MASK 	(1<<6)
-#define ERR_MASK 	0
-#define	DEB_MASK	(2<<6)
 
 #define END			(3<<6)
 #define MASK 		0x3F

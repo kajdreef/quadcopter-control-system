@@ -7,7 +7,7 @@ char* filename = "log.txt";
 int LOG_EXIST = 0;
 
 /*------------------------------------------------------------------
- *	log_write_char -- Write character to a file. 
+ *	log_write_char -- Write character to a file.
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
@@ -33,4 +33,3 @@ int log_write_char(char c){
 
 	return 1;
 }
-

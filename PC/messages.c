@@ -7,9 +7,8 @@
 #define DEBUG 0
 #define DEBUG_MESSAGE_LENGTH 0
 
-extern int DAQ_mes[11];//10];//[8];
-extern int ERR_mes[1];
-extern char DEB_mes[24];
+extern int DAQ_mes[11];
+extern int LOG_mes[1];
 extern int JS_mes[5];
 extern int CON_mes[3];
 
@@ -41,7 +40,7 @@ extern int CON_mes[3];
  *------------------------------------------------------------------
  */
 void encode_message(int mask, int message_length, int *input, char *output_buffer){
-
+	
 	int i;	
 	int j;
 	for(i = 0,j = 0; i < message_length-1; i++, j += 3){
@@ -122,23 +121,18 @@ void decode (char* input, int msg_length, int* dest ){
 int message_length(char data)
 {
 	switch(data & 0xC0){
+		printf("%d\n",(data & 0xc0));
 		case(DAQ_MASK):
 			#if DEBUG_MESSAGE_LENGTH
 				printf("DAQ MESSAGE\n");
 			#endif
 			return 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]);
 			break;
-		case(ERR_MASK):
+		case(LOG_MASK):
 			#if DEBUG_MESSAGE_LENGTH
-				printf("ERR MESSAGE\n");
+				printf("LOG MESSAGE\n");
 			#endif
-			return 3*sizeof(ERR_mes)/sizeof(ERR_mes[0]);
-			break;
-		case(DEB_MASK):
-			#if DEBUG_MESSAGE_LENGTH
-				printf("DEB MESSAGE\n");
-			#endif
-			return 3*sizeof(DEB_mes)/sizeof(DEB_mes[0]);
+			return 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]);
 			break;
 		default:
 			#if DEBUG_MESSAGE_LENGTH

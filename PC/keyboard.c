@@ -26,29 +26,53 @@ void term_exitio(void){
 	tcsetattr(0, TCSADRAIN, &savetty);
 }
 
-void term_puts(char *s){ 
-	fprintf(stderr,"%s",s); 
+void term_puts(char *s){
+	fprintf(stderr,"%s",s);
 }
 
-void term_putchar(char c){ 
-	putc(c,stderr); 
+void term_putchar(char c){
+	putc(c,stderr);
 }
 
-int	term_getchar_nb(void){ 
+int	term_getchar_nb(void){
     static unsigned char 	line [2];
 
 	if (read(0,line,1)) // note: destructive read
     		return (int) line[0];
-    
+
     return -1;
 }
 
-int	term_getchar(void){ 
+int	term_getchar(void){
     int    c;
 
     while ((c = term_getchar_nb()) == -1)
             ;
     return c;
+}
+
+/*------------------------------------------------------------------
+ *	keyboard_log_input Check whether the keyboard input is related
+ *  to logging
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+int keyboard_log_input(char input)
+{
+	switch(input){
+		case 'b':
+			return 1;
+		break;
+		case 'f':
+			return 1;
+		break;
+		case 't':
+			return 1;
+		break;
+		default:
+			return -1;
+	}
+
 }
 
 /*------------------------------------------------------------------
@@ -58,12 +82,12 @@ int	term_getchar(void){
  *------------------------------------------------------------------
  */
 int keyboard_control_input(char input)
-{	
-	
+{
+
 	switch(input){
 		case 'u':
 			return 1;
-		break;		
+		break;
 		case 'j':
 			return 1;
 		break;
@@ -78,14 +102,11 @@ int keyboard_control_input(char input)
 		break;
 		case 'l':
 			return 1;
-		break;	
+		break;
 		default:
 		return -1;
-	
-	}
-	
-	
 
+	}
 }
 
 
@@ -94,14 +115,14 @@ int keyboard_control_input(char input)
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-int process_keyboard(char c, int *trim, int *control_p)
-{		
+int process_keyboard(char c, int *trim, int *control_p, int *log)
+{
 	switch(c){
 		case 0x1B:
-		//escape	
-		
+		//escape
+
 		return 6;
-		
+
 			break;
 		/*
 			modes:
@@ -119,7 +140,7 @@ int process_keyboard(char c, int *trim, int *control_p)
 			return 3;
 		break ;
 		case '4':
-			return 4;	
+			return 4;
 		break ;
 		case '5':
 			return 5;
@@ -134,100 +155,108 @@ int process_keyboard(char c, int *trim, int *control_p)
 			trim[TRIM_LIFT] += TRIM;
 			if(trim[TRIM_LIFT] > 0 )
 			{
-				trim[TRIM_LIFT]	= 0;		
+				trim[TRIM_LIFT]	= 0;
 			}
-				
+
 			break;
 		case 'z':
 			trim[TRIM_LIFT] -= TRIM;
 			if(trim[TRIM_LIFT] < -65534 )
 			{
-				trim[TRIM_LIFT]	= -65534;		
-			}				
-			
+				trim[TRIM_LIFT]	= -65534;
+			}
+
 			break;
 		case 'w':
-			trim[TRIM_YAW] += TRIM;		
+			trim[TRIM_YAW] += TRIM;
 			if(trim[TRIM_YAW] > 32767)
 			{
-				trim[TRIM_YAW] = 32767;			
-			}			
-			
-	
+				trim[TRIM_YAW] = 32767;
+			}
+
+
 			break;
 		case 'q':
-			trim[TRIM_YAW] -= TRIM;		
+			trim[TRIM_YAW] -= TRIM;
 			if(trim[TRIM_YAW] < -32767)
 			{
-				trim[TRIM_YAW] = -32767;			
-			}			
+				trim[TRIM_YAW] = -32767;
+			}
 			break;
-		//left arrow	
+		//left arrow
 		case 0x44:
 			trim[TRIM_ROLL] += TRIM;
-			if(trim[TRIM_YAW] > 32767)
+			if(trim[TRIM_ROLL] > 32767)
 			{
-				trim[TRIM_YAW] = 32767;			
-			}	
+				trim[TRIM_ROLL] = 32767;
+			}
 			break;
-		//right arrow	
+		//right arrow
 		case 0x43:
 			 trim[TRIM_ROLL] -= TRIM;
 			if(trim[TRIM_ROLL] < -32767)
 			{
 				trim[TRIM_ROLL] = -32767;
 			}
-							
+
 			break;
-		//up arrow		
+		//up arrow
 		case 0x41:
 			trim[TRIM_PITCH] -= TRIM;
-	
+
 			if(trim[TRIM_PITCH] < -32767)
 			{
 				trim[TRIM_PITCH] = -32767;
 			}
 			break;
-		//down arrow		
+		//down arrow
 		case 0x42:
 			trim[TRIM_PITCH] += TRIM;
 			if(trim[TRIM_PITCH] > 32767)
 			{
-				trim[TRIM_PITCH] = 32767;			
-			}	
+				trim[TRIM_PITCH] = 32767;
+			}
 			break;
 		/*
 			Controller tuning
 		*/
 		//YAW CONTROL
 		case 'u':
-			control_p[0] = MULT_FIXED(TUNE_PLUS,control_p[0]); 
+			control_p[0] = MULT_FIXED(TUNE_PLUS,control_p[0]);
 			break;
 		case 'j':
 			control_p[0] = MULT_FIXED(TUNE_MIN,control_p[0]);
 			break;
 		//ROLL/PITCH Control
 		case 'i':
-			//control_p[1] += TUNE; 
+			//control_p[1] += TUNE;
 			break;
 		case 'k':
-		//	control_p[1] -= TUNE; 
+		//	control_p[1] -= TUNE;
 			break;
 		case 'o':
-			//control_p[2] += TUNE; 
+			//control_p[2] += TUNE;
 			break;
 		case 'l':
-		//	control_p[2] -= TUNE; 
+		//	control_p[2] -= TUNE;
 			break;
-			
+
+		/*
+			LOGGING
+		*/
+		case 'b':
+			*log = 1;
+			break;
+		case 'f':
+			*log = 0;
+			break;
+		case 't':
+			*log = 2;
+			break;
 		default:
-		;
-}
-	
+			;
+		}
 
 	return -1;
 
 }
-
-
-

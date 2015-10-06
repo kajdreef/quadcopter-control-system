@@ -8,22 +8,13 @@
 //from pc to x32
 #define JS_MASK 	(1<<6)
 #define CON_MASK 	0
+#define LOG_MASK	(2<<6)
 
 //from x32 to pc
 #define DAQ_MASK 	(1<<6)
-#define ERR_MASK 	0
-#define	DEB_MASK	(2<<6)
 
 #define END			(3<<6)
 #define MASK 		0x3F 
-
-#define END_CHAR 'Z'
-//start chars:
-#define DAQ_CHAR 'a' 
-#define ERR_CHAR 'b'
-#define DEB_CHAR 'c'
-#define JS_CHAR 'A'
-#define CON_CHAR 'B'
 
 //JS_mes
 #define JS_LIFT 	0

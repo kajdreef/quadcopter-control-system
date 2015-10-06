@@ -1,6 +1,5 @@
 # General settings can be found in here
-include Makefile.inc
-
+CC= gcc
 CFLAGS=
 SOURCES= $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
