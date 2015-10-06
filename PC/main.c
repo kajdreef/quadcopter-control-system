@@ -53,6 +53,7 @@ int main (void) {
 	int mode = 0;
 	int new_mode = 0;
 	int ABORT_PROGRAM = 0;
+	int LOG_FLAG = 0;
 
 	int lift = 32767, roll = 0, pitch = 0, yaw = 0;
 	unsigned int t;
@@ -179,7 +180,8 @@ int main (void) {
 
 
 		// Write log data to log file if in SAFE mode en log = sending (2)
-		if(DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2){
+		if(DAQ_mes[DAQ_MODE] == 0 && (LOG_mes[0] == 2 || LOG_FLAG)){
+			LOG_FLAG = 1;
 			strncpy(error_message, "Transferring log...\n", 50);
 			while(is_char_available()){
 				set_start_time(&timerLog);
@@ -203,6 +205,7 @@ int main (void) {
 				timerLog.stop = 0;
 
 				LOG_mes[0] = 0;
+				LOG_FLAG = 0;
 			}
 		}
 		else{
