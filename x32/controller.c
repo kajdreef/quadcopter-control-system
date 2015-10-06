@@ -52,29 +52,44 @@ void control_yaw(Factors *F){
 
 void control_pitch(Factors *F){
 	static int count=0;
-	static int des_
+	static int des_q=0;
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-
+		des_q = JS_mes[JS_PITCH]/2;
+		//des_q = MULT_FIXED((JS_mes[JS_PITCH]/2 - (filtered_thet/100)),P1);
+		count=0;
 	}
 
 	// Rate controller
-
+	F->f_p = MULT_FIXED((des_q - (filtered_q/100)),P2);
 
 	count++;
 }
 
 void control_roll(Factors *F){
+	static int count=0;
+	static int des_p=0;
 
+	// Position controller
+	if (count>=LOOP_RATE_FACT){
+		des_p = JS_mes[JS_ROLL]/2;
+		//des_p = MULT_FIXED((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
+		count=0;
+	}
+
+	// Rate controller
+	F->f_r = MULT_FIXED((des_p - (filtered_p/100)),P2);
+
+	count++;
 }
 
 void apply_mot_fact(Factors *F,int *ae){
 
-	ae[0] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y + F->f_p));
-	ae[1] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y - F->f_r));
-	ae[2] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) - F->f_y - F->f_p));
-	ae[3] = MULT_FIXED(F->f_l,(INT_TO_FIXED(1) + F->f_y + F->f_r));
+	ae[0] = MULT_FIXED(F->f_l,(FACTOR - F->f_y + F->f_p));
+	ae[1] = MULT_FIXED(F->f_l,(FACTOR + F->f_y - F->f_r));
+	ae[2] = MULT_FIXED(F->f_l,(FACTOR - F->f_y - F->f_p));
+	ae[3] = MULT_FIXED(F->f_l,(FACTOR + F->f_y + F->f_r));
 		
 	//0-1023	
 }

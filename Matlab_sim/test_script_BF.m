@@ -1,4 +1,4 @@
-[a b] = butter(2,0.05);
+[a b] = butter(2,0.02);
 
 % Let op! a en b zijn gereversed in de definitie in de help van matlab!
 
