@@ -83,7 +83,7 @@ void log_data(enum logType type, int timestamp, int x, int y, int z){
 				batteryData[ptr_battery_log][0] = timestamp;
 				batteryData[ptr_battery_log][1] = x;
 				ptr_battery_log++;
-				if(ptr_battery_log >= LOGGER_ARRAY_SIZE){
+				if(ptr_battery_log >= LOGGER_ARRAY_BATTERY){
 					ptr_battery_log = 0;
 				}
 				break;
@@ -138,7 +138,7 @@ void log_print(void){
 
 	#if BATTERY_LOG
 		// Print Gyroscope data
-		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
+		for(i = 0; i < LOGGER_ARRAY_BATTERY; i++) {
 			log_toggle_led(6);
 			//printf("%d %d\n", batteryData[i][0], batteryData[i][1]);
 			sprintf(str, "%08d %08d\n", batteryData[i][0], batteryData[i][1]);

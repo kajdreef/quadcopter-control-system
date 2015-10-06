@@ -4,13 +4,14 @@
 #define LOGGER 1
 #define ACCEL_LOG 1
 #define GYRO_LOG 1
-#define BATTERY_LOG 1
+#define BATTERY_LOG 0
 
-#define LOGGER_ARRAY_SIZE 1024
+#define LOGGER_ARRAY_SIZE 2048
+#define LOGGER_ARRAY_BATTERY 128
 
 int accelData[LOGGER_ARRAY_SIZE][4];
 int gyroData[LOGGER_ARRAY_SIZE][4];
-int batteryData[LOGGER_ARRAY_SIZE][2];
+int batteryData[LOGGER_ARRAY_BATTERY][2];
 
 enum logType {
 	ACCEL,
