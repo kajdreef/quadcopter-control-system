@@ -175,6 +175,7 @@ int main (void) {
 
 		}
 
+
 		// Write log data to log file if in SAFE mode en log = sending (2)
 		if(DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2){
 			strncpy(error_message, "Transferring log...\n", 50);
@@ -193,7 +194,8 @@ int main (void) {
 
 			// If the last character was received over 1 seconds ago shut down the program
 			if (get_diff_time(timerLog) > 50000000L){
-				strncpy(error_message, "Log transfer completed\n", 50);
+				strncpy(error_message,"\n",50);
+				//strncpy(error_message, "Log transfer completed\n", 50);
 				LOG_mes[0] = 0;
 			}
 		}

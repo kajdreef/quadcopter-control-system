@@ -103,7 +103,6 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
-
 		/*
 		 Blink the status led(1Hz)
 		 */
