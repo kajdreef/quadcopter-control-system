@@ -90,6 +90,11 @@ int main (void) {
 		// Read keyboard input and send it
 		int msg_type = keyboard_input_read(&new_mode, trimming);
 
+		// Make sure that during logging you can not switch modes.
+		if (LOG_FLAG) {
+			new_mode = 0;
+		}
+
 		// Send messages depending on type
 		if (msg_type == 1){
 			//send a control message
