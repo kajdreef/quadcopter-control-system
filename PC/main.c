@@ -35,7 +35,7 @@ char msg[15];
  *	Extracted methods from the main loop
  *------------------------------------------------------------------
  */
-int keyboard_input_read(int *new_mode, int (*trimming)[4]);
+int keyboard_input_read(int *new_mode, int *trimming);
 int initialization(int *fd, int *js_fd);
 
 /*------------------------------------------------------------------
@@ -87,7 +87,7 @@ int main (void) {
 	while (!ABORT_PROGRAM)
 	{
 		// Read keyboard input and send it
-		int msg_type = keyboard_input_read(&new_mode, &trimming);
+		int msg_type = keyboard_input_read(&new_mode, trimming);
 		if (msg_type == 1){
 			//send a control message
 			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
@@ -176,6 +176,7 @@ int main (void) {
 			while(is_char_available()){
 				set_start_time(&timerLog);
 				log_write_char(get_char());
+				flag_MSG_RECEIVED = 1;
 			}
 
 			// Get current time
@@ -186,8 +187,9 @@ int main (void) {
 			}
 
 			// If the last character was received over 1 seconds ago shut down the program
-			if (get_diff_time(timerLog) > 2000000000L){
+			if (get_diff_time(timerLog) > 50000000L){
 				strncpy(error_message, "Log transfer completed\n", 50);
+				LOG_mes[0] = 0;
 			}
 		}
 		else{
@@ -244,7 +246,7 @@ int main (void) {
  *	Read keyboard input and send that to the
  *------------------------------------------------------------------
  */
-int keyboard_input_read(int *new_mode, int (*trimming)[4]){
+int keyboard_input_read(int *new_mode, int *trimming){
 	int temp = 0;
 	int keyboard_input = -1;
 	while((temp = term_getchar_nb())!= -1){
