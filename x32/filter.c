@@ -63,8 +63,8 @@ void kalman(int p[], Filt_Param *Filt){
 void BF_2nd(int p[], Filt_Param *Filt){
 	p[Xbf2] = p[Xbf1];
 	p[Xbf1] = p[Xbf];
-	p[Xbf] = MULT_FIXED(Filt->a0,p[Xad]) + MULT_FIXED(Filt->a1,p[Xad1]) + 
-				MULT_FIXED(Filt->a2,p[Xad2]) - MULT_FIXED(Filt->b1,p[Xbf1]) - 
+	p[Xbf] = MULT_FIXED(Filt->a0,p[Xad]) + MULT_FIXED(Filt->a1,p[Xad1]) +
+				MULT_FIXED(Filt->a2,p[Xad2]) - MULT_FIXED(Filt->b1,p[Xbf1]) -
 				MULT_FIXED(Filt->b2,p[Xbf2]);
 }
 
@@ -84,11 +84,11 @@ void rem_absurd_val(int p[], Filt_Param *Filt){
 }
 
 void process_roll(int phi[]){
-	
+
 	phi[dXm] = INT_TO_FIXED(X32_QR_S3);
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
-	
+
 	phi[Xm] = INT_TO_FIXED(X32_QR_S0);
 	rem_absurd_val(phi+Xm, &Filt_phi);
 	phi[Xad2] = phi[Xad1];
@@ -96,17 +96,17 @@ void process_roll(int phi[]){
 	anti_drift(phi+Xm, &Filt_phi);
 	BF_2nd(phi, &Filt_phi);
 	kalman(phi, &Filt_phi);
-	
+
 	filtered_phi = phi[Xk];
 	filtered_p = phi[dXk];
 }
 
 void process_pitch(int thet[]){
-	
+
 	thet[dXm] = INT_TO_FIXED(X32_QR_S4);
 	rem_absurd_val(thet, &Filt_thet);
 	anti_drift(thet, &Filt_thet);
-	
+
 	thet[Xm] = INT_TO_FIXED(X32_QR_S1);
 	rem_absurd_val(thet+Xm, &Filt_thet);
 	thet[Xad2] = thet[Xad1];
@@ -114,18 +114,18 @@ void process_pitch(int thet[]){
 	anti_drift(thet+Xm, &Filt_thet);
 	BF_2nd(thet, &Filt_thet);
 	kalman(thet, &Filt_thet);
-	
+
 	filtered_thet = thet[Xk];
 	filtered_q = thet[dXk];
 }
 
 void process_yaw(int yaw[]){
-		
+
 	yaw[dXm] = INT_TO_FIXED(X32_QR_S5);
 	rem_absurd_val(yaw, &Filt_r);
 	anti_drift(yaw, &Filt_r);
 	filtered_r = yaw[dXad];
-	
+
 }
 
 void calibrate_sensors(int phi[], int thet[], int yaw[]){
@@ -175,8 +175,9 @@ void isr_sensor(){
 	int old = X32_clock_us;
 
 	// Logging data
-	log_data(ACCEL, X32_clock_us, X32_QR_S0, X32_QR_S1, X32_QR_S2 ); // Accel
-	log_data(GYRO, X32_clock_us, X32_QR_S3, X32_QR_S4, X32_QR_S5); // gyro
+	if (mode != FULL_CONTROL){
+		log_data_sensor(X32_clock_us, X32_QR_S0, X32_QR_S1, X32_QR_S2, X32_QR_S3, X32_QR_S4, X32_QR_S5); // Accel
+	}
 
 	battery_voltage = X32_QR_S6;
 
@@ -185,11 +186,11 @@ void isr_sensor(){
 			calibrate_sensors(phi,thet,yaw);
 			calibrated = yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
 			break;
-		
+
 		case YAW_CONTROL:
 			process_yaw(yaw);
 			break;
-		
+
 		case FULL_CONTROL:
 			process_roll(phi);
 			process_pitch(thet);
@@ -198,4 +199,5 @@ void isr_sensor(){
 	}
 
 	isr_filter_time = X32_clock_us - old;
+	log_data_profile(FILTER, X32_clock_us, isr_filter_time);
 }

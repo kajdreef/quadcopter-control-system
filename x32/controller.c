@@ -4,6 +4,7 @@
 #include "fixed_point.h"
 #include "actuators.h"
 #include "supervisor.h"
+#include "logger.h"
 
 #define LOOP_RATE_FACT 4
 
@@ -24,11 +25,11 @@ int P2 = 1024;
 
 void update_control_parameters(int P1, int P2, int P3)
 {
-	P_Y = MULT_FIXED(1024, P1);	
+	P_Y = MULT_FIXED(1024, P1);
 }
 
 void manual_lift(Factors *F){
-	F->f_l = JS_mes[JS_LIFT];	
+	F->f_l = JS_mes[JS_LIFT];
 }
 
 void manual_yaw(Factors *F){
@@ -47,7 +48,7 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-	F->f_y = MULT_FIXED((JS_mes[JS_YAW]/2 + (filtered_r/100)),P_Y);	
+	F->f_y = MULT_FIXED((JS_mes[JS_YAW]/2 + (filtered_r/100)),P_Y);
 }
 
 void control_pitch(Factors *F){
@@ -90,12 +91,12 @@ void apply_mot_fact(Factors *F,int *ae){
 	ae[1] = MULT_FIXED(F->f_l,(FACTOR + F->f_y - F->f_r));
 	ae[2] = MULT_FIXED(F->f_l,(FACTOR - F->f_y - F->f_p));
 	ae[3] = MULT_FIXED(F->f_l,(FACTOR + F->f_y + F->f_r));
-		
-	//0-1023	
+
+	//0-1023
 }
 
 void isr_controller()
-{	
+{
 	static Factors F={0,0,0,0};
 	//ae[4] = {0,0,0,0};
 
@@ -127,9 +128,10 @@ void isr_controller()
 
 	apply_mot_fact(&F,ae);
 	set_actuators(ae);
-	
-	
+
+
 	isr_controller_time = X32_clock_us - old;
+	log_data_profile(CONTROL, X32_clock_us, isr_controller_time);
 	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }
 
@@ -147,4 +149,3 @@ void setup_controller_interrupts(int prio){
 	ENABLE_INTERRUPT(INTERRUPT_TIMER1);
 
 }
-

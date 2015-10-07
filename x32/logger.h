@@ -2,25 +2,20 @@
 #define _LOGGER_H
 
 #define LOGGER 1
-#define ACCEL_LOG 1
-#define GYRO_LOG 1
-#define BATTERY_LOG 0
-
 #define LOGGER_ARRAY_SIZE 2048
-#define LOGGER_ARRAY_BATTERY 128
 
-int accelData[LOGGER_ARRAY_SIZE][4];
-int gyroData[LOGGER_ARRAY_SIZE][4];
-int batteryData[LOGGER_ARRAY_BATTERY][2];
-
-enum logType {
-	ACCEL,
-	GYRO,
-	BATTERY
+enum ProfileType{
+	CONTROL,
+	FILTER
 };
 
+int logData[LOGGER_ARRAY_SIZE][7];
+int controlPData[LOGGER_ARRAY_SIZE][2];
+int filterPData[LOGGER_ARRAY_SIZE][2];
+
 void log_init();
-void log_data(enum logType type, int timestamp, int x, int y, int z);
+void log_data_sensor(int timestamp, int xAccel, int yAccel, int zAccel, int xGyro, int yGyro, int zGyro);
+void log_data_profile(enum ProfileType profile, int timestamp, int profileC);
 void log_start(void);
 void log_stop(void);
 void log_print(void);
