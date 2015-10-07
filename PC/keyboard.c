@@ -121,7 +121,7 @@ int process_keyboard(char c, int *trim, int *control_p, int *log)
 		case 0x1B:
 		//escape
 
-		return 6;
+		return 0;
 
 			break;
 		/*

@@ -76,7 +76,11 @@ void set_actuators(int *ae){
 			calc_actuators(ae, prev_ae);	
 			break;
 		case FULL_CONTROL:
-			calc_actuators(ae, prev_ae);
+			//calc_actuators(ae, prev_ae);
+			ae[0]=0;
+			ae[1]=0;
+			ae[2]=0;
+			ae[3]=0;
 			break;
 		default:
 			ae[0]=0;
