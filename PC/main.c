@@ -103,7 +103,8 @@ int main (void) {
 		}
 		else if (msg_type == 2){
 			//send a control message and check if x32 and PC are in safe mode before transferring log
-			if( (mode == 0 && DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2) || LOG_mes[0] != 2){
+			if( (mode == 0 && DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2) || LOG_mes[0] != 2)
+			{
 				encode_message(LOG_MASK, sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes, msg);
 				send(msg, 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
 			}
@@ -187,8 +188,8 @@ int main (void) {
 		// Write log data to log file if in SAFE mode en log = sending (2)
 		if(DAQ_mes[DAQ_MODE] == 0 && (LOG_mes[0] == 2 || LOG_FLAG)){
 			LOG_FLAG = 1;
-			strncpy(error_message, "Transferring log...\n", 50);
 			while(is_char_available()){
+				strncpy(error_message, "Transferring log...\n", 50);
 				set_start_time(&timerLog);
 				log_write_char(get_char());
 				flag_MSG_RECEIVED = 1;
@@ -201,7 +202,7 @@ int main (void) {
 				timerLog.start = timerLog.stop;
 			}
 
-			// If the last character was received over 1 seconds ago shut down the program
+			// If the last character was received over 1 seconds ago stop the logging
 			if (get_diff_time(timerLog) > 50000000L){
 
 				strncpy(error_message,"\n",50);
