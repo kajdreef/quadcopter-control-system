@@ -30,12 +30,12 @@ void log_init() {
 	int i = 0, j = 0;
 	for(i = 0; i < LOGGER_ARRAY_SIZE; i++)
 	{
-		for (j = 0; j < 4; j++){
-			accelData[i][j] = 0;
-			gyroData[i][j] = 0;
+		for (j = 0; j < 7; j++){
+			logData[i][j] = 0;
 		}
-		for(j = 0; j < 2; j++){
-			batteryData[i][j] = 0;
+		for (j = 0; j < 2; j++){
+			controlPData[i][j] = 0;
+			filterPData[i][j] = 0;
 		}
 	}
 }
@@ -45,54 +45,57 @@ void log_init() {
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
-void log_data(enum logType type, int timestamp, int x, int y, int z){
-
-	static int ptr_accel_log = 0;
-	static int ptr_gyro_log = 0;
-	static int ptr_battery_log = 0;
-
+void log_data_sensor(int timestamp, int xAccel, int yAccel, int zAccel, int xGyro, int yGyro, int zGyro){
 #if LOGGER
+	static int ptr_log = 0;
 	if(START){
-		switch(type){
-	#if ACCEL_LOG
-			case ACCEL:
-				accelData[ptr_accel_log][0] = timestamp;
-				accelData[ptr_accel_log][1] = x;
-				accelData[ptr_accel_log][2] = y;
-				accelData[ptr_accel_log][3] = z;
-				ptr_accel_log++;
-				if(ptr_accel_log >= LOGGER_ARRAY_SIZE){
-					ptr_accel_log = 0;
-				}
-				break;
-	#endif
-	#if GYRO_LOG
-			case GYRO:
-				gyroData[ptr_gyro_log][0] = timestamp;
-				gyroData[ptr_gyro_log][1] = x;
-				gyroData[ptr_gyro_log][2] = y;
-				gyroData[ptr_gyro_log][3] = z;
-				ptr_gyro_log++;
-				if(ptr_gyro_log >= LOGGER_ARRAY_SIZE){
-					ptr_gyro_log = 0;
-				}
-				break;
-	#endif
-	#if BATTERY_LOG
-			case BATTERY:
-				batteryData[ptr_battery_log][0] = timestamp;
-				batteryData[ptr_battery_log][1] = x;
-				ptr_battery_log++;
-				if(ptr_battery_log >= LOGGER_ARRAY_BATTERY){
-					ptr_battery_log = 0;
-				}
-				break;
-	#endif
-			default:
-				break;
+		logData[ptr_log][0] = timestamp;
+		// Accelerometer log data
+		logData[ptr_log][1] = xAccel;
+		logData[ptr_log][2] = yAccel;
+		logData[ptr_log][3] = zAccel;
+		// Gyroscope log data
+		logData[ptr_log][4] = xGyro;
+		logData[ptr_log][5] = yGyro;
+		logData[ptr_log][6] = zGyro;
+		ptr_log++;
+		// if log full then point back to the first entry and start overwriting
+		if(ptr_log >= LOGGER_ARRAY_SIZE){
+			ptr_log = 0;
 		}
 	}
 #endif
+}
+
+void log_data_profile(enum ProfileType profile, int timestamp, int profileData){
+	#if LOGGER
+		static int ptr_filter_log = 0, ptr_control_log = 0;
+		if(START){
+			switch(profile){
+				case CONTROL:
+					controlPData[ptr_control_log][0] = timestamp;
+					controlPData[ptr_control_log][1] = profileData;
+
+					ptr_control_log++;
+					if(ptr_control_log >= LOGGER_ARRAY_SIZE){
+						ptr_control_log = 0;
+					}
+					break;
+				case FILTER:
+					filterPData[ptr_filter_log][0] = timestamp;
+					filterPData[ptr_filter_log][1] = profileData;
+
+					ptr_filter_log++;
+					if(ptr_filter_log >= LOGGER_ARRAY_SIZE){
+						ptr_filter_log = 0;
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+	#endif
 }
 
 /*------------------------------------------------------------------
@@ -103,48 +106,36 @@ void log_data(enum logType type, int timestamp, int x, int y, int z){
 void log_print(void){
 #if LOGGER
 	int i = 0;
-	char str[50];
+	char str[70];
 
 	if(PRINTED == 0){
-	#if ACCEL_LOG
-		// Print Accelerometer data
+		// Print the log data (Accelerometer and Gyroscope)
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			//printf("%d %d %d %d\n", accelData[i][0], accelData[i][1], accelData[i][2], accelData[i][3]);
-			sprintf(str, "%08d %08d %08d %08d\n", accelData[i][0], accelData[i][1], accelData[i][2], accelData[i][3]);
-			send_message(str,36);
+			sprintf(str, "%08d %08d %08d %08d %08d %08d %08d\n", logData[i][0],
+					logData[i][1], logData[i][2], logData[i][3], logData[i][4],
+					logData[i][5], logData[i][6]);
+			send_message(str, 63);
 		}
-	#endif	
 
-	#if GYRO_LOG && ACCEL_LOG
-		// Print an newline between the accelerometer and Gyro data
 		printf("\n");
-	#endif
 
-	#if GYRO_LOG
-		// Print Gyroscope data
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			//printf("%d %d %d %d\n", gyroData[i][0], gyroData[i][1], gyroData[i][2], gyroData[i][3]);
-			sprintf(str, "%08d %08d %08d %08d\n", gyroData[i][0], gyroData[i][1], gyroData[i][2], gyroData[i][3]);
-			send_message(str,36);
+			sprintf(str, "%08d %08d\n", controlPData[i][0],
+					controlPData[i][1]);
+			send_message(str, 18);
 		}
-	#endif
 
-	#if GYRO_LOG && BATTERY_LOG
-		// Print an newline between the accelerometer and Gyro data
 		printf("\n");
-	#endif
 
-	#if BATTERY_LOG
-		// Print Gyroscope data
-		for(i = 0; i < LOGGER_ARRAY_BATTERY; i++) {
+		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			//printf("%d %d\n", batteryData[i][0], batteryData[i][1]);
-			sprintf(str, "%08d %08d\n", batteryData[i][0], batteryData[i][1]);
-			send_message(str,18);
+			sprintf(str, "%08d %08d\n", filterPData[i][0],
+					filterPData[i][1]);
+			send_message(str, 18);
 		}
-	#endif
+
 		PRINTED = 1;
 	}
 #endif
@@ -175,4 +166,3 @@ void log_stop(void){
 	START = 0;
 #endif
 }
-
