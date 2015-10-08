@@ -57,6 +57,8 @@ int isr_filter_time = 0;
 
 //filtered yaw rate
 extern int filtered_r;
+extern int filtered_p;
+extern int filtered_q;
 
 void status_led(void);
 void toggle_led(int i);
@@ -204,8 +206,8 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
-			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
+			DAQ_mes[DAQ_ROLL] = filtered_p;//JS_mes[JS_ROLL];
+			DAQ_mes[DAQ_PITCH] = filtered_q;//JS_mes[JS_PITCH];
 			DAQ_mes[DAQ_YAW_RATE] = filtered_r;//JS_mes[JS_YAW];
 
 			//Possible switch of the interrupts;
