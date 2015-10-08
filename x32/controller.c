@@ -5,6 +5,7 @@
 #include "actuators.h"
 #include "supervisor.h"
 #include "logger.h"
+#include "communication.h"
 
 #define LOOP_RATE_FACT 4
 
@@ -111,7 +112,7 @@ void isr_controller()
 	int old = X32_clock_us;
 
 	filter_sensor();
-	
+
 	manual_lift(&F);
 	switch (mode){
 		case MANUAL:
@@ -135,7 +136,7 @@ void isr_controller()
 			control_roll(&F);
 			break;
 	}
-
+	
 	apply_mot_fact(&F,ae);
 	set_actuators(ae);
 

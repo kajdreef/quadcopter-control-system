@@ -3,6 +3,7 @@
 #include "supervisor.h"
 #include "logger.h"
 #include "config.h"
+#include "communication.h"
 
 #define dXm 	0	// Rate measurement
 #define dXa 	1	// Rate absurd values removed
@@ -210,7 +211,6 @@ void filter_sensor(){
 	static int thet[14]; // Pitch
 	static int yaw[4]; // Yaw
 
-
 	//battery_voltage = X32_QR_S6;
 
 	switch(mode){
@@ -226,6 +226,7 @@ void filter_sensor(){
 		case FULL_CONTROL:
 			process_roll(phi);
 			process_pitch(thet);
+			isr_rx_fifo();
 			process_yaw(yaw);
 			break;
 	}
