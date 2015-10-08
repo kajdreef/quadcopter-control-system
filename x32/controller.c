@@ -137,7 +137,7 @@ void isr_controller()
 			break;
 	}
 	
-		isr_rx_fifo();
+
 	apply_mot_fact(&F,ae);
 	set_actuators(ae);
 

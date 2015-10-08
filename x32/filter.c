@@ -147,14 +147,12 @@ void calibrate_sensors(int phi[], int thet[], int yaw[]){
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
 
-
 	// Calibrate the roll
 	phi[Xm] = INT_TO_FIXED(sax);
 	rem_absurd_val(phi+Xm, &Filt_phi);
 	phi[Xad2] = phi[Xad1];
 	phi[Xad1] = phi[Xad];
 	anti_drift(phi+Xm, &Filt_phi);
-
 
 	// Calibrate the pitch rate
 	thet[dXm] = INT_TO_FIXED(sq);
@@ -226,7 +224,6 @@ void filter_sensor(){
 		case FULL_CONTROL:
 			process_roll(phi);
 			process_pitch(thet);
-			isr_rx_fifo();
 			process_yaw(yaw);
 			break;
 	}
