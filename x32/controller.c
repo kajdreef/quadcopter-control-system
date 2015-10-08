@@ -101,6 +101,8 @@ void isr_controller()
 
 	int old = X32_clock_us;
 
+	filter_sensor();
+	
 	manual_lift(&F);
 	switch (mode){
 		case MANUAL:

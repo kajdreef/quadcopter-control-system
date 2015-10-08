@@ -46,6 +46,13 @@ int filtered_q = 0;	//Pitch
 int filtered_r = 0;	//Yaw
 int calibrated = 0;
 
+int sp = 0;
+int sq = 0;
+int sr = 0;
+int sax = 0;
+int say= 0;
+int saz = 0;
+
 extern int isr_filter_time;
 extern int battery_voltage;
 extern enum QR mode;
@@ -85,11 +92,11 @@ void rem_absurd_val(int p[], Filt_Param *Filt){
 
 void process_roll(int phi[]){
 	
-	phi[dXm] = INT_TO_FIXED(X32_QR_S3);
+	phi[dXm] = INT_TO_FIXED(sp);
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
 	
-	phi[Xm] = INT_TO_FIXED(X32_QR_S0);
+	phi[Xm] = INT_TO_FIXED(sax);
 	rem_absurd_val(phi+Xm, &Filt_phi);
 	phi[Xad2] = phi[Xad1];
 	phi[Xad1] = phi[Xad];
@@ -103,11 +110,11 @@ void process_roll(int phi[]){
 
 void process_pitch(int thet[]){
 	
-	thet[dXm] = INT_TO_FIXED(X32_QR_S4);
+	thet[dXm] = INT_TO_FIXED(sq);
 	rem_absurd_val(thet, &Filt_thet);
 	anti_drift(thet, &Filt_thet);
 	
-	thet[Xm] = INT_TO_FIXED(X32_QR_S1);
+	thet[Xm] = INT_TO_FIXED(say);
 	rem_absurd_val(thet+Xm, &Filt_thet);
 	thet[Xad2] = thet[Xad1];
 	thet[Xad1] = thet[Xad];
@@ -121,7 +128,7 @@ void process_pitch(int thet[]){
 
 void process_yaw(int yaw[]){
 		
-	yaw[dXm] = INT_TO_FIXED(X32_QR_S5);
+	yaw[dXm] = INT_TO_FIXED(sr);
 	rem_absurd_val(yaw, &Filt_r);
 	anti_drift(yaw, &Filt_r);
 	filtered_r = yaw[dXad];
@@ -130,13 +137,13 @@ void process_yaw(int yaw[]){
 
 void calibrate_sensors(int phi[], int thet[], int yaw[]){
 	// Calibrate the roll rate
-	phi[dXm] = INT_TO_FIXED(X32_QR_S3);
+	phi[dXm] = INT_TO_FIXED(sp);
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
 
 
 	// Calibrate the roll
-	phi[Xm] = INT_TO_FIXED(X32_QR_S0);
+	phi[Xm] = INT_TO_FIXED(sax);
 	rem_absurd_val(phi+Xm, &Filt_phi);
 	phi[Xad2] = phi[Xad1];
 	phi[Xad1] = phi[Xad];
@@ -144,46 +151,69 @@ void calibrate_sensors(int phi[], int thet[], int yaw[]){
 
 
 	// Calibrate the pitch rate
-	thet[dXm] = INT_TO_FIXED(X32_QR_S4);
+	thet[dXm] = INT_TO_FIXED(sq);
 	rem_absurd_val(thet, &Filt_thet);
 	anti_drift(thet, &Filt_thet);
 
 	// Calibrate the pitch
-	thet[Xm] = INT_TO_FIXED(X32_QR_S1);
+	thet[Xm] = INT_TO_FIXED(say);
 	rem_absurd_val(thet+Xm, &Filt_thet);
 	thet[Xad2] = thet[Xad1];
 	thet[Xad1] = thet[Xad];
 	anti_drift(thet+Xm, &Filt_thet);
 
 	// Calibrate the yaw-rate
-	yaw[dXm] = INT_TO_FIXED(X32_QR_S5);
+	yaw[dXm] = INT_TO_FIXED(sr);
 	rem_absurd_val(yaw, &Filt_r);
 	anti_drift(yaw, &Filt_r);
 }
 
 void setup_sensor_interrupts(int prio){
-	SET_INTERRUPT_VECTOR(INTERRUPT_XUFO, &isr_sensor);
+	SET_INTERRUPT_VECTOR(INTERRUPT_XUFO, &isr_qr_link);
 	SET_INTERRUPT_PRIORITY(INTERRUPT_XUFO, prio);
 	ENABLE_INTERRUPT(INTERRUPT_XUFO);
 }
 
-void isr_sensor(){
+void isr_qr_link()
+{
+	/*
+		X32_QR_S0  	 roll
+		X32_QR_S1	 pitch
+		X32_QR_S2 	 z axis
+		X32_QR_S3	 Roll-rate
+		X32_QR_S4 	 Pitch-rate
+		X32_QR_S5 	 yaw-rate
+		X32_QR_S6	 Bat voltage
+	*/
+	int old = X32_clock_us;
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	sp = X32_QR_S3; 
+	sq = X32_QR_S4;
+	sr = X32_QR_S5;
+	sax = X32_QR_S0;
+	say = X32_QR_S1;
+	saz = X32_QR_S2;
+	battery_voltage = X32_QR_S6;
+	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	isr_filter_time = X32_clock_us - old;
+}
+
+void filter_sensor(){
+	
 	static int phi[14];	// Roll
 	static int thet[14]; // Pitch
 	static int yaw[4]; // Yaw
 
-	int old = X32_clock_us;
-
 	// Logging data
-	log_data(ACCEL, X32_clock_us, X32_QR_S0, X32_QR_S1, X32_QR_S2 ); // Accel
-	log_data(GYRO, X32_clock_us, X32_QR_S3, X32_QR_S4, X32_QR_S5); // gyro
+	log_data(ACCEL, X32_clock_us, sax, say, saz); // Accel
+	log_data(GYRO, X32_clock_us, sp, sq, sr); // gyro
 
-	battery_voltage = X32_QR_S6;
+	//battery_voltage = X32_QR_S6;
 
 	switch(mode){
 		case CALIBRATION:
 			calibrate_sensors(phi,thet,yaw);
-			calibrated = yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
+			calibrated = 1;//yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
 			break;
 		
 		case YAW_CONTROL:
@@ -197,5 +227,5 @@ void isr_sensor(){
 			break;
 	}
 
-	isr_filter_time = X32_clock_us - old;
+	
 }
