@@ -146,7 +146,6 @@ int main(void)
 			{	//If it is a joystick message containing inputs
 		
 				decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
-				//X32_display = JS_mes_unchecked[JS_MODE];
 				
 				DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 				//check if the received inputs make sense
@@ -213,7 +212,9 @@ int main(void)
 			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW]; //filtered_r;
 
 			//Possible switch of the interrupts;
-			DAQ_mes[DAQ_AE1] = ae[0];
+			
+			
+			DAQ_mes[DAQ_AE1] = ae[0];		
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];
 			DAQ_mes[DAQ_AE4] = ae[3];

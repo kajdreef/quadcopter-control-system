@@ -107,6 +107,7 @@ void detect_message (char data) {
 	static int sync = 0;
  	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
+	int i = 0;
 
 	#if DEBUG_RECEIVED_CHAR
 		printf("Received char: ");
@@ -133,7 +134,7 @@ void detect_message (char data) {
 			//successful receival of a message
 			message[receive_count] = data;
 			
-			decode(message, MESSAGE_LENGTH/2, DAQ_mes);
+			decode(message, 2*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes);
 			flag_MSG_RECEIVED = TRUE;
 		}
 		receive_count = 0;
