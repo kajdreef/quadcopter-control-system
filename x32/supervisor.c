@@ -102,7 +102,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					}
 					else if(new_mode == FULL_CONTROL)
 					{
-						*mode = new_mode;
+						*mode = CALIBRATION;
 					}
 				}
 				break;
@@ -144,6 +144,10 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					*mode = SAFE;
 				}
 				else if(new_mode == YAW_CONTROL && calibrated && neutral_input())
+				{
+					*mode  = new_mode;
+				}
+				else if(new_mode == FULL_CONTROL && calibrated && neutral_input())
 				{
 					*mode  = new_mode;
 				}

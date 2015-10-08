@@ -211,16 +211,12 @@ void filter_sensor(){
 	static int yaw[4]; // Yaw
 
 
-	if (mode != FULL_CONTROL){
-		log_data_sensor(X32_clock_us, sax, say, saz, sp, sq, sr); // Accel
-	}
-
 	//battery_voltage = X32_QR_S6;
 
 	switch(mode){
 		case CALIBRATION:
 			calibrate_sensors(phi,thet,yaw);
-			calibrated = 1;//yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
+			calibrated = yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
 			break;
 
 		case YAW_CONTROL:
@@ -233,6 +229,8 @@ void filter_sensor(){
 			process_yaw(yaw);
 			break;
 	}
+
+	
 
 	
 

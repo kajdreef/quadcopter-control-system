@@ -23,6 +23,14 @@ int P_Y = 3072;
 int P1 = 1024;
 int P2 = 1024;
 
+
+extern int sp = 0;
+extern int sq = 0;
+extern int sr = 0;
+extern int sax = 0;
+extern int say= 0;
+extern int saz = 0;
+
 void update_control_parameters(int P1, int P2, int P3)
 {
 	P_Y = MULT_FIXED(1024, P1);
@@ -133,6 +141,10 @@ void isr_controller()
 
 
 	isr_controller_time = X32_clock_us - old;
+
+	if (mode != FULL_CONTROL){
+		log_data_sensor(X32_clock_us, sax, say, saz, sp, sq, sr); // Accel
+	}
 	log_data_profile(CONTROL, X32_clock_us, isr_controller_time);
 	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }
