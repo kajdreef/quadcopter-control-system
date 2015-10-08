@@ -100,6 +100,10 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					{
 						*mode = new_mode;
 					}
+					else if(new_mode == FULL_CONTROL)
+					{
+						*mode = new_mode;
+					}
 				}
 				break;
 		/* PANIC MODE:
