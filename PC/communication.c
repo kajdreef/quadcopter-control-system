@@ -102,6 +102,7 @@ int get_char(void)
  *------------------------------------------------------------------
  */
 void detect_message (char data) {
+
 	static int receive_count = 0;
 	static int sync = 0;
  	static int prev = END;
@@ -113,7 +114,7 @@ void detect_message (char data) {
 	#endif
 
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
-	{
+	{	
 		sync = 1; //We now have synched with a message
 		message[receive_count] = data;
 		receive_count++;
@@ -131,7 +132,8 @@ void detect_message (char data) {
 		else {
 			//successful receival of a message
 			message[receive_count] = data;
-			decode(message, MESSAGE_LENGTH/3, DAQ_mes);
+			
+			decode(message, MESSAGE_LENGTH/2, DAQ_mes);
 			flag_MSG_RECEIVED = TRUE;
 		}
 		receive_count = 0;

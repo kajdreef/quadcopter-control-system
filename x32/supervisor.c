@@ -227,15 +227,24 @@ int neutral_input(void)
 int check_inputs(int *unchecked, int *checked)
 {	int i;
 	int flag = 0;
-	for(i =0; i < 4; i++)
-	{
-		if(unchecked[i] > 32767 || unchecked[i] < -32767)
-		{
-			flag = 1;
-		}
-	}
 
-	if(unchecked[4] > 5 || unchecked[4] < 0 )
+	if(unchecked[JS_LIFT] > 1023 || unchecked[JS_LIFT] < 0 )
+	{
+		flag = 1;
+	}	
+	else if(unchecked[JS_ROLL] > 255 || unchecked[JS_ROLL] <-255)
+	{
+		flag = 1;
+	}
+	else if(unchecked[JS_PITCH] > 255 || unchecked[JS_PITCH] <-255)
+	{
+		flag = 1;
+	}	
+	else if(unchecked[JS_YAW] > 511 || unchecked[JS_YAW] <-511)
+	{
+		flag = 1;
+	}
+	else if(unchecked[JS_MODE] > 5 || unchecked[JS_MODE] < 0 )
 	{
 		flag = 1;
 	}

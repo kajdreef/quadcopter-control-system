@@ -88,7 +88,7 @@ int main(void)
 
 //Set up the different interrupts depending on the configuration
 #ifdef MESSAGE_INTERRUPT
-	setup_uart_interrupts(9);
+	setup_uart_interrupts(8);
 #endif
 #ifdef CONTROLLER_INTERRUPT
 	setup_controller_interrupts(10);
@@ -144,8 +144,10 @@ int main(void)
 			//Decode the message
 			if(message_type == JS_MASK)
 			{	//If it is a joystick message containing inputs
+		
 				decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
-
+				//X32_display = JS_mes_unchecked[JS_MODE];
+				
 				DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 				//check if the received inputs make sense
 				if(check_inputs(JS_mes_unchecked, JS_mes))
@@ -206,9 +208,9 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL] = filtered_p;//JS_mes[JS_ROLL];
-			DAQ_mes[DAQ_PITCH] = filtered_q;//JS_mes[JS_PITCH];
-			DAQ_mes[DAQ_YAW_RATE] = filtered_r;//JS_mes[JS_YAW];
+			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];// filtered_p;
+			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];// filtered_q;
+			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW]; //filtered_r;
 
 			//Possible switch of the interrupts;
 			DAQ_mes[DAQ_AE1] = ae[0];
@@ -232,7 +234,7 @@ int main(void)
 		 A message is encoded and ready to be sent
 		*/
 		if(SEND_MESSAGE_FLAG == TRUE){
-			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));
+			send_message(output_buffer, 2*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));
 			SEND_MESSAGE_FLAG = FALSE;
 		}
 
