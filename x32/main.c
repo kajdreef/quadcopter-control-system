@@ -16,6 +16,7 @@
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000
+#define QR_LINK_TIME_THRESHOLD 3937		// Time it takes to miss 5 QR interrupts
 
 //period used for the sending of a DAQ message in us
 #define DAQ_MESSAGE_PERIOD	100000
@@ -55,12 +56,17 @@ int panic_time = 0;
 int isr_controller_time = 0;
 int isr_filter_time = 0;
 
+// Filter last interrupt time stamp
+int last_sensor_irs_time = 0;
+
 //filtered yaw rate
 extern int filtered_r;
 
 void status_led(void);
 void toggle_led(int i);
 void pc_link_led(int status);
+void qr_link_led(int status);
+int check_qr_link(int last_sensor_irs_time, int com_started);
 
 /*------------------------------------------------------------------
  *	Main function of the x32 application
@@ -117,12 +123,23 @@ int main(void)
 		 Check the status of the PC link and determine whether to panic
 		*/
 		if(!check_pc_link(last_message_time, com_started))
-		{	//Too long since last received message	
+		{	//Too long since last received message
 			if(mode != PANIC)
 			{
 				supervisor_set_mode(&mode, PANIC);
 				pc_link_led(0);
 			}
+		}
+
+		/*
+		 Check the status of the QR link and determine whether to panic
+		*/
+		if(!check_qr_link(last_sensor_irs_time, com_started))
+		{	//Too long since last received message
+			qr_link_led(0);
+		}
+		else {
+			qr_link_led(1);
 		}
 
 		/*
@@ -160,20 +177,20 @@ int main(void)
 				toggle_led(7);
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
 				update_control_parameters(CON_mes[0], CON_mes[1], CON_mes[2]);
-				
+
 			}
 			else if(message_type == LOG_MASK)
 			{	//If it is a log message take appropriate action
-				
+
 				decode(message,sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes);
-				
+
 				switch(LOG_mes[0]){
 					case 0:
 						log_stop();
 						break;
 					case 1:
-						log_start();	
-						break;	
+						log_start();
+						break;
 					case 2:
 						if(mode == SAFE)
 						{
@@ -215,9 +232,9 @@ int main(void)
 
 			DAQ_mes[DAQ_MODE] =  mode;
 
-			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time; 
-			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;		
-			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;		
+			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time;
+			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;
+			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;
 
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
 
@@ -262,8 +279,32 @@ int check_pc_link(int last_message_time, int com_started){
 	{
 		return 1;
 	}
+}
 
+/*------------------------------------------------------------------
+ * check_qr_led -- CHecks what the status of the QR link is
+ * Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
+int check_qr_link(int last_sensor_irs_time, int com_started){
+	if(X32_clock_us - last_sensor_irs_time > QR_LINK_TIME_THRESHOLD)
+	{	//The time between two sensor interrupts is too big
+		return 0;
+	}
+	else
+	{	//The time between two sensor interrupts is small enough
+		return 1;
+	}
+}
 
+/*------------------------------------------------------------------
+ * qr_link_led -- Sets the led that shows the status of the pc link
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void qr_link_led(int status){	// led 2
+		// X32_leds = (X32_leds & 253) ^ status << 2;
+		X32_leds = (X32_leds ^ (status << 2));
 }
 
 /*------------------------------------------------------------------
@@ -272,10 +313,7 @@ int check_pc_link(int last_message_time, int com_started){
  *------------------------------------------------------------------
  */
 void pc_link_led(int status){
-
-
-		X32_leds = (X32_leds & 253) | status << 1;
-
+	X32_leds = (X32_leds & 253) | status << 1;
 }
 
 /*------------------------------------------------------------------
@@ -299,5 +337,3 @@ void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
 }
-
-

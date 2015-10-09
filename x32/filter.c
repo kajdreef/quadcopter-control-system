@@ -48,6 +48,7 @@ int calibrated = 0;
 
 extern int isr_filter_time;
 extern int battery_voltage;
+extern int last_sensor_irs_time;
 extern enum QR mode;
 
 
@@ -173,6 +174,7 @@ void isr_sensor(){
 	static int yaw[4]; // Yaw
 
 	int old = X32_clock_us;
+	last_sensor_irs_time = X32_clock_us;
 
 	// Logging data
 	if (mode != FULL_CONTROL){
