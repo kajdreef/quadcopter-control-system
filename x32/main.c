@@ -122,7 +122,7 @@ int main(void)
 		 Check the status of the PC link and determine whether to panic
 		*/
 		if(!check_pc_link(last_message_time, com_started))
-		{	//Too long since last received message	
+		{	//Too long since last received message
 			if(mode != PANIC)
 			{
 				supervisor_set_mode(&mode, PANIC);
@@ -146,9 +146,9 @@ int main(void)
 			//Decode the message
 			if(message_type == JS_MASK)
 			{	//If it is a joystick message containing inputs
-		
+
 				decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
-				
+
 				DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 				//check if the received inputs make sense
 				if(check_inputs(JS_mes_unchecked, JS_mes))
@@ -166,20 +166,20 @@ int main(void)
 				toggle_led(7);
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
 				update_control_parameters(CON_mes[0], CON_mes[1], CON_mes[2]);
-				
+
 			}
 			else if(message_type == LOG_MASK)
 			{	//If it is a log message take appropriate action
-				
+
 				decode(message,sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes);
-				
+
 				switch(LOG_mes[0]){
 					case 0:
 						log_stop();
 						break;
 					case 1:
-						log_start();	
-						break;	
+						log_start();
+						break;
 					case 2:
 						if(mode == SAFE)
 						{
@@ -214,18 +214,18 @@ int main(void)
 			DAQ_mes[DAQ_YAW_RATE] = filtered_r;
 
 			//Possible switch of the interrupts;
-			
-			
-			DAQ_mes[DAQ_AE1] = ae[0];		
+
+
+			DAQ_mes[DAQ_AE1] = ae[0];
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];
 			DAQ_mes[DAQ_AE4] = ae[3];
 
 			DAQ_mes[DAQ_MODE] =  mode;
 
-			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time; 
-			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;		
-			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;		
+			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time;
+			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;
+			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;
 
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
 
@@ -307,5 +307,3 @@ void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
 }
-
-

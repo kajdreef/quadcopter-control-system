@@ -93,11 +93,11 @@ void rem_absurd_val(int p[], Filt_Param *Filt){
 
 void process_roll(int phi[]){
 
-	
+
 	phi[dXm] = INT_TO_FIXED(sp);
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
-	
+
 	phi[Xm] = INT_TO_FIXED(sax);
 
 	rem_absurd_val(phi+Xm, &Filt_phi);
@@ -116,7 +116,7 @@ void process_pitch(int thet[]){
 	thet[dXm] = INT_TO_FIXED(sq);
 	rem_absurd_val(thet, &Filt_thet);
 	anti_drift(thet, &Filt_thet);
-	
+
 	thet[Xm] = INT_TO_FIXED(say);
 
 	rem_absurd_val(thet+Xm, &Filt_thet);
@@ -132,7 +132,7 @@ void process_pitch(int thet[]){
 
 void process_yaw(int yaw[]){
 
-		
+
 	yaw[dXm] = INT_TO_FIXED(sr);
 
 	rem_absurd_val(yaw, &Filt_r);
@@ -191,21 +191,22 @@ void isr_qr_link()
 	*/
 	int old = X32_clock_us;
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	sp = X32_QR_S3; 
+	sp = X32_QR_S3;
 	sq = X32_QR_S4;
 	sr = X32_QR_S5;
 	sax = X32_QR_S0;
 	say = X32_QR_S1;
 	saz = X32_QR_S2;
+
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	battery_voltage = X32_QR_S6;
-	
+
 	isr_filter_time = X32_clock_us - old;
 	log_data_profile(FILTER, X32_clock_us, isr_filter_time);
 }
 
 void filter_sensor(){
-	
+
 	static int phi[14];	// Roll
 	static int thet[14]; // Pitch
 	static int yaw[4]; // Yaw
@@ -228,9 +229,4 @@ void filter_sensor(){
 			process_yaw(yaw);
 			break;
 	}
-
-	
-
-	
-
 }
