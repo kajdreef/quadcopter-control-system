@@ -137,10 +137,10 @@ int main(void)
 		*/
 		if(!check_qr_link(last_sensor_irs_time, com_started))
 		{	//Too long since last received message
-			qr_link_led(0);
+			qr_link_led(1);
 		}
 		else {
-			qr_link_led(1);
+			qr_link_led(0);
 		}
 
 		/*
