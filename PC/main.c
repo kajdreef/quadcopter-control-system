@@ -24,7 +24,7 @@
 #define NANO 1000000000L
 
 //Message
-int DAQ_mes[11];
+int DAQ_mes[11];			// WHEN CHANGING THIS also change it in communication.c
 int LOG_mes[1] = {0};
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
 int CON_mes[3] = {1024, 1024, 1024};
