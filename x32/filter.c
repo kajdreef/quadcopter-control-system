@@ -127,7 +127,7 @@ void process_pitch(int thet[]){
 	kalman(thet, &Filt_thet);
 
 	filtered_thet = thet[Xk];
-	filtered_q = thet[dXk];
+	filtered_q = thet[dXad];
 }
 
 void process_yaw(int yaw[]){

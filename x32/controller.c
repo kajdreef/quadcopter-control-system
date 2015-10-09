@@ -18,6 +18,7 @@ extern enum QR mode;
 extern int filtered_r;	// Yaw rate
 extern int filtered_p;	// Roll rate
 extern int filtered_q;	// Pitch rate
+extern int filtered_thet; // Pitch
 extern int ae[];
 
 int P_Y = 1024;
@@ -69,14 +70,15 @@ void control_pitch(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		des_q = JS_mes[JS_PITCH]/2;
-		//des_q = MULT_FIXED((JS_mes[JS_PITCH]/2 - (filtered_thet/100)),P1);
+		//des_q = JS_mes[JS_PITCH];
+		filtered_thet = 0;
+		des_q = MULT_FIXED((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
 	//filtered_q= 0;
-	F->f_p = MULT_FIXED((des_q - (filtered_q/100)),P2);
+	F->f_p = des_q + MULT_FIXED(filtered_q/20,P2);
 
 	count++;
 }
@@ -87,14 +89,14 @@ void control_roll(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		des_p = JS_mes[JS_ROLL]/2;
+		//des_p = JS_mes[JS_ROLL]/2;
 		//des_p = MULT_FIXED((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
 	//filtered_p= 0;
-	F->f_r = MULT_FIXED((des_p - (filtered_p/100)),P2);
+	F->f_r = MULT_FIXED((des_p - (filtered_p/10)),P2);
     
 	count++;
 }
@@ -136,9 +138,10 @@ void isr_controller()
 
 		case FULL_CONTROL:
 			// Full
-			control_yaw(&F);
+			manual_yaw(&F);
 			control_pitch(&F);
-			control_roll(&F);
+			//control_roll(&F);
+			manual_roll(&F);
 			break;
 	}
 	

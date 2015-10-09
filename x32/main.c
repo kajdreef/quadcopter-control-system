@@ -209,9 +209,9 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL] = filtered_r;
-			DAQ_mes[DAQ_PITCH] = filtered_p;
-			DAQ_mes[DAQ_YAW_RATE] = sr;//filtered_r;
+			DAQ_mes[DAQ_ROLL] = filtered_p;
+			DAQ_mes[DAQ_PITCH] = filtered_q;
+			DAQ_mes[DAQ_YAW_RATE] = filtered_r;
 
 			//Possible switch of the interrupts;
 			
