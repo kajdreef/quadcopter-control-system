@@ -59,6 +59,8 @@ int isr_filter_time = 0;
 extern int filtered_r;
 extern int filtered_p;
 extern int filtered_q;
+extern int sr;
+
 
 void status_led(void);
 void toggle_led(int i);
@@ -105,7 +107,7 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
-		isr_qr_link();
+		//isr_qr_link();
 		/*
 		 Blink the status led(1Hz)
 		 */
@@ -207,9 +209,9 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];// filtered_p;
-			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];// filtered_q;
-			DAQ_mes[DAQ_YAW_RATE] = JS_mes[JS_YAW]; //filtered_r;
+			DAQ_mes[DAQ_ROLL] = filtered_r;
+			DAQ_mes[DAQ_PITCH] = filtered_p;
+			DAQ_mes[DAQ_YAW_RATE] = sr;//filtered_r;
 
 			//Possible switch of the interrupts;
 			
