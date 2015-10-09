@@ -3,6 +3,7 @@
 #include "supervisor.h"
 #include "logger.h"
 #include "config.h"
+#include "communication.h"
 
 #define dXm 	0	// Rate measurement
 #define dXa 	1	// Rate absurd values removed
@@ -126,8 +127,8 @@ void process_pitch(int thet[]){
 	BF_2nd(thet, &Filt_thet);
 	kalman(thet, &Filt_thet);
 
-	filtered_thet = thet[Xk];
-	filtered_q = thet[dXk];
+	filtered_thet = thet[Xbf];
+	filtered_q = thet[dXad];
 }
 
 void process_yaw(int yaw[]){
@@ -147,14 +148,12 @@ void calibrate_sensors(int phi[], int thet[], int yaw[]){
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
 
-
 	// Calibrate the roll
 	phi[Xm] = INT_TO_FIXED(sax);
 	rem_absurd_val(phi+Xm, &Filt_phi);
 	phi[Xad2] = phi[Xad1];
 	phi[Xad1] = phi[Xad];
 	anti_drift(phi+Xm, &Filt_phi);
-
 
 	// Calibrate the pitch rate
 	thet[dXm] = INT_TO_FIXED(sq);
@@ -199,8 +198,10 @@ void isr_qr_link()
 	sax = X32_QR_S0;
 	say = X32_QR_S1;
 	saz = X32_QR_S2;
-	battery_voltage = X32_QR_S6;
+
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	battery_voltage = X32_QR_S6;
+
 	isr_filter_time = X32_clock_us - old;
 	log_data_profile(FILTER, X32_clock_us, isr_filter_time);
 }
@@ -222,7 +223,7 @@ void filter_sensor(){
 	switch(mode){
 		case CALIBRATION:
 			calibrate_sensors(phi,thet,yaw);
-			calibrated = 1;//yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
+			calibrated = yaw[dXad]>(-16) && yaw[dXad]<(16);
 			break;
 
 		case YAW_CONTROL:

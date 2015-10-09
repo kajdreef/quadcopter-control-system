@@ -22,13 +22,13 @@ int message_length(char data)
 	switch(data & 0xC0){
 		
 		case(JS_MASK):
-			return 3*sizeof(JS_mes)/sizeof(JS_mes[0]);
+			return 2*sizeof(JS_mes)/sizeof(JS_mes[0]);
 			break;
 		case(CON_MASK):
-			return 3*sizeof(CON_mes)/sizeof(CON_mes[0]);
+			return 2*sizeof(CON_mes)/sizeof(CON_mes[0]);
 			break;
 		case(LOG_MASK):
-			return 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]);
+			return 2*sizeof(LOG_mes)/sizeof(LOG_mes[0]);
 			break;
 		default:
 			return -1;	
@@ -44,7 +44,7 @@ void encode_message(int mask, int message_length, int *input, char *output_buffe
 
 	int i;	
 	int j;
-	for(i = 0,j=0; i < message_length-1; i++, j += 3){
+	for(i = 0,j=0; i < message_length-1; i++, j += 2){
 		encode(input[i], output_buffer, j, mask,0);
 	}
 	encode(input[i], output_buffer, j, mask,1);
@@ -58,14 +58,13 @@ void encode_message(int mask, int message_length, int *input, char *output_buffe
  */
 void encode(int value, char* buffer,int index, int mask, int end){
 
-	*(buffer+index) = ((value >> 12) & MASK) | mask;
-	*(buffer+index+1) = ((value >> 6) & MASK) | mask;
+	*(buffer+index) = ((value >> 6) & MASK) | mask;
 	if(end == 0){
-		*(buffer+index+2) = (value & MASK) | mask;
+		*(buffer+index+1) = (value & MASK) | mask;
 	}
 	else
 	{
-		*(buffer+index+2) = (value & MASK) | END;
+		*(buffer+index+1) = (value & MASK) | END;
 	}
 
 }
@@ -87,26 +86,25 @@ void decode (char* input, int msg_length, int* dest ){
 
 	for(i = 0; i < msg_length; i++){
 		final_result = 0;
-		if( CHECK_SIGN_BIT(input[i*3])){
+		if( CHECK_SIGN_BIT(input[i*2])){
 			#if DEBUG
 			printf("SIGNED BIT FOUND\n");
 			#endif
-			final_result = 0xFFFC0000;
+			final_result = 0xFFFFF000;
 		}
 
-		result1 = (input[i*3 + 0] ^ DECODE_MASK) << 12;
-		result2 = (input[i*3 + 1] ^ DECODE_MASK) << 6;
+		result1 = (input[i*2 + 0] ^ DECODE_MASK) << 6;
 
 		if(i == msg_length-1){
-			char test = (input[i*3 + 2] ^ END);
-			result3 =  test;
+			char test = (input[i*2 + 1] ^ END);
+			result2 =  test;
 		}
 		else {
-			char test = (input[i*3 + 2] ^ DECODE_MASK);
-			result3 = test;
+			char test = (input[i*2 + 1] ^ DECODE_MASK);
+			result2 = test;
 		}
 
-		final_result ^= (result1 ^ result2 ^ result3);
+		final_result ^= (result1 ^ result2);
 		
 		*(dest + i) = final_result;
 

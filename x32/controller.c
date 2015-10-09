@@ -5,6 +5,7 @@
 #include "actuators.h"
 #include "supervisor.h"
 #include "logger.h"
+#include "communication.h"
 
 #define LOOP_RATE_FACT 4
 
@@ -17,11 +18,19 @@ extern enum QR mode;
 extern int filtered_r;	// Yaw rate
 extern int filtered_p;	// Roll rate
 extern int filtered_q;	// Pitch rate
+extern int filtered_thet; // Pitch
 extern int ae[];
 
-int P_Y = 3072;
+int P_Y = 1024;
 int P1 = 1024;
 int P2 = 1024;
+
+extern int sp;
+extern int sq;
+extern int sr;
+extern int sax;
+extern int say;
+extern int saz;
 
 void update_control_parameters(int P1, int P2, int P3)
 {
@@ -48,7 +57,11 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-	F->f_y = MULT_FIXED((JS_mes[JS_YAW]/2 + (filtered_r/100)),P_Y);
+	
+	//F->f_y = JS_mes[JS_YAW];
+
+	F->f_y = JS_mes[JS_YAW] + filtered_r/30;
+	
 }
 
 void control_pitch(Factors *F){
@@ -57,13 +70,15 @@ void control_pitch(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		des_q = JS_mes[JS_PITCH]/2;
-		//des_q = MULT_FIXED((JS_mes[JS_PITCH]/2 - (filtered_thet/100)),P1);
+		//des_q = JS_mes[JS_PITCH];
+		//filtered_thet = 0;
+		des_q = MULT_FIXED((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
-	F->f_p = MULT_FIXED((des_q - (filtered_q/100)),P2);
+	//filtered_q= 0;
+	F->f_p = des_q + MULT_FIXED(filtered_q/20,P2);
 
 	count++;
 }
@@ -74,14 +89,15 @@ void control_roll(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		des_p = JS_mes[JS_ROLL]/2;
+		//des_p = JS_mes[JS_ROLL]/2;
 		//des_p = MULT_FIXED((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
-	F->f_r = MULT_FIXED((des_p - (filtered_p/100)),P2);
-
+	//filtered_p= 0;
+	F->f_r = MULT_FIXED((des_p - (filtered_p/10)),P2);
+    
 	count++;
 }
 
@@ -103,7 +119,7 @@ void isr_controller()
 	int old = X32_clock_us;
 
 	filter_sensor();
-	
+
 	manual_lift(&F);
 	switch (mode){
 		case MANUAL:
@@ -122,17 +138,22 @@ void isr_controller()
 
 		case FULL_CONTROL:
 			// Full
-			control_yaw(&F);
+			manual_yaw(&F);
 			control_pitch(&F);
-			control_roll(&F);
+			//control_roll(&F);
+			manual_roll(&F);
 			break;
 	}
-
+	
+	filtered_p = F.f_y;
 	apply_mot_fact(&F,ae);
 	set_actuators(ae);
 
-
 	isr_controller_time = X32_clock_us - old;
+
+	if (mode != FULL_CONTROL){
+		log_data_sensor(X32_clock_us, sax, say, saz, sp, sq, sr); // Accel
+	}
 	log_data_profile(CONTROL, X32_clock_us, isr_controller_time);
 	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 }

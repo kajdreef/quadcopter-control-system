@@ -5,7 +5,7 @@
 #include "fixed_point.h"
 
 //max acceleration of the motors to prevent stalling
-#define MAX_ACC 2
+#define MAX_ACC 100
 
 extern int state;
 extern enum QR mode;

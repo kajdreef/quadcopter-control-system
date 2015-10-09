@@ -8,7 +8,7 @@
 #include "keyboard.h"
 #include "fixed_point.h"
 
-#define JOYSTICK 0
+#define JOYSTICK 1
 
 #define SEND_MESSAGE_PRINT 0
 #define RECEIVED_MSG_PRINT 1
@@ -24,7 +24,7 @@
 #define NANO 1000000000L
 
 //Message
-int DAQ_mes[11];
+int DAQ_mes[11];			// WHEN CHANGING THIS also change it in communication.c
 int LOG_mes[1] = {0};
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
 int CON_mes[3] = {1024, 1024, 1024};
@@ -99,14 +99,14 @@ int main (void) {
 		if (msg_type == 1){
 			//send a control message
 			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
-			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
+			send(msg, 2*sizeof(CON_mes)/sizeof(CON_mes[0]));
 		}
 		else if (msg_type == 2){
 			//send a control message and check if x32 and PC are in safe mode before transferring log
 			if( (mode == 0 && DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2) || LOG_mes[0] != 2)
 			{
 				encode_message(LOG_MASK, sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes, msg);
-				send(msg, 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
+				send(msg, 2*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
 			}
 			else{
 				LOG_mes[0] = 0;
@@ -180,7 +180,7 @@ int main (void) {
 
 			// Encode message and send it
 			encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
-			send(msg, sizeof(msg)/sizeof(msg[0]));
+			send(msg, 2*sizeof(JS_mes)/sizeof(JS_mes[0]));
 
 		}
 

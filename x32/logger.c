@@ -3,6 +3,9 @@
 #include "logger.h"
 #include "communication.h"
 
+
+#define LOGGER 1
+
 int START = 0;
 int PRINTED = 0;
 
