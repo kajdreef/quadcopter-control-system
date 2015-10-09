@@ -90,6 +90,8 @@ void decode (char* input, int msg_length, int* dest ){
   #if DEBUG_DECODE
     printf("Start Decoding\n");
   #endif
+
+  // Start decoding the message
   for(i = 0; i < msg_length; i++){
 
 		final_result = 0;

@@ -228,9 +228,4 @@ void filter_sensor(){
 			process_yaw(yaw);
 			break;
 	}
-
-
-
-
-
 }
