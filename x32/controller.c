@@ -20,17 +20,16 @@ extern int filtered_p;	// Roll rate
 extern int filtered_q;	// Pitch rate
 extern int ae[];
 
-int P_Y = 3072;
+int P_Y = 1024;
 int P1 = 1024;
 int P2 = 1024;
 
-
-extern int sp = 0;
-extern int sq = 0;
-extern int sr = 0;
-extern int sax = 0;
-extern int say= 0;
-extern int saz = 0;
+extern int sp;
+extern int sq;
+extern int sr;
+extern int sax;
+extern int say;
+extern int saz;
 
 void update_control_parameters(int P1, int P2, int P3)
 {
@@ -57,7 +56,11 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-	F->f_y = MULT_FIXED((JS_mes[JS_YAW]/2 + (filtered_r/100)),P_Y);
+	
+	//F->f_y = JS_mes[JS_YAW];
+
+	F->f_y = JS_mes[JS_YAW] + filtered_r/50;
+	
 }
 
 void control_pitch(Factors *F){
@@ -72,6 +75,7 @@ void control_pitch(Factors *F){
 	}
 
 	// Rate controller
+	//filtered_q= 0;
 	F->f_p = MULT_FIXED((des_q - (filtered_q/100)),P2);
 
 	count++;
@@ -89,8 +93,9 @@ void control_roll(Factors *F){
 	}
 
 	// Rate controller
+	//filtered_p= 0;
 	F->f_r = MULT_FIXED((des_p - (filtered_p/100)),P2);
-
+    
 	count++;
 }
 
@@ -137,10 +142,9 @@ void isr_controller()
 			break;
 	}
 	
-
+	filtered_p = F.f_y;
 	apply_mot_fact(&F,ae);
 	set_actuators(ae);
-
 
 	isr_controller_time = X32_clock_us - old;
 

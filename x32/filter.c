@@ -197,9 +197,10 @@ void isr_qr_link()
 	sax = X32_QR_S0;
 	say = X32_QR_S1;
 	saz = X32_QR_S2;
-	//battery_voltage = X32_QR_S6;
-	battery_voltage = 1;
+
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	battery_voltage = X32_QR_S6;
+
 	isr_filter_time = X32_clock_us - old;
 	log_data_profile(FILTER, X32_clock_us, isr_filter_time);
 }
@@ -215,7 +216,7 @@ void filter_sensor(){
 	switch(mode){
 		case CALIBRATION:
 			calibrate_sensors(phi,thet,yaw);
-			calibrated = yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
+			calibrated = yaw[dXad]>(-16) && yaw[dXad]<(16);
 			break;
 
 		case YAW_CONTROL:

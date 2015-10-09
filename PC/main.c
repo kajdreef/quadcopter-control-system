@@ -8,7 +8,7 @@
 #include "keyboard.h"
 #include "fixed_point.h"
 
-#define JOYSTICK 0
+#define JOYSTICK 1
 
 #define SEND_MESSAGE_PRINT 0
 #define RECEIVED_MSG_PRINT 1
