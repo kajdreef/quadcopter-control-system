@@ -71,7 +71,7 @@ void control_pitch(Factors *F){
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
 		//des_q = JS_mes[JS_PITCH];
-		filtered_thet = 0;
+		//filtered_thet = 0;
 		des_q = MULT_FIXED((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
 		count=0;
 	}

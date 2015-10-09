@@ -126,7 +126,7 @@ void process_pitch(int thet[]){
 	BF_2nd(thet, &Filt_thet);
 	kalman(thet, &Filt_thet);
 
-	filtered_thet = thet[Xk];
+	filtered_thet = thet[Xbf];
 	filtered_q = thet[dXad];
 }
 

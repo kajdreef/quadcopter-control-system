@@ -61,6 +61,7 @@ extern int filtered_p;
 extern int filtered_q;
 extern int sr;
 
+extern int filtered_thet;
 
 void status_led(void);
 void toggle_led(int i);
@@ -211,7 +212,7 @@ int main(void)
 		{
 			DAQ_mes[DAQ_ROLL] = filtered_p;
 			DAQ_mes[DAQ_PITCH] = filtered_q;
-			DAQ_mes[DAQ_YAW_RATE] = filtered_r;
+			DAQ_mes[DAQ_YAW_RATE] = filtered_thet;
 
 			//Possible switch of the interrupts;
 
