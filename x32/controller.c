@@ -59,7 +59,7 @@ void control_yaw(Factors *F){
 	
 	//F->f_y = JS_mes[JS_YAW];
 
-	F->f_y = JS_mes[JS_YAW] + filtered_r/50;
+	F->f_y = JS_mes[JS_YAW] + filtered_r/30;
 	
 }
 
