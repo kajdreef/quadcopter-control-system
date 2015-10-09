@@ -24,10 +24,11 @@ struct Filt_param {
 typedef struct Filt_param Filt_Param;
 
 
-Filt_Param Filt_phi = { 1, 2, 1, -1957, 937, 2621440, -2621440, 5000, 250000, 1, 1};	//BF_freq=0.02*Fs = 25.4 Hz
-Filt_Param Filt_thet ={ 1, 2, 1, -1957, 937, 2621440, -2621440, 5000, 250000, 1, 1};
+Filt_Param Filt_phi = { 6, 11, 6, -1821, 820, 2621440, -2621440, 5000, 250000, 2, 2};	//BF_freq=0.02*Fs = 25.4 Hz
+Filt_Param Filt_thet ={ 6, 11, 6, -1821, 820, 2621440, -2621440, 5000, 250000, 2, 2};
 Filt_Param Filt_r ={ 0, 0, 0, 0, 0, 2621440, -2621440, 0, 0, 0, 1};	// Min=0, Max=1024, alpha is as low as possible
 
+void isr_qr_link(void);
 void kalman(int p[], Filt_Param *Filt);
 void BF_2nd(int p[], Filt_Param *Filt);
 void F_1st(int p[], Filt_Param *Filt);
@@ -37,7 +38,7 @@ void process_roll(int phi[]);
 void process_pitch(int thet[]);
 void process_yaw(int yaw[]);
 void calibrate_sensors(int phi[], int thet[], int yaw[]);
-void isr_sensor();
+void filter_sensor(void);
 void setup_sensor_interrupts(int prio);
 
 # define X32_QR_S0 peripherals[PERIPHERAL_XUFO_S0]		// roll

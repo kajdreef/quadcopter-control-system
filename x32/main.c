@@ -109,6 +109,7 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
+		isr_qr_link();
 		/*
 		 Blink the status led(1Hz)
 		 */
