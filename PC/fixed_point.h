@@ -6,30 +6,34 @@
  *	
  */
 
-/*
-	Qm.n format
-	N (m+n) bits in total(32)
-	n bits for the fraction part
-	Resolution is 2^-Fract_part
-*/
 #define INT_PART	22	
 #define FRACT_PART	10
 #define FACTOR 		1024	//2^FRACT_PART
 
 /*
-	Conversions:
-*/
-#define INT_TO_FIXED(A)   (((int)A) << FRACT_PART) 
-//#define FIXED_TO_INT(A)   ((int)(A + 1<<(FRACT_PART-1)) >> FRACT_PART)
-#define FIXED_TO_INT(A)   ((int)(A + 256) >> FRACT_PART)
-#define FP_TO_FIXED(A) ((int)(A * FACTOR))  
-#define FIXED_TO_FP(A) (((float)A) / FACTOR)   
+	 Conversions
+ */
+
+#define I2FDP(A)  		 	(((int)A) << FRACT_PART) 
+#define I2FDP_S(A,SIZE) 	(((int)A) << SIZE) 
+
+#define FDP2I(A)			((int)(A + 512) >> FRACT_PART)//((int)(A + 256) >> FRACT_PART)
+#define FDP2I_S(A,SIZE) 	((int)(A+ (1<<(SIZE-1))) >> SIZE)//((int)(A + 256) >> SIZE)
+
+#define FP2FDP(A) 			((int)(A * FACTOR))  
+#define FP2FDP_S(A,SIZE) 	((int)(A * (1<<SIZE)))  
+
+#define FDP2FP(A) 			(((float)A) / FACTOR)   
+#define FDP2FP_S(A,SIZE) 	(((float)A) / (1<<SIZE)) 
 
 /*
 	Operations
 */
-#define MULT_FIXED(A,B)  ((int)(A * B) >> FRACT_PART)
-#define DIV_FIXED(A,B)  (int)(((long) A << FRACT_PART)/B)
+#define MULT(A,B)  			((int)(A * B) >> FRACT_PART)
+#define MULT_S(A,B,SIZE) 	((int)(A * B) >> SIZE)
+
+#define DIV(A,B)  			(int)(((long) A << FRACT_PART)/B)
+#define DIV_S(A,B,SIZE)  	(int)(((long) A << SIZE)/B)
 
 
 #endif

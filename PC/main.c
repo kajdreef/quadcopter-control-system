@@ -241,9 +241,12 @@ int main (void) {
 				printf("******************************\t******************************\n");
 				printf("*    PC data            (fp) *\t*Tune mult. factors(fp) x100 *\n");
 				printf("******************************\t******************************\n");
-				printf("Mode: \t\t%5d\t\t Yaw P\t(u/j): \t%5d %5d\n",mode,CON_mes[0], FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[0])));
-				printf("lift\t(a/z):\t%5d %5d\t R/P P1\t(i/k): \t%5d %5d\n",lift,scale_joystick_lift(lift),CON_mes[1],FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[1])));
-				printf("roll: \t\t%5d %5d\t R/P P2\t(o/l): \t%5d %5d\n",roll,scale_joystick_pr(roll), CON_mes[2],FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[2])));
+				printf("Mode: \t\t%5d\t\t Yaw P\t(u/j): \t%5d %5d\n",mode,CON_mes[0],MULT_S(I2FDP_S(100,6),CON_mes[0],6),6));//FDP2I_S(MULT_S(I2FDP_S(100,6),CON_mes[0],6),6));
+				
+//printf("lift\t(a/z):\t%5d %5d\t R/P P1\t(i/k): \t%5d %5d\n",lift,scale_joystick_lift(lift),CON_mes[1],FDP2I_S(MULT_S(I2FDP_S(100,6),CON_mes[1],6),6));
+			
+//printf("roll: \t\t%5d %5d\t R/P P2\t(o/l): \t%5d %5d\n",roll,scale_joystick_pr(roll), CON_mes[2],FDP2I_S(MULT_S(I2FDP_S(100,6),CON_mes[2],6),6));
+
 				printf("Pitch: \t\t%5d %5d\n", pitch,scale_joystick_pr(pitch));
 				printf("Yaw\t(q/w): \t%5d %5d\n",yaw,scale_joystick_yaw(yaw));
 				printf("LOG\t(b/f/t):%5d\n",LOG_mes[0]);
