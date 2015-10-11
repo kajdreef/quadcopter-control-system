@@ -12,7 +12,7 @@
 
 /*
 	 Conversions
- */
+*/
 
 #define I2FDP(A)  		 	(((int)A) << FRACT_PART) 
 #define I2FDP_S(A,SIZE) 	(((int)A) << SIZE) 
@@ -32,8 +32,8 @@
 #define MULT(A,B)  			((int)(A * B) >> FRACT_PART)
 #define MULT_S(A,B,SIZE) 	((int)(A * B) >> SIZE)
 
-#define DIV(A,B)  			(int)(((long) A << FRACT_PART)/B)
-#define DIV_S(A,B,SIZE)  	(int)(((long) A << SIZE)/B)
+#define DIV(A,B)  			((int)(((long) A << FRACT_PART)/B))
+#define DIV_S(A,B,SIZE)  	((int)(((long) A << SIZE)/B))
 
 
 #endif
