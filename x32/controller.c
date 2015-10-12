@@ -38,12 +38,13 @@ void update_control_parameters(int P1_new, int P2_new, int P3_new)
 	P_Y = MULT(1024, (P1_new<<4));
 	P1 = MULT(1024, (P2_new <<4));
 	P2 = MULT(1024, (P3_new <<4));
-	isr_controller_time = P_Y;
+
 
 }
 
 void manual_lift(Factors *F){
 	F->f_l = JS_mes[JS_LIFT];
+
 }
 
 void manual_yaw(Factors *F){
@@ -108,10 +109,10 @@ void control_roll(Factors *F){
 
 void apply_mot_fact(Factors *F,int *ae){
 
-	ae[0] = MULT_S(F->f_l,(FACTOR - F->f_y + F->f_p),10);
-	ae[1] = MULT_S(F->f_l,(FACTOR + F->f_y - F->f_r),10);
-	ae[2] = MULT_S(F->f_l,(FACTOR - F->f_y - F->f_p),10);
-	ae[3] = MULT_S(F->f_l,(FACTOR + F->f_y + F->f_r),10);
+	ae[0] = MULT(F->f_l,(FACTOR - F->f_y + F->f_p));
+	ae[1] = MULT(F->f_l,(FACTOR + F->f_y - F->f_r));
+	ae[2] = MULT(F->f_l,(FACTOR - F->f_y - F->f_p));
+	ae[3] = MULT(F->f_l,(FACTOR + F->f_y + F->f_r));
 
 	//0-1023
 }

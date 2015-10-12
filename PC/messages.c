@@ -8,7 +8,7 @@
 #define DEBUG_ENCODE 0
 #define DEBUG_MESSAGE_LENGTH 0
 
-extern int DAQ_mes[11];
+extern int DAQ_mes[13];
 extern int LOG_mes[1];
 extern int JS_mes[5];
 extern int CON_mes[3];

@@ -22,7 +22,7 @@
 #define DAQ_MESSAGE_PERIOD	100000
 
 //Messages
-int DAQ_mes[11];
+int DAQ_mes[13];
 int LOG_mes[1];
 
 int JS_mes[5]= {32767};
@@ -61,6 +61,10 @@ extern int filtered_r;
 extern int filtered_p;
 extern int filtered_q;
 extern int sr;
+extern int sq;
+extern int sp;
+extern int sax;
+extern int say;
 
 extern int filtered_thet;
 
@@ -95,7 +99,7 @@ int main(void)
 	setup_uart_interrupts(11);
 #endif
 #ifdef CONTROLLER_INTERRUPT
-	//setup_controller_interrupts(10);
+	setup_controller_interrupts(10);
 #endif
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);
@@ -214,9 +218,12 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL] = filtered_p;
-			DAQ_mes[DAQ_PITCH] = filtered_q;
-			DAQ_mes[DAQ_YAW_RATE] = filtered_thet;
+			DAQ_mes[DAQ_ROLL_RATE] = sp;//filtered_p;
+			DAQ_mes[DAQ_PITCH_RATE] = sq;//filtered_q;
+			DAQ_mes[DAQ_YAW_RATE] = sr;//filtered_thet;
+			
+			DAQ_mes[DAQ_SAX] = 1;//sax;//filtered_p;
+			DAQ_mes[DAQ_SAY] = 2;//say;//filtered_q;
 
 			//Possible switch of the interrupts;
 			DAQ_mes[DAQ_AE1] = ae[0];

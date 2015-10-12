@@ -24,7 +24,7 @@
 #define NANO 1000000000L
 
 //Message
-int DAQ_mes[11];			// WHEN CHANGING THIS also change it in communication.c
+int DAQ_mes[13];			// WHEN CHANGING THIS also change it in communication.c
 int LOG_mes[1] = {0};
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
 int CON_mes[3] = {I2FDP_S(1,6), I2FDP_S(1,6), I2FDP_S(1,6)};
@@ -231,13 +231,17 @@ int main (void) {
 				printf("*****************\t*********************\n");
 
 				printf("QR mode: \t%d\t         %03d\n", DAQ_mes[DAQ_MODE],DAQ_mes[DAQ_AE1]);
-				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
-				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
+				printf("Roll rate: \t%d\t          ^\n", DAQ_mes[DAQ_ROLL_RATE]);
+				printf("Pitch rate: \t%d\t          |\n",DAQ_mes[DAQ_PITCH_RATE]);
 				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
-				printf("Contr t(us): \t%d\t          |\n",DAQ_mes[DAQ_CONTR_TIME]);
-				printf("Filter t(us): \t%d\t          |\n", DAQ_mes[DAQ_FILTER_TIME]);
-				printf("Batt voltage: \t%d\t         %03d\n\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);
-
+				
+				printf("sax: \t\t%d\t          |\n",DAQ_mes[DAQ_SAX]);
+				printf("say: \t\t%d\t          |\n", DAQ_mes[DAQ_SAY]);			
+			
+				printf("Batt voltage: \t%d\t         %03d\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);
+				printf("Contr t(us): \t%d\n",DAQ_mes[DAQ_CONTR_TIME]);
+				printf("Filter t(us): \t%d\n\n", DAQ_mes[DAQ_FILTER_TIME]);
+			
 				printf("******************************\t******************************\n");
 				printf("*    PC data            (fp) *\t*Tune mult. factors(fp) x100 *\n");
 				printf("******************************\t******************************\n");
