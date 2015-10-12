@@ -11,8 +11,9 @@
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
-#define CONTROLLER_INTERRUPT
+//#define CONTROLLER_INTERRUPT
 #define SENSOR_INTERRUPT
+#define DIV_0_INTERRUPT
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000
@@ -98,6 +99,9 @@ int main(void)
 #endif
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);
+#endif
+#ifdef DIV_0_INTERRUPT
+	setup_div_0_interrupts(20);
 #endif
 
 	//Let the QR begin with a safe configuration
@@ -215,8 +219,6 @@ int main(void)
 			DAQ_mes[DAQ_YAW_RATE] = filtered_thet;
 
 			//Possible switch of the interrupts;
-
-
 			DAQ_mes[DAQ_AE1] = ae[0];
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];

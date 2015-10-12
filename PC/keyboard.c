@@ -209,8 +209,9 @@ int process_keyboard(char c, int *trim, int *control_p, int *log)
 			trim_pitch_roll_yaw_down(trim, TRIM_ROLL);	
 			break;
 		//up arrow
-		case 0x41:
-			trim_pitch_roll_yaw_down(trim, TRIM_PITCH);
+		case 0x41:			
+			trim_pitch_roll_yaw_down(trim, TRIM_PITCH);	
+			break;
 		//down arrow
 		case 0x42:
 			trim_pitch_roll_yaw_up(trim, TRIM_PITCH);

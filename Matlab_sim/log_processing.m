@@ -62,8 +62,6 @@ for i=1:length(x)
     [bias(i+1), phi(i+1), p(i+1)]=kalman( x_filt(i), dx(i), bias(i), phi(i), p(i),Filt );
 end
 
-
-
 plot(t,x_filt);
 plot(t,phi(2:end));
 plot(t,p(2:end));

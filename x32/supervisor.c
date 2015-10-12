@@ -11,6 +11,7 @@
 extern int panic_time;
 extern int JS_mes[];
 extern int calibrated;
+extern enum QR mode;
 /*------------------------------------------------------------------
  * supervisor_received_mode --  Check the received mode and change it if needed
  * Author: Bastiaan Oosterhuis
@@ -259,5 +260,32 @@ int check_inputs(int *unchecked, int *checked)
 	else
 	{
 		return 0;
+	}
+}
+
+/*------------------------------------------------------------------
+ * setup_div_0_interrupts -- Setup the interrupts used when a division by zero is attempted
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+
+void setup_div_0_interrupts(int prio){
+
+	/*
+		Attach an interrupt to the receival of a byte
+		Set the priority
+		Enable the interrupt
+	*/
+	SET_INTERRUPT_VECTOR(INTERRUPT_DIVISION_BY_ZERO, &div0_isr);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_DIVISION_BY_ZERO, prio);
+	ENABLE_INTERRUPT(INTERRUPT_DIVISION_BY_ZERO);
+
+
+}
+
+void div0_isr()
+{
+	if(mode != SAFE){
+		supervisor_set_mode(&mode, PANIC);
 	}
 }

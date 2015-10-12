@@ -32,9 +32,12 @@ extern int sax;
 extern int say;
 extern int saz;
 
-void update_control_parameters(int P1, int P2, int P3)
+void update_control_parameters(int P1_new, int P2_new, int P3_new)
 {
-	P_Y = MULT_FIXED(1024, P1);
+	//The control parameters are received with a fraction of 6 bits.
+	P_Y = MULT_FIXED(1024, (P1_new<<4));
+	P1 = MULT_FIXED(1024, (P2_new <<4));
+	P2 = MULT_FIXED(1024, (P3_new <<4));
 }
 
 void manual_lift(Factors *F){

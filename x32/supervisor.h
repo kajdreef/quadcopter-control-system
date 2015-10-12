@@ -11,12 +11,14 @@ enum QR{
 	MANUAL = 2,
 	CALIBRATION = 3,
 	YAW_CONTROL = 4,
-	FULL_CONTROL = 5,
-	ABORT = 6
+	FULL_CONTROL = 5
 };
 
 void supervisor_set_mode(enum QR *mode, enum QR new_mode);
 void supervisor_received_mode(enum QR *mode, int received_mode);
 void supervisor_check_panic(enum QR *mode);
+void div0_isr(void);
+void setup_div_0_interrupts(int prio);
+
 #endif
 

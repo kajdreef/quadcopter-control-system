@@ -8,7 +8,7 @@
 #include "keyboard.h"
 #include "fixed_point.h"
 
-#define JOYSTICK 1
+#define JOYSTICK 0
 
 #define SEND_MESSAGE_PRINT 0
 #define RECEIVED_MSG_PRINT 1
@@ -27,7 +27,7 @@
 int DAQ_mes[11];			// WHEN CHANGING THIS also change it in communication.c
 int LOG_mes[1] = {0};
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
-int CON_mes[3] = {1024, 1024, 1024};
+int CON_mes[3] = {I2FDP_S(1,6), I2FDP_S(1,6), I2FDP_S(1,6)};
 
 char msg[15];
 
