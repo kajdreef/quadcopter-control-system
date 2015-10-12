@@ -95,7 +95,7 @@ int main(void)
 	setup_uart_interrupts(11);
 #endif
 #ifdef CONTROLLER_INTERRUPT
-	setup_controller_interrupts(10);
+	//setup_controller_interrupts(10);
 #endif
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);

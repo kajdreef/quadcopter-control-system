@@ -35,9 +35,11 @@ extern int saz;
 void update_control_parameters(int P1_new, int P2_new, int P3_new)
 {
 	//The control parameters are received with a fraction of 6 bits.
-	P_Y = MULT_FIXED(1024, (P1_new<<4));
-	P1 = MULT_FIXED(1024, (P2_new <<4));
-	P2 = MULT_FIXED(1024, (P3_new <<4));
+	P_Y = MULT(1024, (P1_new<<4));
+	P1 = MULT(1024, (P2_new <<4));
+	P2 = MULT(1024, (P3_new <<4));
+	isr_controller_time = P_Y;
+
 }
 
 void manual_lift(Factors *F){
@@ -75,13 +77,13 @@ void control_pitch(Factors *F){
 	if (count>=LOOP_RATE_FACT){
 		//des_q = JS_mes[JS_PITCH];
 		//filtered_thet = 0;
-		des_q = MULT_FIXED((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
+		des_q = MULT((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
 	//filtered_q= 0;
-	F->f_p = des_q + MULT_FIXED(filtered_q/20,P2);
+	F->f_p = des_q + MULT(filtered_q/20,P2);
 
 	count++;
 }
@@ -93,23 +95,23 @@ void control_roll(Factors *F){
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
 		//des_p = JS_mes[JS_ROLL]/2;
-		//des_p = MULT_FIXED((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
+		//des_p = MULT((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
 	//filtered_p= 0;
-	F->f_r = MULT_FIXED((des_p - (filtered_p/10)),P2);
+	F->f_r = MULT((des_p - (filtered_p/10)),P2);
     
 	count++;
 }
 
 void apply_mot_fact(Factors *F,int *ae){
 
-	ae[0] = MULT_FIXED(F->f_l,(FACTOR - F->f_y + F->f_p));
-	ae[1] = MULT_FIXED(F->f_l,(FACTOR + F->f_y - F->f_r));
-	ae[2] = MULT_FIXED(F->f_l,(FACTOR - F->f_y - F->f_p));
-	ae[3] = MULT_FIXED(F->f_l,(FACTOR + F->f_y + F->f_r));
+	ae[0] = MULT_S(F->f_l,(FACTOR - F->f_y + F->f_p),10);
+	ae[1] = MULT_S(F->f_l,(FACTOR + F->f_y - F->f_r),10);
+	ae[2] = MULT_S(F->f_l,(FACTOR - F->f_y - F->f_p),10);
+	ae[3] = MULT_S(F->f_l,(FACTOR + F->f_y + F->f_r),10);
 
 	//0-1023
 }
