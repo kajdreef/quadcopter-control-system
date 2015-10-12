@@ -78,7 +78,7 @@ void supervisor_check_panic(enum QR *mode){
  *------------------------------------------------------------------
  */
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
-	static int ABORT_FLAG = 0;
+
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	
 	if(*mode != new_mode){
@@ -100,6 +100,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					else if(new_mode == MANUAL)
 					{
 						*mode = new_mode;
+						
 					}
 					else if(new_mode == FULL_CONTROL)
 					{
