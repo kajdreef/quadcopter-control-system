@@ -24,10 +24,10 @@
 #define NANO 1000000000L
 
 //Message
-int DAQ_mes[11];
+int DAQ_mes[13];			// WHEN CHANGING THIS also change it in communication.c
 int LOG_mes[1] = {0};
 int JS_mes[5] = {32767,0,0,0,2}; 		// Initialize with lift at minimum
-int CON_mes[3] = {1024, 1024, 1024};
+int CON_mes[3] = {I2FDP_S(1,6), I2FDP_S(1,6), I2FDP_S(1,6)};
 
 char msg[15];
 
@@ -99,14 +99,14 @@ int main (void) {
 		if (msg_type == 1){
 			//send a control message
 			encode_message(CON_MASK, sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes, msg);
-			send(msg, 3*sizeof(CON_mes)/sizeof(CON_mes[0]));
+			send(msg, 2*sizeof(CON_mes)/sizeof(CON_mes[0]));
 		}
 		else if (msg_type == 2){
 			//send a control message and check if x32 and PC are in safe mode before transferring log
 			if( (mode == 0 && DAQ_mes[DAQ_MODE] == 0 && LOG_mes[0] == 2) || LOG_mes[0] != 2)
 			{
 				encode_message(LOG_MASK, sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes, msg);
-				send(msg, 3*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
+				send(msg, 2*sizeof(LOG_mes)/sizeof(LOG_mes[0]));
 			}
 			else{
 				LOG_mes[0] = 0;
@@ -180,7 +180,7 @@ int main (void) {
 
 			// Encode message and send it
 			encode_message(JS_MASK, sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes, msg);
-			send(msg, sizeof(msg)/sizeof(msg[0]));
+			send(msg, 2*sizeof(JS_mes)/sizeof(JS_mes[0]));
 
 		}
 
@@ -231,19 +231,24 @@ int main (void) {
 				printf("*****************\t*********************\n");
 
 				printf("QR mode: \t%d\t         %03d\n", DAQ_mes[DAQ_MODE],DAQ_mes[DAQ_AE1]);
-				printf("Roll: \t\t%d\t          ^\n", DAQ_mes[DAQ_ROLL]);
-				printf("Pitch: \t\t%d\t          |\n",DAQ_mes[DAQ_PITCH]);
+				printf("Roll rate: \t%d\t          ^\n", DAQ_mes[DAQ_ROLL_RATE]);
+				printf("Pitch rate: \t%d\t          |\n",DAQ_mes[DAQ_PITCH_RATE]);
 				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
-				printf("Contr t(us): \t%d\t          |\n",DAQ_mes[DAQ_CONTR_TIME]);
-				printf("Filter t(us): \t%d\t          |\n", DAQ_mes[DAQ_FILTER_TIME]);
-				printf("Batt voltage: \t%d\t         %03d\n\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);
-
+				
+				printf("sax: \t\t%d\t          |\n",DAQ_mes[DAQ_SAX]);
+				printf("say: \t\t%d\t          |\n", DAQ_mes[DAQ_SAY]);			
+			
+				printf("Batt voltage: \t%d\t         %03d\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);
+				printf("Contr t(us): \t%d\n",DAQ_mes[DAQ_CONTR_TIME]);
+				printf("Filter t(us): \t%d\n\n", DAQ_mes[DAQ_FILTER_TIME]);
+			
 				printf("******************************\t******************************\n");
 				printf("*    PC data            (fp) *\t*Tune mult. factors(fp) x100 *\n");
 				printf("******************************\t******************************\n");
-				printf("Mode: \t\t%5d\t\t Yaw P\t(u/j): \t%5d %5d\n",mode,CON_mes[0], FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[0])));
-				printf("lift\t(a/z):\t%5d %5d\t R/P P1\t(i/k): \t%5d %5d\n",lift,scale_joystick_lift(lift),CON_mes[1],FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[1])));
-				printf("roll: \t\t%5d %5d\t R/P P2\t(o/l): \t%5d %5d\n",roll,scale_joystick_pr(roll), CON_mes[2],FIXED_TO_INT(MULT_FIXED(INT_TO_FIXED(100),CON_mes[2])));
+				printf("Mode: \t\t%5d\t\t Yaw P\t(u/j): \t%5d %5d\n",mode,CON_mes[0],FDP2I_S(MULT_S(I2FDP_S(100,6),CON_mes[0],6),6));
+printf("lift\t(a/z):\t%5d %5d\t R/P P1\t(i/k): \t%5d %5d\n",lift,scale_joystick_lift(lift),CON_mes[1],FDP2I_S(MULT_S(I2FDP_S(100,6),CON_mes[1],6),6));
+printf("roll: \t\t%5d %5d\t R/P P2\t(o/l): \t%5d %5d\n",roll,scale_joystick_pr(roll), CON_mes[2],FDP2I_S(MULT_S(I2FDP_S(100,6),CON_mes[2],6),6));
+
 				printf("Pitch: \t\t%5d %5d\n", pitch,scale_joystick_pr(pitch));
 				printf("Yaw\t(q/w): \t%5d %5d\n",yaw,scale_joystick_yaw(yaw));
 				printf("LOG\t(b/f/t):%5d\n",LOG_mes[0]);

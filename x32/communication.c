@@ -100,6 +100,7 @@ void detect_message(char data){
  	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
+int i = 0;
 
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
 	{	//Start of a new message			
@@ -115,6 +116,7 @@ void detect_message(char data){
 		//Receival of a packet of correct message type
 		message[receive_count] = data;
 		receive_count++; 	
+
 	}		
 	else if(receive_count == (MESSAGE_LENGTH-1) && (data&END) == END)
 	{

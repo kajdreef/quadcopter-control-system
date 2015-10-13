@@ -11,6 +11,7 @@
 extern int panic_time;
 extern int JS_mes[];
 extern int calibrated;
+extern enum QR mode;
 /*------------------------------------------------------------------
  * supervisor_received_mode --  Check the received mode and change it if needed
  * Author: Bastiaan Oosterhuis
@@ -77,7 +78,7 @@ void supervisor_check_panic(enum QR *mode){
  *------------------------------------------------------------------
  */
 void supervisor_set_mode(enum QR *mode, enum QR new_mode){
-	static int ABORT_FLAG = 0;
+
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	
 	if(*mode != new_mode){
@@ -99,6 +100,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 					else if(new_mode == MANUAL)
 					{
 						*mode = new_mode;
+						
 					}
 					else if(new_mode == FULL_CONTROL)
 					{
@@ -227,15 +229,24 @@ int neutral_input(void)
 int check_inputs(int *unchecked, int *checked)
 {	int i;
 	int flag = 0;
-	for(i =0; i < 4; i++)
-	{
-		if(unchecked[i] > 32767 || unchecked[i] < -32767)
-		{
-			flag = 1;
-		}
-	}
 
-	if(unchecked[4] > 5 || unchecked[4] < 0 )
+	if(unchecked[JS_LIFT] > 1023 || unchecked[JS_LIFT] < 0 )
+	{
+		flag = 1;
+	}	
+	else if(unchecked[JS_ROLL] > 255 || unchecked[JS_ROLL] <-255)
+	{
+		flag = 1;
+	}
+	else if(unchecked[JS_PITCH] > 255 || unchecked[JS_PITCH] <-255)
+	{
+		flag = 1;
+	}	
+	else if(unchecked[JS_YAW] > 511 || unchecked[JS_YAW] <-511)
+	{
+		flag = 1;
+	}
+	else if(unchecked[JS_MODE] > 5 || unchecked[JS_MODE] < 0 )
 	{
 		flag = 1;
 	}
@@ -250,5 +261,32 @@ int check_inputs(int *unchecked, int *checked)
 	else
 	{
 		return 0;
+	}
+}
+
+/*------------------------------------------------------------------
+ * setup_div_0_interrupts -- Setup the interrupts used when a division by zero is attempted
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+
+void setup_div_0_interrupts(int prio){
+
+	/*
+		Attach an interrupt to the receival of a byte
+		Set the priority
+		Enable the interrupt
+	*/
+	SET_INTERRUPT_VECTOR(INTERRUPT_DIVISION_BY_ZERO, &div0_isr);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_DIVISION_BY_ZERO, prio);
+	ENABLE_INTERRUPT(INTERRUPT_DIVISION_BY_ZERO);
+
+
+}
+
+void div0_isr()
+{
+	if(mode != SAFE){
+		supervisor_set_mode(&mode, PANIC);
 	}
 }

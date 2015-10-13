@@ -5,6 +5,7 @@
 #include "actuators.h"
 #include "supervisor.h"
 #include "logger.h"
+#include "communication.h"
 
 #define LOOP_RATE_FACT 4
 
@@ -17,27 +18,33 @@ extern enum QR mode;
 extern int filtered_r;	// Yaw rate
 extern int filtered_p;	// Roll rate
 extern int filtered_q;	// Pitch rate
+extern int filtered_thet; // Pitch
 extern int ae[];
 
-int P_Y = 3072;
+int P_Y = 1024;
 int P1 = 1024;
 int P2 = 1024;
 
+extern int sp;
+extern int sq;
+extern int sr;
+extern int sax;
+extern int say;
+extern int saz;
 
-extern int sp = 0;
-extern int sq = 0;
-extern int sr = 0;
-extern int sax = 0;
-extern int say= 0;
-extern int saz = 0;
-
-void update_control_parameters(int P1, int P2, int P3)
+void update_control_parameters(int P1_new, int P2_new, int P3_new)
 {
-	P_Y = MULT_FIXED(1024, P1);
+	//The control parameters are received with a fraction of 6 bits.
+	P_Y = MULT(1024, (P1_new<<4));
+	P1 = MULT(1024, (P2_new <<4));
+	P2 = MULT(1024, (P3_new <<4));
+
+
 }
 
 void manual_lift(Factors *F){
 	F->f_l = JS_mes[JS_LIFT];
+
 }
 
 void manual_yaw(Factors *F){
@@ -56,7 +63,11 @@ void manual_roll(Factors *F){
 }
 
 void control_yaw(Factors *F){
-	F->f_y = MULT_FIXED((JS_mes[JS_YAW]/2 + (filtered_r/100)),P_Y);
+	
+	//F->f_y = JS_mes[JS_YAW];
+
+	F->f_y = JS_mes[JS_YAW] + filtered_r/30;
+	
 }
 
 void control_pitch(Factors *F){
@@ -65,13 +76,15 @@ void control_pitch(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		des_q = JS_mes[JS_PITCH]/2;
-		//des_q = MULT_FIXED((JS_mes[JS_PITCH]/2 - (filtered_thet/100)),P1);
+		//des_q = JS_mes[JS_PITCH];
+		//filtered_thet = 0;
+		des_q = MULT((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
-	F->f_p = MULT_FIXED((des_q - (filtered_q/100)),P2);
+	//filtered_q= 0;
+	F->f_p = des_q + MULT(filtered_q/20,P2);
 
 	count++;
 }
@@ -82,23 +95,24 @@ void control_roll(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		des_p = JS_mes[JS_ROLL]/2;
-		//des_p = MULT_FIXED((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
+		//des_p = JS_mes[JS_ROLL]/2;
+		//des_p = MULT((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
-	F->f_r = MULT_FIXED((des_p - (filtered_p/100)),P2);
-
+	//filtered_p= 0;
+	F->f_r = MULT((des_p - (filtered_p/10)),P2);
+    
 	count++;
 }
 
 void apply_mot_fact(Factors *F,int *ae){
 
-	ae[0] = MULT_FIXED(F->f_l,(FACTOR - F->f_y + F->f_p));
-	ae[1] = MULT_FIXED(F->f_l,(FACTOR + F->f_y - F->f_r));
-	ae[2] = MULT_FIXED(F->f_l,(FACTOR - F->f_y - F->f_p));
-	ae[3] = MULT_FIXED(F->f_l,(FACTOR + F->f_y + F->f_r));
+	ae[0] = MULT(F->f_l,(FACTOR - F->f_y + F->f_p));
+	ae[1] = MULT(F->f_l,(FACTOR + F->f_y - F->f_r));
+	ae[2] = MULT(F->f_l,(FACTOR - F->f_y - F->f_p));
+	ae[3] = MULT(F->f_l,(FACTOR + F->f_y + F->f_r));
 
 	//0-1023
 }
@@ -111,7 +125,7 @@ void isr_controller()
 	int old = X32_clock_us;
 
 	filter_sensor();
-	
+
 	manual_lift(&F);
 	switch (mode){
 		case MANUAL:
@@ -130,15 +144,16 @@ void isr_controller()
 
 		case FULL_CONTROL:
 			// Full
-			control_yaw(&F);
+			manual_yaw(&F);
 			control_pitch(&F);
-			control_roll(&F);
+			//control_roll(&F);
+			manual_roll(&F);
 			break;
 	}
-
+	
+	filtered_p = F.f_y;
 	apply_mot_fact(&F,ae);
 	set_actuators(ae);
-
 
 	isr_controller_time = X32_clock_us - old;
 

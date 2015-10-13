@@ -13,6 +13,7 @@
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
 #define SENSOR_INTERRUPT
+#define DIV_0_INTERRUPT
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000
@@ -21,7 +22,7 @@
 #define DAQ_MESSAGE_PERIOD	100000
 
 //Messages
-int DAQ_mes[11];
+int DAQ_mes[13];
 int LOG_mes[1];
 
 int JS_mes[5]= {32767};
@@ -57,6 +58,15 @@ int isr_filter_time = 0;
 
 //filtered yaw rate
 extern int filtered_r;
+extern int filtered_p;
+extern int filtered_q;
+extern int sr;
+extern int sq;
+extern int sp;
+extern int sax;
+extern int say;
+
+extern int filtered_thet;
 
 void status_led(void);
 void toggle_led(int i);
@@ -86,13 +96,16 @@ int main(void)
 
 //Set up the different interrupts depending on the configuration
 #ifdef MESSAGE_INTERRUPT
-	setup_uart_interrupts(8);
+	setup_uart_interrupts(11);
 #endif
 #ifdef CONTROLLER_INTERRUPT
 	setup_controller_interrupts(10);
 #endif
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);
+#endif
+#ifdef DIV_0_INTERRUPT
+	setup_div_0_interrupts(20);
 #endif
 
 	//Let the QR begin with a safe configuration
@@ -103,7 +116,7 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
-		isr_qr_link();
+		//isr_qr_link();
 		/*
 		 Blink the status led(1Hz)
 		 */
@@ -118,7 +131,7 @@ int main(void)
 		 Check the status of the PC link and determine whether to panic
 		*/
 		if(!check_pc_link(last_message_time, com_started))
-		{	//Too long since last received message	
+		{	//Too long since last received message
 			if(mode != PANIC)
 			{
 				supervisor_set_mode(&mode, PANIC);
@@ -142,6 +155,7 @@ int main(void)
 			//Decode the message
 			if(message_type == JS_MASK)
 			{	//If it is a joystick message containing inputs
+
 				decode(message,sizeof(JS_mes)/sizeof(JS_mes[0]), JS_mes_unchecked);
 
 				DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
@@ -161,20 +175,20 @@ int main(void)
 				toggle_led(7);
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
 				update_control_parameters(CON_mes[0], CON_mes[1], CON_mes[2]);
-				
+
 			}
 			else if(message_type == LOG_MASK)
 			{	//If it is a log message take appropriate action
-				
+
 				decode(message,sizeof(LOG_mes)/sizeof(LOG_mes[0]), LOG_mes);
-				
+
 				switch(LOG_mes[0]){
 					case 0:
 						log_stop();
 						break;
 					case 1:
-						log_start();	
-						break;	
+						log_start();
+						break;
 					case 2:
 						if(mode == SAFE)
 						{
@@ -204,9 +218,12 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL] = JS_mes[JS_ROLL];
-			DAQ_mes[DAQ_PITCH] = JS_mes[JS_PITCH];
-			DAQ_mes[DAQ_YAW_RATE] = filtered_r;//JS_mes[JS_YAW];
+			DAQ_mes[DAQ_ROLL_RATE] = sp;//filtered_p;
+			DAQ_mes[DAQ_PITCH_RATE] = sq;//filtered_q;
+			DAQ_mes[DAQ_YAW_RATE] = sr;//filtered_thet;
+			
+			DAQ_mes[DAQ_SAX] = 1;//sax;//filtered_p;
+			DAQ_mes[DAQ_SAY] = 2;//say;//filtered_q;
 
 			//Possible switch of the interrupts;
 			DAQ_mes[DAQ_AE1] = ae[0];
@@ -216,9 +233,9 @@ int main(void)
 
 			DAQ_mes[DAQ_MODE] =  mode;
 
-			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time; 
-			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;		
-			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;		
+			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time;
+			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;
+			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;
 
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
 
@@ -230,7 +247,7 @@ int main(void)
 		 A message is encoded and ready to be sent
 		*/
 		if(SEND_MESSAGE_FLAG == TRUE){
-			send_message(output_buffer, 3*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));
+			send_message(output_buffer, 2*sizeof(DAQ_mes)/sizeof(DAQ_mes[0]));
 			SEND_MESSAGE_FLAG = FALSE;
 		}
 
@@ -300,5 +317,3 @@ void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
 }
-
-

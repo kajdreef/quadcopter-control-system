@@ -109,6 +109,43 @@ int keyboard_control_input(char input)
 	}
 }
 
+void trim_pitch_roll_yaw_up(int *trim, int index)
+{
+	trim[index] += TRIM;
+	if(trim[index] > 32767)
+	{
+		trim[index] = 32767;
+	}
+
+}
+
+void trim_pitch_roll_yaw_down(int *trim, int index)
+{
+	trim[index] -= TRIM;
+	if(trim[index] < -32767)
+	{
+		trim[index] = -32767;
+	}
+}
+
+void trim_lift_up(int *trim, int index)
+{
+	trim[index] += TRIM;
+	if(trim[index] > 0 )
+	{
+		trim[index]	= 0;
+	}
+}
+
+void trim_lift_down(int *trim, int index)
+{
+	trim[TRIM_LIFT] -= TRIM;
+	if(trim[TRIM_LIFT] < -65534 )
+	{
+		trim[TRIM_LIFT]	= -65534;
+	}
+
+}
 
 /*------------------------------------------------------------------
  *	process_keyboard function used to process the keymap
@@ -152,93 +189,55 @@ int process_keyboard(char c, int *trim, int *control_p, int *log)
 			trimming:
 		*/
 		case 'a':
-			trim[TRIM_LIFT] += TRIM;
-			if(trim[TRIM_LIFT] > 0 )
-			{
-				trim[TRIM_LIFT]	= 0;
-			}
-
+			trim_lift_up(trim, TRIM_LIFT);
 			break;
 		case 'z':
-			trim[TRIM_LIFT] -= TRIM;
-			if(trim[TRIM_LIFT] < -65534 )
-			{
-				trim[TRIM_LIFT]	= -65534;
-			}
-
+			trim_lift_down(trim, TRIM_LIFT);
 			break;
 		case 'w':
-			trim[TRIM_YAW] += TRIM;
-			if(trim[TRIM_YAW] > 32767)
-			{
-				trim[TRIM_YAW] = 32767;
-			}
-
-
+			trim_pitch_roll_yaw_up(trim, TRIM_YAW);
 			break;
 		case 'q':
-			trim[TRIM_YAW] -= TRIM;
-			if(trim[TRIM_YAW] < -32767)
-			{
-				trim[TRIM_YAW] = -32767;
-			}
+			trim_pitch_roll_yaw_down(trim, TRIM_YAW);
 			break;
 		//left arrow
-		case 0x44:
-			trim[TRIM_ROLL] += TRIM;
-			if(trim[TRIM_ROLL] > 32767)
-			{
-				trim[TRIM_ROLL] = 32767;
-			}
+		case 0x44: 	
+			trim_pitch_roll_yaw_up(trim, TRIM_ROLL);		
 			break;
 		//right arrow
 		case 0x43:
-			 trim[TRIM_ROLL] -= TRIM;
-			if(trim[TRIM_ROLL] < -32767)
-			{
-				trim[TRIM_ROLL] = -32767;
-			}
-
+			trim_pitch_roll_yaw_down(trim, TRIM_ROLL);	
 			break;
 		//up arrow
-		case 0x41:
-			trim[TRIM_PITCH] -= TRIM;
-
-			if(trim[TRIM_PITCH] < -32767)
-			{
-				trim[TRIM_PITCH] = -32767;
-			}
+		case 0x41:			
+			trim_pitch_roll_yaw_down(trim, TRIM_PITCH);	
 			break;
 		//down arrow
 		case 0x42:
-			trim[TRIM_PITCH] += TRIM;
-			if(trim[TRIM_PITCH] > 32767)
-			{
-				trim[TRIM_PITCH] = 32767;
-			}
+			trim_pitch_roll_yaw_up(trim, TRIM_PITCH);
 			break;
 		/*
 			Controller tuning
 		*/
 		//YAW CONTROL
 		case 'u':
-			control_p[0] = MULT_FIXED(TUNE_PLUS,control_p[0]);
+			control_p[0] = MULT_S(TUNE_PLUS,control_p[0],6);
 			break;
 		case 'j':
-			control_p[0] = MULT_FIXED(TUNE_MIN,control_p[0]);
+			control_p[0] = MULT_S(TUNE_MIN,control_p[0],6);
 			break;
 		//ROLL/PITCH Control
 		case 'i':
-			//control_p[1] += TUNE;
+			control_p[1] = MULT_S(TUNE_PLUS,control_p[1],6);
 			break;
 		case 'k':
-		//	control_p[1] -= TUNE;
+			control_p[1] = MULT_S(TUNE_MIN,control_p[1],6);
 			break;
 		case 'o':
-			//control_p[2] += TUNE;
+			control_p[2] = MULT_S(TUNE_PLUS,control_p[2],6);
 			break;
 		case 'l':
-		//	control_p[2] -= TUNE;
+			control_p[2] = MULT_S(TUNE_MIN,control_p[2],6);
 			break;
 
 		/*

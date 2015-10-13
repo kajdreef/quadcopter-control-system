@@ -28,7 +28,7 @@ int rear = 0, front = 0;
 
 char message[255] = {};
 
-extern int DAQ_mes[8];
+extern int DAQ_mes[13];
 struct sigaction saio;           /* definition of signal action */
 
 /*------------------------------------------------------------------
@@ -102,10 +102,12 @@ int get_char(void)
  *------------------------------------------------------------------
  */
 void detect_message (char data) {
+
 	static int receive_count = 0;
 	static int sync = 0;
  	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
+	int i = 0;
 
 	#if DEBUG_RECEIVED_CHAR
 		printf("Received char: ");
@@ -131,7 +133,8 @@ void detect_message (char data) {
 		else {
 			//successful receival of a message
 			message[receive_count] = data;
-			decode(message, MESSAGE_LENGTH/3, DAQ_mes);
+
+			decode(message, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes);
 			flag_MSG_RECEIVED = TRUE;
 		}
 		receive_count = 0;
