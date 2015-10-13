@@ -4,22 +4,12 @@
 #include "logger.h"
 #include "config.h"
 
-#define dXm 	0	// Rate measurement
-#define dXa 	1	// Rate absurd values removed
-#define dXlp 	2	// Rate low-passed
-#define dXad 	3	// Rate anti-drifted
-#define Xm 		4	// Measurement
-#define Xa 		5	// Absurd values removed
-#define Xlp 	6	// Low-passed
-#define Xad 	7	// Anti-drift
-#define Xad1 	8	// Anti-drift n-1
-#define Xad2 	9	// Anti-drift n-2
-#define Xbf2 	10	// Butterworth filtered n-2
-#define Xbf1 	11	// Butterworth filtered n-1
-#define Xbf 	12	// Butterworth filtered
-#define Xbias	13	// Kalman filter bias
-#define dXk		14  // Rate Kalman fitlered
-#define Xk		15	// Kalman filtered
+#define dXs 	0	// Sensed Rate
+#define dXb		1	// Rate bias
+#define dXk		2  	// Rate Kalman fitlered
+#define Xs 		3	// Sensed position
+#define Xb		4	// Bias
+#define Xk		5	// Kalman filtered
 
 /*
 	Flow diagram:
@@ -39,19 +29,12 @@
 
 */
 
-int filtered_phi = 0;
-int filtered_thet = 0;
-int filtered_p = 0;	//Roll
-int filtered_q = 0;	//Pitch
-int filtered_r = 0;	//Yaw
+int filtered_phi = 0; //Roll
+int filtered_theta = 0;	//Pitch
+int filtered_p = 0;	//Roll rate
+int filtered_q = 0;	//Pitch rate
+int filtered_r = 0;	//Yaw rate
 int calibrated = 0;
-
-int sp = 0;
-int sq = 0;
-int sr = 0;
-int sax = 0;
-int say= 0;
-int saz = 0;
 
 extern int isr_filter_time;
 extern int battery_voltage;
@@ -60,178 +43,105 @@ extern enum QR mode;
 
 void kalman(int p[], Filt_Param *Filt){
 	int e;
-	p[dXk] = p[dXad] - p[Xbias];
-	p[Xk] = p[Xk] + MULT_FIXED(p[dXk],Filt->dt);
-	e = p[Xk] - p[Xbf];
-	p[Xk] = p[Xk] - DIV_FIXED(e,Filt->C1);
-	p[Xbias] = p[Xbias] + DIV_FIXED(e,Filt->C2);
-}
-
-void BF_2nd(int p[], Filt_Param *Filt){
-	p[Xbf2] = p[Xbf1];
-	p[Xbf1] = p[Xbf];
-	p[Xbf] = MULT_FIXED(Filt->a0,p[Xad]) + MULT_FIXED(Filt->a1,p[Xad1]) +
-				MULT_FIXED(Filt->a2,p[Xad2]) - MULT_FIXED(Filt->b1,p[Xbf1]) -
-				MULT_FIXED(Filt->b2,p[Xbf2]);
-}
-
-void F_1st(int p[], Filt_Param *Filt){
-	p[dXlp] = p[dXlp] + MULT_FIXED(Filt->alph,(p[dXa]-p[dXlp]));
-}
-
-void anti_drift(int p[], Filt_Param *Filt){
-	F_1st(p,Filt);
-	p[dXad] = p[dXa] - p[dXlp];
-}
-
-void rem_absurd_val(int p[], Filt_Param *Filt){
-	if((p[dXm] >= Filt->min) && (p[dXm] <= Filt->max)){
-		p[dXa] = p[dXm];
-	}
-}
-
-void process_roll(int phi[]){
-
 	
-	phi[dXm] = INT_TO_FIXED(sp);
-	rem_absurd_val(phi, &Filt_phi);
-	anti_drift(phi, &Filt_phi);
-	
-	phi[Xm] = INT_TO_FIXED(sax);
-
-	rem_absurd_val(phi+Xm, &Filt_phi);
-	phi[Xad2] = phi[Xad1];
-	phi[Xad1] = phi[Xad];
-	anti_drift(phi+Xm, &Filt_phi);
-	BF_2nd(phi, &Filt_phi);
-	kalman(phi, &Filt_phi);
-
-	filtered_phi = phi[Xk];
-	filtered_p = phi[dXk];
+	p[dXk] = p[dXs]-p[dXb];
+	p[Xk] = p[Xk] + p[dXk]>>Filt->p2phi;
+	e = p[Xk] - p[Xs] + p[Xb];
+	p[Xk] = p[Xk] - e>>Filt->c1;
+	p[dXb]= p[dXb] + e>>Filt->c2;
 }
 
-void process_pitch(int thet[]){
 
-	thet[dXm] = INT_TO_FIXED(sq);
-	rem_absurd_val(thet, &Filt_thet);
-	anti_drift(thet, &Filt_thet);
-	
-	thet[Xm] = INT_TO_FIXED(say);
+void calibrate(int p[], Filt_Param *Filt){
+	// Calibrate the rate
+	p[dXb] = p[dXb] + (p[dXs]-p[dXb])>>Filt->lp;
 
-	rem_absurd_val(thet+Xm, &Filt_thet);
-	thet[Xad2] = thet[Xad1];
-	thet[Xad1] = thet[Xad];
-	anti_drift(thet+Xm, &Filt_thet);
-	BF_2nd(thet, &Filt_thet);
-	kalman(thet, &Filt_thet);
-
-	filtered_thet = thet[Xk];
-	filtered_q = thet[dXk];
+	// Calibrate the position
+	p[Xb] = p[Xb] + (p[Xs]-p[Xb])>>Filt->lp;
 }
 
-void process_yaw(int yaw[]){
-
-		
-	yaw[dXm] = INT_TO_FIXED(sr);
-
-	rem_absurd_val(yaw, &Filt_r);
-	anti_drift(yaw, &Filt_r);
-	filtered_r = yaw[dXad];
-
+void calibrate_yaw(int p[],Filt_Param *Filt){
+	p[dXb] = p[dXb] + (p[dXs]-p[dXb])>>Filt->lp;
 }
 
-void calibrate_sensors(int phi[], int thet[], int yaw[]){
-	// Calibrate the roll rate
-	phi[dXm] = INT_TO_FIXED(sp);
-	rem_absurd_val(phi, &Filt_phi);
-	anti_drift(phi, &Filt_phi);
+bool isCalibrated(int phi[], int theta[], int psi[]){
+	int phi_err = phi[Xs] - phi[Xb];
+	int theta_err = theta[Xs] - theta[Xb];
 
+	int dphi_err = phi[dXs] - phi[dXb];
+	int dtheta_err = theta[dXs] - theta[dXb];
+	int dpsi_err = psi[dXs] - psi[dXb];
 
-	// Calibrate the roll
-	phi[Xm] = INT_TO_FIXED(sax);
-	rem_absurd_val(phi+Xm, &Filt_phi);
-	phi[Xad2] = phi[Xad1];
-	phi[Xad1] = phi[Xad];
-	anti_drift(phi+Xm, &Filt_phi);
-
-
-	// Calibrate the pitch rate
-	thet[dXm] = INT_TO_FIXED(sq);
-	rem_absurd_val(thet, &Filt_thet);
-	anti_drift(thet, &Filt_thet);
-
-	// Calibrate the pitch
-	thet[Xm] = INT_TO_FIXED(say);
-	rem_absurd_val(thet+Xm, &Filt_thet);
-	thet[Xad2] = thet[Xad1];
-	thet[Xad1] = thet[Xad];
-	anti_drift(thet+Xm, &Filt_thet);
-
-	// Calibrate the yaw-rate
-	yaw[dXm] = INT_TO_FIXED(sr);
-	rem_absurd_val(yaw, &Filt_r);
-	anti_drift(yaw, &Filt_r);
-}
-
-void setup_sensor_interrupts(int prio){
-	SET_INTERRUPT_VECTOR(INTERRUPT_XUFO, &isr_qr_link);
-	SET_INTERRUPT_PRIORITY(INTERRUPT_XUFO, prio);
-	ENABLE_INTERRUPT(INTERRUPT_XUFO);
-}
-
-void isr_qr_link()
-{
-	/*
-		X32_QR_S0  	 roll
-		X32_QR_S1	 pitch
-		X32_QR_S2 	 z axis
-		X32_QR_S3	 Roll-rate
-		X32_QR_S4 	 Pitch-rate
-		X32_QR_S5 	 yaw-rate
-		X32_QR_S6	 Bat voltage
-	*/
-	int old = X32_clock_us;
-	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	sp = X32_QR_S3; 
-	sq = X32_QR_S4;
-	sr = X32_QR_S5;
-	sax = X32_QR_S0;
-	say = X32_QR_S1;
-	saz = X32_QR_S2;
-	battery_voltage = X32_QR_S6;
-	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
-	isr_filter_time = X32_clock_us - old;
-	log_data_profile(FILTER, X32_clock_us, isr_filter_time);
+	return (phi_err<5) && (phi_err>-5) && 
+			(theta_err<5) && (theta_err>-5) && 
+			(dphi_err<5) && (dphi_err>-5) &&
+			(dtheta_err<5) && (dtheta_err>-5) &&
+			(dpsi_err<5) && (dpsi_err>-5);
 }
 
 void filter_sensor(){
 	
-	static int phi[14];	// Roll
-	static int thet[14]; // Pitch
-	static int yaw[4]; // Yaw
+	//static int phi[6] = {0,317440,0,0,519168,0};	// Roll 310, 507
+	//static int theta[6] = {0,387072,0,0,510976,0}; // Pitch 378, 499
+	//static int psi[3] = {0,499712,0}; // Yaw 488
+
+	static int phi[6] = {0,317440,0,0,0,0};	// Roll
+	static int theta[6] = {0,387072,0,0,0,0}; // Pitch
+	static int psi[3] = {0,499712,0}; // Yaw
 
 
 	//battery_voltage = X32_QR_S6;
 
 	switch(mode){
 		case CALIBRATION:
-			calibrate_sensors(phi,thet,yaw);
-			calibrated = yaw[dXad]>(yaw[dXlp]-16) && yaw[dXad]<(yaw[dXlp]+16);
+			phi[Xs] = INT_TO_FIXED(SAY);
+			phi[dXs]= INT_TO_FIXED(SP);
+			theta[Xs] = INT_TO_FIXED(SAX);
+			theta[dXs]= INT_TO_FIXED(SQ);
+			psi[dXs]= INT_TO_FIXED(SR);
+
+			calibrate(phi,Filt_phi);
+			calibrate(theta,Filt_thet);
+			calibrate_yaw(psi,Filt_r);
+			psi[dXk] = psi[dXs]-psi[dXb];
+
+			calibrated = isCalibrated(phi,theta,psi);
 			break;
 
 		case YAW_CONTROL:
-			process_yaw(yaw);
+			psi[dXs]= INT_TO_FIXED(SR);
+
+			calibrate_yaw(psi,Filt_r);
+			psi[dXk] = psi[dXs]-psi[dXb];
+
+			filtered_r = psi[dXk];
 			break;
 
 		case FULL_CONTROL:
-			process_roll(phi);
-			process_pitch(thet);
-			process_yaw(yaw);
+			phi[Xs] = INT_TO_FIXED(SAY);
+			phi[dXs]= INT_TO_FIXED(SP);
+			theta[Xs] = INT_TO_FIXED(SAX);
+			theta[dXs]= INT_TO_FIXED(SQ);
+			psi[dXs]= INT_TO_FIXED(SR);
+
+			kalman(phi,Filt_phi);
+			kalman(theta,Filt_thet);
+			calibrate_yaw(psi,Filt_r);
+			psi[dXk] = psi[dXs]-psi[dXb];
+
+			filtered_phi = phi[Xk];
+			filtered_theta = thet[Xk];
+			filtered_p = phi[dXk];
+			filtered_q = theta[dXk];
+			filtered_r = psi[dXk];
 			break;
 	}
 
-	
+}
 
-	
 
+void setup_sensor_interrupts(int prio){
+	SET_INTERRUPT_VECTOR(INTERRUPT_XUFO, &isr_qr_link);
+	SET_INTERRUPT_PRIORITY(INTERRUPT_XUFO, prio);
+	ENABLE_INTERRUPT(INTERRUPT_XUFO);
 }
