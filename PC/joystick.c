@@ -14,7 +14,7 @@ extern int	button[12];
  */
 int scale_joystick_lift(int lift){
 	
-	return (INT_TO_FIXED((-1*lift+0x00007FFF)/64) >> FRACT_PART);	
+	return (I2FDP_S((-1*lift+0x00007FFF)/64,10) >> FRACT_PART);	
 
 }
 
@@ -27,7 +27,7 @@ int scale_joystick_lift(int lift){
  */
 int scale_joystick_yaw(int yaw){
 
-	int result = DIV_FIXED(INT_TO_FIXED(yaw),INT_TO_FIXED(0x0000FFFF));
+	int result = DIV_S(I2FDP_S(yaw,10),I2FDP_S(0x0000FFFF,10),10);
 
 	return  result;
 }
@@ -42,7 +42,7 @@ int scale_joystick_yaw(int yaw){
  */
 int scale_joystick_pr(int value){
 
-	int result = DIV_FIXED(INT_TO_FIXED(value),INT_TO_FIXED(0x0001FFFF));
+	int result = DIV_S(I2FDP_S(value,10),I2FDP_S(0x0001FFFF,10),10);
 
 	return result;
 }

@@ -104,9 +104,9 @@ int F_sqrt(int x){
 	int y;
 
 	y = -588*x + 1440768;		// Change these values as the precision changes!!!
-	y = MULT_FIXED(y,x) + 179200;			// Change these values as the precision changes!!!
+	y = MULT(y,x) + 179200;			// Change these values as the precision changes!!!
 	y >>= 10;
-	y = y - DIV_FIXED( MULT_FIXED(y,y)-x ,2*y);
+	y = y - DIV( MULT(y,y)-x ,2*y);
 	
 
 //0-1023

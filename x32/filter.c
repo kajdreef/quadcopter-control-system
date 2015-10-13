@@ -63,22 +63,22 @@ extern enum QR mode;
 void kalman(int p[], Filt_Param *Filt){
 	int e;
 	p[dXk] = p[dXad] - p[Xbias];
-	p[Xk] = p[Xk] + MULT_FIXED(p[dXk],Filt->dt);
+	p[Xk] = p[Xk] + MULT(p[dXk],Filt->dt);
 	e = p[Xk] - p[Xbf];
-	p[Xk] = p[Xk] - DIV_FIXED(e,Filt->C1);
-	p[Xbias] = p[Xbias] + DIV_FIXED(e,Filt->C2);
+	p[Xk] = p[Xk] - DIV(e,Filt->C1);
+	p[Xbias] = p[Xbias] + DIV(e,Filt->C2);
 }
 
 void BF_2nd(int p[], Filt_Param *Filt){
 	p[Xbf2] = p[Xbf1];
 	p[Xbf1] = p[Xbf];
-	p[Xbf] = MULT_FIXED(Filt->a0,p[Xad]) + MULT_FIXED(Filt->a1,p[Xad1]) +
-				MULT_FIXED(Filt->a2,p[Xad2]) - MULT_FIXED(Filt->b1,p[Xbf1]) -
-				MULT_FIXED(Filt->b2,p[Xbf2]);
+	p[Xbf] = MULT(Filt->a0,p[Xad]) + MULT(Filt->a1,p[Xad1]) +
+				MULT(Filt->a2,p[Xad2]) - MULT(Filt->b1,p[Xbf1]) -
+				MULT(Filt->b2,p[Xbf2]);
 }
 
 void F_1st(int p[], Filt_Param *Filt){
-	p[dXlp] = p[dXlp] + MULT_FIXED(Filt->alph,(p[dXa]-p[dXlp]));
+	p[dXlp] = p[dXlp] + MULT(Filt->alph,(p[dXa]-p[dXlp]));
 }
 
 void anti_drift(int p[], Filt_Param *Filt){
@@ -95,11 +95,11 @@ void rem_absurd_val(int p[], Filt_Param *Filt){
 void process_roll(int phi[]){
 
 
-	phi[dXm] = INT_TO_FIXED(sp);
+	phi[dXm] = I2FDP(sp);
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
 
-	phi[Xm] = INT_TO_FIXED(sax);
+	phi[Xm] = I2FDP(sax);
 
 	rem_absurd_val(phi+Xm, &Filt_phi);
 	phi[Xad2] = phi[Xad1];
@@ -114,11 +114,11 @@ void process_roll(int phi[]){
 
 void process_pitch(int thet[]){
 
-	thet[dXm] = INT_TO_FIXED(sq);
+	thet[dXm] = I2FDP(sq);
 	rem_absurd_val(thet, &Filt_thet);
 	anti_drift(thet, &Filt_thet);
 
-	thet[Xm] = INT_TO_FIXED(say);
+	thet[Xm] = I2FDP(say);
 
 	rem_absurd_val(thet+Xm, &Filt_thet);
 	thet[Xad2] = thet[Xad1];
@@ -134,7 +134,7 @@ void process_pitch(int thet[]){
 void process_yaw(int yaw[]){
 
 
-	yaw[dXm] = INT_TO_FIXED(sr);
+	yaw[dXm] = I2FDP(sr);
 
 	rem_absurd_val(yaw, &Filt_r);
 	anti_drift(yaw, &Filt_r);
@@ -144,31 +144,31 @@ void process_yaw(int yaw[]){
 
 void calibrate_sensors(int phi[], int thet[], int yaw[]){
 	// Calibrate the roll rate
-	phi[dXm] = INT_TO_FIXED(sp);
+	phi[dXm] = I2FDP(sp);
 	rem_absurd_val(phi, &Filt_phi);
 	anti_drift(phi, &Filt_phi);
 
 	// Calibrate the roll
-	phi[Xm] = INT_TO_FIXED(sax);
+	phi[Xm] = I2FDP(sax);
 	rem_absurd_val(phi+Xm, &Filt_phi);
 	phi[Xad2] = phi[Xad1];
 	phi[Xad1] = phi[Xad];
 	anti_drift(phi+Xm, &Filt_phi);
 
 	// Calibrate the pitch rate
-	thet[dXm] = INT_TO_FIXED(sq);
+	thet[dXm] = I2FDP(sq);
 	rem_absurd_val(thet, &Filt_thet);
 	anti_drift(thet, &Filt_thet);
 
 	// Calibrate the pitch
-	thet[Xm] = INT_TO_FIXED(say);
+	thet[Xm] = I2FDP(say);
 	rem_absurd_val(thet+Xm, &Filt_thet);
 	thet[Xad2] = thet[Xad1];
 	thet[Xad1] = thet[Xad];
 	anti_drift(thet+Xm, &Filt_thet);
 
 	// Calibrate the yaw-rate
-	yaw[dXm] = INT_TO_FIXED(sr);
+	yaw[dXm] = I2FDP(sr);
 	rem_absurd_val(yaw, &Filt_r);
 	anti_drift(yaw, &Filt_r);
 }

@@ -9,8 +9,6 @@
 
 #define LOOP_RATE_FACT 4
 
-//#define VERBOSE_CONTROLLER
-
 extern int JS_mes[5];
 extern int state;
 extern int isr_controller_time;
@@ -32,13 +30,19 @@ extern int sax;
 extern int say;
 extern int saz;
 
-void update_control_parameters(int P1, int P2, int P3)
+void update_control_parameters(int P1_new, int P2_new, int P3_new)
 {
-	P_Y = MULT_FIXED(1024, P1);
+	//The control parameters are received with a fraction of 6 bits.
+	P_Y = MULT(1024, (P1_new<<4));
+	P1 = MULT(1024, (P2_new <<4));
+	P2 = MULT(1024, (P3_new <<4));
+
+
 }
 
 void manual_lift(Factors *F){
 	F->f_l = JS_mes[JS_LIFT];
+
 }
 
 void manual_yaw(Factors *F){
@@ -59,8 +63,7 @@ void manual_roll(Factors *F){
 void control_yaw(Factors *F){
 	
 	//F->f_y = JS_mes[JS_YAW];
-
-	F->f_y = JS_mes[JS_YAW] + filtered_r/30;
+	F->f_y = JS_mes[JS_YAW] + MULT(filtered_r/30,P_Y);
 	
 }
 
@@ -72,13 +75,13 @@ void control_pitch(Factors *F){
 	if (count>=LOOP_RATE_FACT){
 		//des_q = JS_mes[JS_PITCH];
 		//filtered_thet = 0;
-		des_q = MULT_FIXED((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
+		des_q = MULT((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
 	//filtered_q= 0;
-	F->f_p = des_q + MULT_FIXED(filtered_q/20,P2);
+	F->f_p = des_q + MULT(filtered_q/20,P2);
 
 	count++;
 }
@@ -90,23 +93,23 @@ void control_roll(Factors *F){
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
 		//des_p = JS_mes[JS_ROLL]/2;
-		//des_p = MULT_FIXED((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
+		//des_p = MULT((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
 	//filtered_p= 0;
-	F->f_r = MULT_FIXED((des_p - (filtered_p/10)),P2);
+	F->f_r = MULT((des_p - (filtered_p/10)),P2);
     
 	count++;
 }
 
 void apply_mot_fact(Factors *F,int *ae){
 
-	ae[0] = MULT_FIXED(F->f_l,(FACTOR - F->f_y + F->f_p));
-	ae[1] = MULT_FIXED(F->f_l,(FACTOR + F->f_y - F->f_r));
-	ae[2] = MULT_FIXED(F->f_l,(FACTOR - F->f_y - F->f_p));
-	ae[3] = MULT_FIXED(F->f_l,(FACTOR + F->f_y + F->f_r));
+	ae[0] = MULT(F->f_l,(FACTOR - F->f_y + F->f_p));
+	ae[1] = MULT(F->f_l,(FACTOR + F->f_y - F->f_r));
+	ae[2] = MULT(F->f_l,(FACTOR - F->f_y - F->f_p));
+	ae[3] = MULT(F->f_l,(FACTOR + F->f_y + F->f_r));
 
 	//0-1023
 }
@@ -155,7 +158,7 @@ void isr_controller()
 		log_data_sensor(X32_clock_us, sax, say, saz, sp, sq, sr); // Accel
 	}
 	log_data_profile(CONTROL, X32_clock_us, isr_controller_time);
-	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
 }
 
 /*------------------------------------------------------------------

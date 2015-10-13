@@ -28,7 +28,7 @@ int rear = 0, front = 0;
 
 char message[255] = {};
 
-extern int DAQ_mes[11];
+extern int DAQ_mes[13];
 struct sigaction saio;           /* definition of signal action */
 
 /*------------------------------------------------------------------

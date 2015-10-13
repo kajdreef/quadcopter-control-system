@@ -13,6 +13,7 @@
 #define MESSAGE_INTERRUPT
 #define CONTROLLER_INTERRUPT
 #define SENSOR_INTERRUPT
+#define DIV_0_INTERRUPT
 
 //Time after which connection is considered lost in us
 #define MESSAGE_TIME_THRESHOLD 200000
@@ -23,7 +24,7 @@
 #define QR_LINK_PERIOD 6000
 
 //Messages
-int DAQ_mes[11];
+int DAQ_mes[13];
 int LOG_mes[1];
 
 int JS_mes[5]= {32767};
@@ -65,6 +66,10 @@ extern int filtered_r;
 extern int filtered_p;
 extern int filtered_q;
 extern int sr;
+extern int sq;
+extern int sp;
+extern int sax;
+extern int say;
 
 extern int filtered_thet;
 
@@ -105,6 +110,9 @@ int main(void)
 #endif
 #ifdef SENSOR_INTERRUPT
 	setup_sensor_interrupts(9);
+#endif
+#ifdef DIV_0_INTERRUPT
+	setup_div_0_interrupts(20);
 #endif
 
 	//Let the QR begin with a safe configuration
@@ -230,13 +238,14 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL] = filtered_p;
-			DAQ_mes[DAQ_PITCH] = filtered_q;
-			DAQ_mes[DAQ_YAW_RATE] = filtered_thet;
+			DAQ_mes[DAQ_ROLL_RATE] = sp;//filtered_p;
+			DAQ_mes[DAQ_PITCH_RATE] = sq;//filtered_q;
+			DAQ_mes[DAQ_YAW_RATE] = sr;//filtered_thet;
+			
+			DAQ_mes[DAQ_SAX] = 1;//sax;//filtered_p;
+			DAQ_mes[DAQ_SAY] = 2;//say;//filtered_q;
 
 			//Possible switch of the interrupts;
-
-
 			DAQ_mes[DAQ_AE1] = ae[0];
 			DAQ_mes[DAQ_AE2] = ae[1];
 			DAQ_mes[DAQ_AE3] = ae[2];
