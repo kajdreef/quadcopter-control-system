@@ -199,6 +199,9 @@ void isr_qr_link()
 	say = X32_QR_S1;
 	saz = X32_QR_S2;
 
+	// Needed so the QR Link can be checked
+	last_sensor_irs_time = X32_clock_us;
+
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	battery_voltage = X32_QR_S6;
 
@@ -211,8 +214,6 @@ void filter_sensor(){
 	static int phi[14];	// Roll
 	static int thet[14]; // Pitch
 	static int yaw[4]; // Yaw
-
-	last_sensor_irs_time = X32_clock_us;
 
 	if (mode != FULL_CONTROL){
 		log_data_sensor(X32_clock_us, sax, say, saz, sp, sq, sr); // Accel
