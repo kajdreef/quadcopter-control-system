@@ -89,7 +89,6 @@ int main(void)
 
 	//Time of the last received complete message
 	int last_message_time = 0;
-	int last_qr_link_call = 0;
 
 	//To indicate whether communition is started. Initialized at no communication
 	int com_started = 0;
@@ -224,12 +223,6 @@ int main(void)
 			pc_link_led(1);
 
 			MESSAGE_FLAG = FALSE;
-		}
-
-		if(X32_clock_us - last_qr_link_call > QR_LINK_PERIOD)
-		{
-			isr_qr_link();
-			last_qr_link_call = X32_clock_us;
 		}
 
 		/*
