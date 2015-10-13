@@ -42,8 +42,8 @@ x = log6(1:2048,2);
 dx= log6(2049:end,3);
 t = log6(1:2048,1)/1e6;
 [t,i] =sortrows(t,1);
-x = x(i)-504;
-dx = -1*dx(i);
+x = x(i)-504+400*(rand(length(t),1)-0.5);
+dx = -1*dx(i)+20*(rand(length(t),1)-0.5);
 %dx = dx(i)-300;
 
 bias = -310;
@@ -57,7 +57,6 @@ figure
 plot(t,x,'.');
 hold on
 plot(t,dx,'.');
-%phi=69;
 
 for i=1:length(x)
     %x(i) = rem_absurd_val(x(i),xy(1),Filt);
