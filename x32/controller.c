@@ -9,8 +9,6 @@
 
 #define LOOP_RATE_FACT 4
 
-//#define VERBOSE_CONTROLLER
-
 extern int JS_mes[5];
 extern int state;
 extern int isr_controller_time;
@@ -65,8 +63,7 @@ void manual_roll(Factors *F){
 void control_yaw(Factors *F){
 	
 	//F->f_y = JS_mes[JS_YAW];
-
-	F->f_y = JS_mes[JS_YAW] + filtered_r/30;
+	F->f_y = JS_mes[JS_YAW] + MULT(filtered_r/30,P_Y);
 	
 }
 
@@ -161,7 +158,7 @@ void isr_controller()
 		log_data_sensor(X32_clock_us, sax, say, saz, sp, sq, sr); // Accel
 	}
 	log_data_profile(CONTROL, X32_clock_us, isr_controller_time);
-	//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
 }
 
 /*------------------------------------------------------------------
