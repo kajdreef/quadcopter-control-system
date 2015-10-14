@@ -16,9 +16,9 @@ struct Filt_param {
 
 typedef struct Filt_param Filt_Param;
 
-Filt_Param Filt_phi = { 7,12,9,9};
-Filt_Param Filt_thet ={ 7,12,9,9};
-Filt_Param Filt_r ={ 7, 12, 9, 9};
+Filt_Param Filt_phi = {7,12,9,9};
+Filt_Param Filt_thet ={7,12,9,9};
+Filt_Param Filt_r ={7, 12, 9, 9};
 
 void kalman(int p[], Filt_Param *Filt);
 void calibrate(int p[], Filt_Param *Filt);

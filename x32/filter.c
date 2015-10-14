@@ -5,7 +5,7 @@
 #include "config.h"
 #include "communication.h"
 
-#define TEST_FILTERS 1
+#define TEST_FILTERS 0
 
 #if TEST_FILTERS
 #include "data.c" 
@@ -34,22 +34,23 @@ extern enum QR mode;
 void kalman(int p[], Filt_Param *Filt){
 	int e;
 	p[dXk] = p[dXs]-p[dXb];
-	p[Xk] = p[Xk] + p[dXk]>>Filt->p2phi;
+	p[Xk] += p[dXk]>>Filt->p2phi;
 	e = p[Xk] - p[Xs] + p[Xb];
-	p[Xk] = p[Xk] - e>>Filt->c1;
-	p[dXb]= p[dXb] + e>>Filt->c2;
+	p[Xk] -= e>>Filt->c1;
+	p[dXb] += e>>Filt->c2;
+	
 }
 
 void calibrate(int p[], Filt_Param *Filt){
 	// Calibrate the rate
-	p[dXb] = p[dXb] + (p[dXs]-p[dXb])>>Filt->lp;
+	p[dXb] += (p[dXs]-p[dXb])>>Filt->lp;
 
 	// Calibrate the position
-	p[Xb] = p[Xb] + (p[Xs]-p[Xb])>>Filt->lp;
+	p[Xb] += (p[Xs]-p[Xb])>>Filt->lp;
 }
 
 void calibrate_yaw(int p[],Filt_Param *Filt){
-	p[dXb] = p[dXb] + (p[dXs]-p[dXb])>>Filt->lp;
+	p[dXb] += (p[dXs]-p[dXb])>>Filt->lp;
 }
 
 int is_calibrated(int phi[], int theta[], int psi[]){
@@ -74,25 +75,20 @@ void filter_sensor(){
 	//static int psi[3] = {0,499712,0}; // Yaw 488
 	int old = X32_clock_us;
 	
-	static int phi[6] = {0,317440,0,0,0,0};	// Roll
-	static int theta[6] = {0,387072,0,0,0,0}; // Pitch
-	static int psi[3] = {0,499712,0}; // Yaw
+	static int phi[6] = {0,-387072,0,0,0,0};	// Roll
+	static int theta[6] = {0,-317440,0,0,0,0}; // Pitch
+	static int psi[3] = {0,-499712,0}; // Yaw
 
 	static int test_counter = 0;
-
-	#if TEST_FILTERS
-		log_start();	
-	#endif
 
 	if (mode != FULL_CONTROL){
 		log_data_sensor(X32_clock_us, SAX, SAY, SAZ, SP, SQ, SR); // Accel
 	}
 
-	//battery_voltage = X32_QR_S6;
-
 	switch(mode){
 		case CALIBRATION:
-			phi[Xs] = I2FDP(SAY);
+			#if !TEST_FILTERS
+			phi[Xs] = I2FDP(SAY);	
 			phi[dXs]= I2FDP(SP);
 			theta[Xs] = I2FDP(SAX);
 			theta[dXs]= I2FDP(SQ);
@@ -101,9 +97,12 @@ void filter_sensor(){
 			calibrate(phi,&Filt_phi);
 			calibrate(theta,&Filt_thet);
 			calibrate_yaw(psi,&Filt_r);
-			psi[dXk] = psi[dXs]-psi[dXb];
-
+			
 			calibrated = is_calibrated(phi,theta,psi);
+			#else
+			calibrated = 1;
+			#endif
+						
 			break;
 
 		case YAW_CONTROL:
@@ -122,8 +121,10 @@ void filter_sensor(){
 			phi[dXs]= I2FDP(SP);
 		
 			#if TEST_FILTERS
+			log_start();
 			theta[dXs] = I2FDP(dx[test_counter]);
 			theta[Xs] = I2FDP(x[test_counter]);
+			test_counter++;
 			#else
 			theta[dXs]= I2FDP(SQ);
 			theta[Xs] = I2FDP(SAX);
@@ -152,13 +153,13 @@ void filter_sensor(){
 
 	isr_filter_time = X32_clock_us - old;
 	#if TEST_FILTERS
-	if(test_counter < 2048){
+	if(test_counter-1 < 2048){
 		log_data_profile(FILTER, FDP2I(filtered_theta),FDP2I(filtered_q));
-		test_counter++;
+	}	
 	#else
-	log_data_profile(FILTER, X32_us_clock,isr_filter_time);
+	log_data_profile(FILTER, X32_us_clock,isr_filter_time);	
 	#endif
-	}
+	
 }
 
 void setup_sensor_interrupts(int prio){

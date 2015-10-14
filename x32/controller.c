@@ -37,7 +37,6 @@ void update_control_parameters(int P1_new, int P2_new, int P3_new)
 	P1 = MULT(1024, (P2_new <<4));
 	P2 = MULT(1024, (P3_new <<4));
 
-
 }
 
 void manual_lift(Factors *F){
