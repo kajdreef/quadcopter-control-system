@@ -52,7 +52,7 @@ int send_char (char c) {
  *------------------------------------------------------------------
  */
 int send (char* msg, int msgSize) {
-	int k = 0, j = 0;
+	int k = 0;
 	long long start = 0, current = 0;
 	struct timespec currentTime;
 	struct timespec startTime;
@@ -107,7 +107,6 @@ void detect_message (char data) {
 	static int sync = 0;
  	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
-	int i = 0;
 
 	#if DEBUG_RECEIVED_CHAR
 		printf("Received char: ");

@@ -15,11 +15,10 @@
 
 #include "communication.h"
 #include "messages.h"
+#include "logger.h"
 
-#if JOYSTICK
-	#include "config.h"
-	#include "joystick.h"
-#endif
+#include "config.h"
+#include "joystick.h"
 
 #define NANO 1000000000L
 
@@ -45,8 +44,11 @@ int initialization(int *fd, int *js_fd);
  */
 int main (void) {
 
-	int	axis[6] = {0,0,0,32767,0,0};		// Initialize with lift at minimum
-	int	button[12];
+	#if JOYSTICK
+		int	axis[6] = {0,0,0,32767,0,0};		// Initialize with lift at minimum
+		int	button[12];
+	#endif /* JOYSTICK*/
+
 	int js_fd;
 
 	int trimming[4] = {0};
@@ -56,7 +58,6 @@ int main (void) {
 	int LOG_FLAG = 0;
 
 	int lift = 32767, roll = 0, pitch = 0, yaw = 0;
-	unsigned int t;
 	int fd;
 
 	//For printing an error in the user interface
@@ -234,14 +235,14 @@ int main (void) {
 				printf("Roll rate: \t%d\t          ^\n", DAQ_mes[DAQ_ROLL_RATE]);
 				printf("Pitch rate: \t%d\t          |\n",DAQ_mes[DAQ_PITCH_RATE]);
 				printf("Yaw_rate: \t%d\t%4d [4]--|--[2] %d\n",DAQ_mes[DAQ_YAW_RATE],DAQ_mes[DAQ_AE4], DAQ_mes[DAQ_AE2]);
-				
+
 				printf("sax: \t\t%d\t          |\n",DAQ_mes[DAQ_SAX]);
-				printf("say: \t\t%d\t          |\n", DAQ_mes[DAQ_SAY]);			
-			
+				printf("say: \t\t%d\t          |\n", DAQ_mes[DAQ_SAY]);
+
 				printf("Batt voltage: \t%d\t         %03d\n",DAQ_mes[DAQ_VOLTAGE], DAQ_mes[DAQ_AE3]);
 				printf("Contr t(us): \t%d\n",DAQ_mes[DAQ_CONTR_TIME]);
 				printf("Filter t(us): \t%d\n\n", DAQ_mes[DAQ_FILTER_TIME]);
-			
+
 				printf("******************************\t******************************\n");
 				printf("*    PC data            (fp) *\t*Tune mult. factors(fp) x100 *\n");
 				printf("******************************\t******************************\n");
@@ -322,4 +323,5 @@ int initialization(int *fd, int *js_fd){
 	//open and configure the joystick
 	*js_fd = configure_joystick();
 #endif
+	return 1;
 }

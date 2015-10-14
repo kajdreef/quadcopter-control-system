@@ -1,6 +1,6 @@
 # General settings can be found in here
 CC= gcc
-CFLAGS=
+CFLAGS= -Wall
 SOURCES= $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
 TARGET= main.exe
