@@ -5,6 +5,12 @@
 #include "config.h"
 #include "communication.h"
 
+#define TEST_FILTERS 1
+
+#if TEST_FILTERS
+#include "data.c" 
+#endif
+
 #define dXm 	0	// Rate measurement
 #define dXa 	1	// Rate absurd values removed
 #define dXlp 	2	// Rate low-passed
@@ -190,7 +196,18 @@ void isr_qr_link()
 		X32_QR_S6	 Bat voltage
 	*/
 	int old = X32_clock_us;
+	static int test_counter = 0;
+	#if TEST_FILTERS
+		log_start();	
+	#endif
+	
+
 	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
+	#if TEST_FILTERS
+	sq = dx[test_counter];
+	sax = x[test_counter];
+	#else
 	sp = X32_QR_S3;
 	sq = X32_QR_S4;
 	sr = X32_QR_S5;
@@ -198,11 +215,21 @@ void isr_qr_link()
 	say = X32_QR_S1;
 	saz = X32_QR_S2;
 
+	#endif
+
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	battery_voltage = X32_QR_S6;
 
 	isr_filter_time = X32_clock_us - old;
-	log_data_profile(FILTER, X32_clock_us, isr_filter_time);
+	#if TEST_FILTERS
+	if(test_counter < 2048){
+		log_data_profile(FILTER, FDP2I(filtered_theta),FDP2I(filtered_q));
+		test_couter++
+	#else
+	log_data_profile(FILTER, X32_us_clock,isr_filter_time);
+	#endif
+	
+	
 }
 
 void filter_sensor(){
