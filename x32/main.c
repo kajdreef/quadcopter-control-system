@@ -65,11 +65,6 @@ int last_sensor_irs_time = 0;
 extern int filtered_r;
 extern int filtered_p;
 extern int filtered_q;
-extern int sr;
-extern int sq;
-extern int sp;
-extern int sax;
-extern int say;
 
 extern int filtered_thet;
 
@@ -125,7 +120,7 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
-		//isr_qr_link();
+		filter_sensor();
 		/*
 		 Blink the status led(1Hz)
 		 */
@@ -238,9 +233,9 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL_RATE] = sp;//filtered_p;
-			DAQ_mes[DAQ_PITCH_RATE] = sq;//filtered_q;
-			DAQ_mes[DAQ_YAW_RATE] = sr;//filtered_thet;
+			DAQ_mes[DAQ_ROLL_RATE] = SP;//filtered_p;
+			DAQ_mes[DAQ_PITCH_RATE] = SQ;//filtered_q;
+			DAQ_mes[DAQ_YAW_RATE] = SR;//filtered_theta;
 			
 			DAQ_mes[DAQ_SAX] = 1;//sax;//filtered_p;
 			DAQ_mes[DAQ_SAY] = 2;//say;//filtered_q;
