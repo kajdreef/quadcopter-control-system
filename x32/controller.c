@@ -16,7 +16,7 @@ extern enum QR mode;
 extern int filtered_r;	// Yaw rate
 extern int filtered_p;	// Roll rate
 extern int filtered_q;	// Pitch rate
-extern int filtered_thet; // Pitch
+extern int filtered_theta; // Pitch
 extern int ae[];
 
 int P_Y = 1024;
@@ -74,8 +74,8 @@ void control_pitch(Factors *F){
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
 		//des_q = JS_mes[JS_PITCH];
-		//filtered_thet = 0;
-		des_q = MULT((JS_mes[JS_PITCH] - (filtered_thet/100)),P1);
+		//filtered_theta = 0;
+		des_q = MULT((JS_mes[JS_PITCH] - (filtered_theta/100)),P1);
 		count=0;
 	}
 
@@ -121,8 +121,6 @@ void isr_controller()
 
 	int old = X32_clock_us;
 
-	filter_sensor();
-
 	manual_lift(&F);
 	switch (mode){
 		case MANUAL:
@@ -148,15 +146,11 @@ void isr_controller()
 			break;
 	}
 	
-	filtered_p = F.f_y;
 	apply_mot_fact(&F,ae);
 	set_actuators(ae);
 
 	isr_controller_time = X32_clock_us - old;
 
-	if (mode != FULL_CONTROL){
-		log_data_sensor(X32_clock_us, sax, say, saz, sp, sq, sr); // Accel
-	}
 	log_data_profile(CONTROL, X32_clock_us, isr_controller_time);
 	
 }
