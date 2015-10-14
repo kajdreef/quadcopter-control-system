@@ -14,7 +14,7 @@
 #define DAQ_MASK 	(1<<6)
 
 #define END			(3<<6)
-#define MASK 		0x3F 
+#define MASK 		0x3F
 
 //JS_mes
 #define JS_LIFT 	0
@@ -33,17 +33,16 @@
 #define DAQ_AE2			6
 #define DAQ_AE3			7
 #define DAQ_AE4			8
-#define DAQ_MODE		9	
+#define DAQ_MODE		9
 #define DAQ_CONTR_TIME	10
 #define	DAQ_FILTER_TIME 11
 #define DAQ_VOLTAGE		12
 
-//CON_mes	
+//CON_mes
 #define CON_P1	0
 #define CON_P2	1
 #define CON_P3	2
 
-void printBits(size_t const size, void const * const ptr);
 void encode(int value, char* buffer,int index, int mask, int end);
 void decode (char* buffer, int msg_length, int* dest );
 int message_length(char data);
