@@ -98,7 +98,7 @@ int main(void)
 
 //Set up the different interrupts depending on the configuration
 #ifdef MESSAGE_INTERRUPT
-	setup_uart_interrupts(11);
+	setup_uart_interrupts(8);
 #endif
 #ifdef CONTROLLER_INTERRUPT
 	setup_controller_interrupts(10);
@@ -237,8 +237,8 @@ int main(void)
 			DAQ_mes[DAQ_PITCH_RATE] = SQ;//filtered_q;
 			DAQ_mes[DAQ_YAW_RATE] = SR;//filtered_theta;
 			
-			DAQ_mes[DAQ_SAX] = 1;//sax;//filtered_p;
-			DAQ_mes[DAQ_SAY] = 2;//say;//filtered_q;
+			DAQ_mes[DAQ_SAX] = SAX;//filtered_p;
+			DAQ_mes[DAQ_SAY] = SAY;//filtered_q;
 
 			//Possible switch of the interrupts;
 			DAQ_mes[DAQ_AE1] = ae[0];

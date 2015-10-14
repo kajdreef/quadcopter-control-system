@@ -7,7 +7,7 @@
 #include "logger.h"
 #include "communication.h"
 
-#define LOOP_RATE_FACT 4
+#define LOOP_RATE_FACT 2
 
 extern int JS_mes[5];
 extern int state;
@@ -19,9 +19,9 @@ extern int filtered_q;	// Pitch rate
 extern int filtered_theta; // Pitch
 extern int ae[];
 
-int P_Y = 1024;
-int P1 = 1024;
-int P2 = 1024;
+int P_Y = 34; //1/30
+int P1 = 10;
+int P2 = 51;
 
 extern int sp;
 extern int sq;
@@ -61,8 +61,9 @@ void manual_roll(Factors *F){
 
 void control_yaw(Factors *F){
 	
-	//F->f_y = JS_mes[JS_YAW];
-	F->f_y = JS_mes[JS_YAW] + MULT(filtered_r/30,P_Y);
+	//js yaw [-0.5 0.5]
+	//filtered_r [-200 200 ]
+	F->f_y = JS_mes[JS_YAW] + MULT(filtered_r,P_Y);
 	
 }
 
@@ -72,15 +73,15 @@ void control_pitch(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		//des_q = JS_mes[JS_PITCH];
-		//filtered_theta = 0;
-		des_q = MULT((JS_mes[JS_PITCH] - (filtered_theta/100)),P1);
+		//js pitch [-0.25 0.25 ]
+		//filterd_theta [-100 100]
+
+		des_q = JS_mes[JS_PITCH] - MULT(filtered_theta,P1);//MULT((JS_mes[JS_PITCH] - (filtered_theta/100)),P1);
 		count=0;
 	}
 
 	// Rate controller
-	//filtered_q= 0;
-	F->f_p = des_q + MULT(filtered_q/20,P2);
+	F->f_p = des_q + MULT(filtered_q,P2);
 
 	count++;
 }
@@ -139,6 +140,7 @@ void isr_controller()
 		case FULL_CONTROL:
 			// Full
 			manual_yaw(&F);
+			//control_yaw(&F);
 			control_pitch(&F);
 			//control_roll(&F);
 			manual_roll(&F);

@@ -5,7 +5,7 @@
 #include "config.h"
 #include "communication.h"
 
-#define TEST_FILTERS 0
+#define TEST_FILTERS 1
 
 #if TEST_FILTERS
 #include "data.h" 
@@ -97,7 +97,7 @@ void filter_sensor(){
 			#else
 			calibrated = 1;
 			#endif
-	
+			//calibrated = 1;
 			break;
 
 		case YAW_CONTROL:
