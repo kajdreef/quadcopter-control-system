@@ -27,12 +27,12 @@ int	 is_calibrated(int phi[], int theta[], int psi[]);
 void filter_sensor(void);
 void setup_sensor_interrupts(int prio);
 
-# define SP peripherals[PERIPHERAL_XUFO_S0]		// roll
-# define SQ peripherals[PERIPHERAL_XUFO_S1]		// pitch
-# define SR peripherals[PERIPHERAL_XUFO_S2]		// Niks?
-# define SAX peripherals[PERIPHERAL_XUFO_S3]		// Pitch-rate
-# define SAY peripherals[PERIPHERAL_XUFO_S4]		// Roll-rate
-# define SAZ peripherals[PERIPHERAL_XUFO_S5]		// Yaw-rate
+# define SAX peripherals[PERIPHERAL_XUFO_S0]		// Pitch
+# define SAY peripherals[PERIPHERAL_XUFO_S1]		// Roll
+# define SAZ peripherals[PERIPHERAL_XUFO_S2]		// Niks
+# define SP peripherals[PERIPHERAL_XUFO_S3]		// roll-rate
+# define SQ peripherals[PERIPHERAL_XUFO_S4]		// pitch-rate
+# define SR peripherals[PERIPHERAL_XUFO_S5]		// Yaw-rate
 # define X32_QR_S6 peripherals[PERIPHERAL_XUFO_S6]		// Bat voltage
 
-#endif 
+#endif
