@@ -12,7 +12,7 @@ extern int JS_mes[5];
 extern int CON_mes[3];
 
 /*------------------------------------------------------------------
- *	message_length -- Return the number of bytes to be received for 
+ *	message_length -- Return the number of bytes to be received for
  *  a specific message type
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
@@ -20,7 +20,7 @@ extern int CON_mes[3];
 int message_length(char data)
 {
 	switch(data & 0xC0){
-		
+
 		case(JS_MASK):
 			return 2*sizeof(JS_mes)/sizeof(JS_mes[0]);
 			break;
@@ -31,8 +31,8 @@ int message_length(char data)
 			return 2*sizeof(LOG_mes)/sizeof(LOG_mes[0]);
 			break;
 		default:
-			return -1;	
-	}	
+			return -1;
+	}
 }
 
 /*------------------------------------------------------------------
@@ -42,7 +42,7 @@ int message_length(char data)
  */
 void encode_message(int mask, int message_length, int *input, char *output_buffer){
 
-	int i;	
+	int i;
 	int j;
 	for(i = 0,j=0; i < message_length-1; i++, j += 2){
 		encode(input[i], output_buffer, j, mask,0);
@@ -71,7 +71,7 @@ void encode(int value, char* buffer,int index, int mask, int end){
 
 /*------------------------------------------------------------------
  *	decode -- Decode the messeges into int messages (Can only do int messages)
- *  Msg length are the number of ints encoded in the message	
+ *  Msg length are the number of ints encoded in the message
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
@@ -81,15 +81,11 @@ void decode (char* input, int msg_length, int* dest ){
 	int final_result = 0;
 	int result1;
 	int result2;
-	int result3;
 	char DECODE_MASK = input[0] & 0xc0;
 
 	for(i = 0; i < msg_length; i++){
 		final_result = 0;
 		if( CHECK_SIGN_BIT(input[i*2])){
-			#if DEBUG
-			printf("SIGNED BIT FOUND\n");
-			#endif
 			final_result = 0xFFFFF000;
 		}
 
@@ -105,13 +101,7 @@ void decode (char* input, int msg_length, int* dest ){
 		}
 
 		final_result ^= (result1 ^ result2);
-		
-		*(dest + i) = final_result;
 
-		#if DEBUG
-			printBits(sizeof(final_result), &final_result);
-		#endif
+		*(dest + i) = final_result;
 	}
 }
-
-

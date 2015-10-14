@@ -17,6 +17,7 @@
 #define PERIPHERAL_XUFO_A3 PERIPHERAL_DISPLAY
 #endif
 
+void calc_actuators(int *ae, int *prev_ae);
 void set_actuators(int *ae);
 int F_sqrt(int x);
 

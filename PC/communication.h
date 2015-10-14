@@ -1,3 +1,6 @@
+#ifndef COMMUNICATION_H
+#define COMMUNICATION_H
+
 #include <termios.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -16,11 +19,10 @@ int send (char* msg, int msgSize);
 
 int get_char(void);
 void detect_message (char data);
-void received_new_IO (int status);
-void clear_rMsg();
+int is_char_available(void);
 
 void initSig(void);
 void enable_interrupts(void);
 void disable_interrupts(void);
 
-
+#endif /* COMMUNICATION_H */

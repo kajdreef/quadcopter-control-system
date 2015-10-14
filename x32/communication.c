@@ -9,7 +9,7 @@ int rear = 0, front = 0;
 //type of the latest received message
 extern int message_type;
 
-void toggle_led(int i) 
+void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
 }
@@ -23,12 +23,12 @@ void toggle_led(int i)
 void send_message(char msg[], int length)
 {
 	int i;
-	for(i = 0; i < length; i++){	
+	for(i = 0; i < length; i++){
 		while((X32_rx_status & 0x1 ) == 0);
-	
+
 		X32_rx_data = msg[i];
 	}
-	
+
 }
 
 /*------------------------------------------------------------------
@@ -40,11 +40,11 @@ void send_message(char msg[], int length)
 void isr_rx_fifo(void){
 
 	char data;
-	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);	
+	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	while (X32_rx_status & 0x02) {
 		data = X32_rx_data;
 		fifo_buffer[front++] = data;
-			
+
 		if (front >= FIFO_SIZE)
 			front = 0;
 	}
@@ -58,12 +58,12 @@ void isr_rx_fifo(void){
  *------------------------------------------------------------------
  */
 int is_char_available(void){
-	
+
 	if(front != rear){
 		return 1;
-	}	
+	}
 	else{
-		return 0;		
+		return 0;
 	}
 
 }
@@ -73,10 +73,9 @@ int is_char_available(void){
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 int get_char(void)
 {
-	char c;    
+	char c;
 	int temp = rear;
     c = fifo_buffer[rear++];
 	if(rear >= FIFO_SIZE){
@@ -88,24 +87,23 @@ int get_char(void)
 /*------------------------------------------------------------------
  * detect_message -- Detect a message by searching for a pattern in the received messages
  * If too many packages losses the system will switch to panic mode
- * 
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void detect_message(char data){
 
 	static int receive_count = 0;
 	static int sync = 0;
- 	static int prev = END;
+	static int prev = END;
 	static int MESSAGE_LENGTH = 0;
 	static int lost_packets = 0;
-int i = 0;
+	int i = 0;
 
 	if(receive_count == 0 && prev == END && (MESSAGE_LENGTH = message_length(data)))
-	{	//Start of a new message			
-	
-		message[receive_count] = data;		
+	{	//Start of a new message
+
+		message[receive_count] = data;
 		receive_count++;
 		message_type = 0;
 		message_type ^= (data & END);
@@ -115,38 +113,37 @@ int i = 0;
 	{
 		//Receival of a packet of correct message type
 		message[receive_count] = data;
-		receive_count++; 	
+		receive_count++;
 
-	}		
+	}
 	else if(receive_count == (MESSAGE_LENGTH-1) && (data&END) == END)
 	{
 		//end of a message is detected succesfully
 		message[receive_count] = data;
 		MESSAGE_FLAG = TRUE;
 		//message finished so reset count
-		receive_count = 0;	
+		receive_count = 0;
 		lost_packets = 0;
 	}
 	else
-	{	
+	{
 		//1. No synchronization yet
 		//2. Synchronization but during message wrong first 2 bits
 		//3. End of message expected but final byte has the wrong first 2 bits
-		
+
 		lost_packets++;
 		if(lost_packets >= PACKETS_PANIC_THRESHOLD)
 		{
-			supervisor_set_mode(&mode, PANIC);		
+			supervisor_set_mode(&mode, PANIC);
 			lost_packets = 0;
-		}		
-	
-		receive_count = 0;		
-		
+		}
+
+		receive_count = 0;
+
 	}
-	
+
 	prev = data&END;
 
-   
 }
 
 
@@ -155,7 +152,6 @@ int i = 0;
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void setup_uart_interrupts(int prio){
 
 	/*
@@ -168,7 +164,3 @@ void setup_uart_interrupts(int prio){
 	ENABLE_INTERRUPT(INTERRUPT_PRIMARY_RX);
 
 }
-
-
-
-

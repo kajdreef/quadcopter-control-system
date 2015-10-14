@@ -12,18 +12,18 @@
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or 
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
+ *
  * Should you need to contact me, the author, you can do so either by
  * e-mail - mail your message to <vojtech@suse.cz>, or by paper mail:
  * Vojtech Pavlik, Ucitelska 1576, Prague 8, 182 00 Czech Republic
@@ -149,6 +149,11 @@ void print_joystick(int *axis, int *button, int t);
 unsigned int    mon_time_ms(void);
 void    mon_delay_ms(unsigned int ms);
 int configure_joystick(void);
+
+int scale_joystick_lift(int lift);
+int scale_joystick_pr(int roll);
+int scale_joystick_pr(int pitch);
+int scale_joystick_yaw(int yaw);
 
 
 #endif /* _LINUX_JOYSTICK_H */

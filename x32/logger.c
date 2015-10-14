@@ -44,7 +44,7 @@ void log_init() {
 }
 
 /*------------------------------------------------------------------
- *	log_data -- put data in its specified array with an timestamp
+ *	log_data_sensor -- put sensor data in its specified array with an timestamp
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
@@ -70,6 +70,11 @@ void log_data_sensor(int timestamp, int xAccel, int yAccel, int zAccel, int xGyr
 #endif
 }
 
+/*------------------------------------------------------------------
+ *	log_data_profile -- put profile data in its specified array with an timestamp
+ *	Author: Kaj Dreef
+ *------------------------------------------------------------------
+ */
 void log_data_profile(enum ProfileType profile, int timestamp, int profileData){
 	#if LOGGER
 		static int ptr_filter_log = 0, ptr_control_log = 0;
