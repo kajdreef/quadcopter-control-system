@@ -8,7 +8,7 @@
 #define TEST_FILTERS 0
 
 #if TEST_FILTERS
-#include "data.c" 
+#include "data.h" 
 #endif
 
 #define dXs 	0	// Sensed Rate
@@ -29,7 +29,6 @@ extern int isr_filter_time;
 extern int battery_voltage;
 extern int last_sensor_irs_time;
 extern enum QR mode;
-
 
 void kalman(int p[], Filt_Param *Filt){
 	int e;
@@ -70,14 +69,10 @@ return (phi_err<5) && (phi_err>-5) &&
 
 void filter_sensor(){
 	
-	//static int phi[6] = {0,317440,0,0,519168,0};	// Roll 310, 507
-	//static int theta[6] = {0,387072,0,0,510976,0}; // Pitch 378, 499
-	//static int psi[3] = {0,499712,0}; // Yaw 488
+	static int phi[6] = {0,-387072,0,0,519168,0};	// Roll 310, 507
+	static int theta[6] = {0,-317440,0,0,510976,0}; // Pitch 378, 499
+	static int psi[3] = {0,499712,0}; // Yaw 488
 	int old = X32_clock_us;
-	
-	static int phi[6] = {0,-387072,0,0,0,0};	// Roll
-	static int theta[6] = {0,-317440,0,0,0,0}; // Pitch
-	static int psi[3] = {0,-499712,0}; // Yaw
 
 	static int test_counter = 0;
 
@@ -91,7 +86,7 @@ void filter_sensor(){
 			phi[Xs] = I2FDP(SAY);	
 			phi[dXs]= I2FDP(SP);
 			theta[Xs] = I2FDP(SAX);
-			theta[dXs]= I2FDP(SQ);
+			theta[dXs]= -1*I2FDP(SQ);
 			psi[dXs]= I2FDP(SR);
 
 			calibrate(phi,&Filt_phi);
@@ -102,7 +97,7 @@ void filter_sensor(){
 			#else
 			calibrated = 1;
 			#endif
-						
+	
 			break;
 
 		case YAW_CONTROL:
@@ -122,7 +117,7 @@ void filter_sensor(){
 		
 			#if TEST_FILTERS
 			log_start();
-			theta[dXs] = I2FDP(dx[test_counter]);
+			theta[dXs] = -1*I2FDP(dx[test_counter]);
 			theta[Xs] = I2FDP(x[test_counter]);
 			test_counter++;
 			#else
@@ -154,10 +149,10 @@ void filter_sensor(){
 	isr_filter_time = X32_clock_us - old;
 	#if TEST_FILTERS
 	if(test_counter-1 < 2048){
-		log_data_profile(FILTER, FDP2I(filtered_theta),FDP2I(filtered_q));
+		log_data_profile(FILTER, FDP2I(theta[Xk]),FDP2I(theta[dXk]));
 	}	
 	#else
-	log_data_profile(FILTER, X32_us_clock,isr_filter_time);	
+	log_data_profile(FILTER, X32_clock_us,isr_filter_time);	
 	#endif
 	
 }
