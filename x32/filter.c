@@ -86,7 +86,7 @@ void filter_sensor(){
 			phi[Xs] = I2FDP(SAY);	
 			phi[dXs]= I2FDP(SP);
 			theta[Xs] = I2FDP(SAX);
-			theta[dXs]= -1*I2FDP(SQ);
+			theta[dXs]= I2FDP(SQ);//-1*I2FDP(SQ);
 			psi[dXs]= I2FDP(SR);
 
 			calibrate(phi,&Filt_phi);
