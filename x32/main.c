@@ -101,10 +101,10 @@ int main(void)
 	setup_uart_interrupts(11);
 #endif
 #ifdef CONTROLLER_INTERRUPT
-	setup_controller_interrupts(10);
+	setup_controller_interrupts(9);
 #endif
 #ifdef SENSOR_INTERRUPT
-	setup_sensor_interrupts(9);
+	setup_sensor_interrupts(10);
 #endif
 #ifdef DIV_0_INTERRUPT
 	setup_div_0_interrupts(20);
