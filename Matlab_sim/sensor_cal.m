@@ -19,7 +19,7 @@ log15 = dlmread('m_on1.txt',' ');
 log16 = dlmread('m_on2.txt',' ');
 log17 = dlmread('m_on3.txt',' ');
 
-log = log6;
+log = log13;
 
 t = log(1:2048,1)/1e6;
 [t,i] =sortrows(t,1);
@@ -37,12 +37,12 @@ dx2 = dx2(i);
 dx3 = dx3(i);
 
 figure
-plot(t,x1,'.')
+%plot(t,x1,'.')
 hold on
 %plot(t,x2,'.')
 %plot(t,x3,'.')
 %plot(t,dx1,'.')
-plot(t,dx2,'.')
+plot(t,dx3,'.')
 %plot(t,dx3,'.')
 
 %legend('x1','x2','x3','dx1','dx2','dx3')

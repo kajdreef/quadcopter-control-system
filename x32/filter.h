@@ -24,7 +24,7 @@ Filt_Param Filt_r ={ 7, 12, 9, 9};
 void kalman(int p[], Filt_Param *Filt);
 void calibrate(int p[], Filt_Param *Filt);
 void calibrate_yaw(int p[],Filt_Param *Filt);
-bool isCalibrated(int phi[], int theta[], int psi[]);
+int is_calibrated(int phi[], int theta[], int psi[]);
 void filter_sensor(void);
 void setup_sensor_interrupts(int prio);
 

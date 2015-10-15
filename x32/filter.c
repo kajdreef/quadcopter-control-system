@@ -64,7 +64,7 @@ void calibrate_yaw(int p[],Filt_Param *Filt){
 	p[dXb] = p[dXb] + (p[dXs]-p[dXb])>>Filt->lp;
 }
 
-bool isCalibrated(int phi[], int theta[], int psi[]){
+int is_calibrated(int phi[], int theta[], int psi[]){
 	int phi_err = phi[Xs] - phi[Xb];
 	int theta_err = theta[Xs] - theta[Xb];
 
@@ -105,7 +105,7 @@ void filter_sensor(){
 			calibrate_yaw(psi,Filt_r);
 			psi[dXk] = psi[dXs]-psi[dXb];
 
-			calibrated = isCalibrated(phi,theta,psi);
+			calibrated = is_calibrated(phi,theta,psi);
 			break;
 
 		case YAW_CONTROL:
