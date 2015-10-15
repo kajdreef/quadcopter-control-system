@@ -7,21 +7,22 @@ extern int	button[12];
 
 /*------------------------------------------------------------------
  * scale_joystick_lift -- scales the value of the lift to 0 -1 in
- * fixed point representation 
- * 	
+ * fixed point representation
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
 int scale_joystick_lift(int lift){
-	
-	return (I2FDP_S((-1*lift+0x00007FFF)/64,10) >> FRACT_PART);	
+
+	return (I2FDP_S((-1*lift+0x00007FFF)/64,10) >> FRACT_PART);
 
 }
 
+
 /*------------------------------------------------------------------
  * scale_joystick_yaw -- scales the value of the yaw to -0.5 0.5 in
- * fixed point representation 
- * 	
+ * fixed point representation
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -35,8 +36,8 @@ int scale_joystick_yaw(int yaw){
 
 /*------------------------------------------------------------------
  * scale_joystick_pr -- scales the value of the pitch or roll to -0.25 and 0.25 in
- * fixed point representation 
- * 	
+ * fixed point representation
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -48,19 +49,16 @@ int scale_joystick_pr(int value){
 }
 
 
-
-
 /*------------------------------------------------------------------
  * configure_joystick -- open the joystick and configure it
- * 	
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 int configure_joystick(void){
 	int fd;
 
-	if ((fd = open(JS_DEV, O_RDONLY)) < 0) 
+	if ((fd = open(JS_DEV, O_RDONLY)) < 0)
 	{
 		perror("joystick");
 		exit(1);
@@ -73,18 +71,18 @@ int configure_joystick(void){
 	return fd;
 }
 
+
 /*------------------------------------------------------------------
  * read_joystick -- process all available joystick events
- * adapted from the given example	
+ * adapted from the given example
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 int read_joystick(int jfd, struct js_event *js, int axis[], int button[]){
 	//printf("read_joystick %d \n", jfd);
 	while (read(jfd, js, sizeof(struct js_event)) == sizeof(struct js_event))
 	{
-		switch(js->type & ~JS_EVENT_INIT) 
+		switch(js->type & ~JS_EVENT_INIT)
 		{
 			case JS_EVENT_BUTTON:
 				button[js->number] = js->value;
@@ -94,23 +92,23 @@ int read_joystick(int jfd, struct js_event *js, int axis[], int button[]){
 				break;
 		}
 	}
-	
-	if (errno != EAGAIN) 
+
+	if (errno != EAGAIN)
 	{
 	//	perror("\njs: error reading (EAGAIN)");
 		return -1;
 	}
-	
+
 	return 1;
 }
 
+
 /*------------------------------------------------------------------
  * print_joystick -- print all the (relevant) joystick values
- *	
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void print_joystick(int *axis, int *button, int t){
 	printf("Time: %d\t", t);
 	printf("Lift: %6d\t",*(axis + LIFT));
@@ -119,27 +117,3 @@ void print_joystick(int *axis, int *button, int t){
 	printf("roll: %6d\t",*(axis + ROLL));
 	printf("\n");
 }
-
-
-unsigned int    mon_time_ms(void)
-{
-        unsigned int    ms;
-        struct timeval  tv;
-        struct timezone tz;
-
-        gettimeofday(&tv, &tz);
-        ms = 1000 * (tv.tv_sec % 65); // 65 sec wrap around
-        ms = ms + tv.tv_usec / 1000;
-        return ms;
-}
-
-
-void    mon_delay_ms(unsigned int ms)
-{
-        struct timespec req, rem;
-
-        req.tv_sec = ms / 1000;
-        req.tv_nsec = 1000000 * (ms % 1000);
-        assert(nanosleep(&req,&rem) == 0);
-}
-
