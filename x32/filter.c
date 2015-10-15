@@ -5,7 +5,7 @@
 #include "config.h"
 #include "communication.h"
 
-#define TEST_FILTERS 1
+#define TEST_FILTERS 0
 
 #if TEST_FILTERS
 #include "data.h" 
@@ -69,9 +69,12 @@ return (phi_err<5) && (phi_err>-5) &&
 
 void filter_sensor(){
 	
-	static int phi[6] = {0,-387072,0,0,519168,0};	// Roll 310, 507
-	static int theta[6] = {0,-317440,0,0,510976,0}; // Pitch 378, 499
-	static int psi[3] = {0,499712,0}; // Yaw 488
+	//static int phi[6] = {0,-387072,0,0,519168,0};	// Roll 310, 507
+	static int phi[6] = {0};
+	//static int theta[6] = {0,-317440,0,0,510976,0}; // Pitch 378, 499
+	static int theta[6] = {0};	
+	//static int psi[3] = {0,499712,0}; // Yaw 488
+	static int psi[3] = {0};
 	int old = X32_clock_us;
 
 	static int test_counter = 0;
@@ -80,6 +83,11 @@ void filter_sensor(){
 		log_data_sensor(X32_clock_us, SAX, SAY, SAZ, SP, SQ, SR); // Accel
 	}
 
+	SAX = 0;
+	SAY = 0;
+	SQ = 0;
+	SR = 0;
+    SP = 0;
 	switch(mode){
 		case CALIBRATION:
 			#if !TEST_FILTERS
@@ -97,7 +105,7 @@ void filter_sensor(){
 			#else
 			calibrated = 1;
 			#endif
-			//calibrated = 1;
+	
 			break;
 
 		case YAW_CONTROL:

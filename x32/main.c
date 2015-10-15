@@ -98,7 +98,7 @@ int main(void)
 
 //Set up the different interrupts depending on the configuration
 #ifdef MESSAGE_INTERRUPT
-	setup_uart_interrupts(8);
+	setup_uart_interrupts(11);
 #endif
 #ifdef CONTROLLER_INTERRUPT
 	setup_controller_interrupts(10);
