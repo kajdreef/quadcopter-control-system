@@ -154,6 +154,7 @@ void trim_lift_down(int *trim, int index)
  */
 int process_keyboard(char c, int *trim, int *control_p, int *log)
 {
+	int i;
 	switch(c){
 		case 0x1B:
 		//escape
@@ -215,6 +216,12 @@ int process_keyboard(char c, int *trim, int *control_p, int *log)
 		//down arrow
 		case 0x42:
 			trim_pitch_roll_yaw_up(trim, TRIM_PITCH);
+			break;
+		case 0x6E:
+			for(i = 0; i< 4; i++)
+			{
+				trim[i] = 0;			
+			}
 			break;
 		/*
 			Controller tuning
