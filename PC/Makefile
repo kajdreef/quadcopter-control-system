@@ -1,4 +1,3 @@
-# General settings can be found in here
 CC= gcc
 CFLAGS= -Wall
 SOURCES= $(wildcard *.c)

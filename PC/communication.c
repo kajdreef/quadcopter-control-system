@@ -32,13 +32,12 @@ extern int DAQ_mes[13];
 struct sigaction saio;           /* definition of signal action */
 
 /*------------------------------------------------------------------
- *	send_char -- Send one character
+ *	send_char -- Send one character to the x32
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 int send_char (char c) {
 	int result;
-	//printf("char send!: %c \n", c);
 	do {
 		result = (int) write (fd, &c, 1);
 	} while(result == 0);
@@ -47,7 +46,7 @@ int send_char (char c) {
 }
 
 /*------------------------------------------------------------------
- *	send -- Send a string of characters
+ *	send -- Send a string of characters to the x32
  *	Author: Kaj Dreef
  *------------------------------------------------------------------
  */

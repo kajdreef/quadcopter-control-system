@@ -14,7 +14,7 @@ extern int JS_mes[5];
 extern int CON_mes[3];
 
 /*------------------------------------------------------------------
- *	decode -- Decode the messeges
+ *	printBits -- print the binary output of a variable
  *	Author: Internet (stackexchange) only use for debugging
  *------------------------------------------------------------------
  */void printBits(size_t const size, void const * const ptr)
