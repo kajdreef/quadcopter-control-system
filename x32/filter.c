@@ -6,6 +6,7 @@
 #include "communication.h"
 
 #define TEST_FILTERS 0
+#define CALIBRATE_THRESHOLD 2048
 
 #if TEST_FILTERS
 #include "data.h" 
@@ -43,13 +44,14 @@ void kalman(int p[], Filt_Param *Filt){
 void calibrate(int p[], Filt_Param *Filt){
 	// Calibrate the rate
 	p[dXb] += (p[dXs]-p[dXb])>>Filt->lp;
-
+	
 	// Calibrate the position
 	p[Xb] += (p[Xs]-p[Xb])>>Filt->lp;
 }
 
 void calibrate_yaw(int p[],Filt_Param *Filt){
 	p[dXb] += (p[dXs]-p[dXb])>>Filt->lp;
+	
 }
 
 int is_calibrated(int phi[], int theta[], int psi[]){
@@ -59,22 +61,23 @@ int is_calibrated(int phi[], int theta[], int psi[]){
 	int dphi_err = phi[dXs] - phi[dXb];
 	int dtheta_err = theta[dXs] - theta[dXb];
 	int dpsi_err = psi[dXs] - psi[dXb];
-	
-return (phi_err<5) && (phi_err>-5) && 
-			(theta_err<5) && (theta_err>-5) && 
-			(dphi_err<5) && (dphi_err>-5) &&
-			(dtheta_err<5) && (dtheta_err>-5) &&
-			(dpsi_err<5) && (dpsi_err>-5);
+	isr_filter_time = dpsi_err;
+
+return (phi_err<CALIBRATE_THRESHOLD ) && (phi_err>-CALIBRATE_THRESHOLD ) && 
+			(theta_err<CALIBRATE_THRESHOLD ) && (theta_err>-CALIBRATE_THRESHOLD ) && 
+			(dphi_err<CALIBRATE_THRESHOLD ) && (dphi_err>-CALIBRATE_THRESHOLD ) &&
+			(dtheta_err<CALIBRATE_THRESHOLD ) && (dtheta_err>-CALIBRATE_THRESHOLD ) &&
+			(dpsi_err<CALIBRATE_THRESHOLD ) && (dpsi_err>-CALIBRATE_THRESHOLD );
 }
 
 void filter_sensor(){
 	
-	//static int phi[6] = {0,-387072,0,0,519168,0};	// Roll 310, 507
-	static int phi[6] = {0};
-	//static int theta[6] = {0,-317440,0,0,510976,0}; // Pitch 378, 499
-	static int theta[6] = {0};	
-	//static int psi[3] = {0,499712,0}; // Yaw 488
-	static int psi[3] = {0};
+	static int phi[6] = {0,387072,0,0,519168,0};	// Roll 310, 507
+	//static int phi[6] = {0};
+	static int theta[6] = {0,-317440,0,0,510976,0}; // Pitch 378, 499
+	//static int theta[6] = {0};	
+	static int psi[3] = {0,499712,0}; // Yaw 488
+	//static int psi[3] = {0};
 	int old = X32_clock_us;
 
 	static int test_counter = 0;
@@ -83,29 +86,28 @@ void filter_sensor(){
 		log_data_sensor(X32_clock_us, SAX, SAY, SAZ, SP, SQ, SR); // Accel
 	}
 
-	SAX = 0;
-	SAY = 0;
-	SQ = 0;
-	SR = 0;
-    SP = 0;
 	switch(mode){
 		case CALIBRATION:
 			#if !TEST_FILTERS
 			phi[Xs] = I2FDP(SAY);	
 			phi[dXs]= I2FDP(SP);
 			theta[Xs] = I2FDP(SAX);
-			theta[dXs]= I2FDP(SQ);//-1*I2FDP(SQ);
+			theta[dXs]= -1*I2FDP(SQ);
 			psi[dXs]= I2FDP(SR);
 
 			calibrate(phi,&Filt_phi);
+	
 			calibrate(theta,&Filt_thet);
+			
+		
 			calibrate_yaw(psi,&Filt_r);
 			
 			calibrated = is_calibrated(phi,theta,psi);
 			#else
 			calibrated = 1;
 			#endif
-	
+		
+			filtered_q = theta[dXs]- theta[dXb];
 			break;
 
 		case YAW_CONTROL:
@@ -114,9 +116,10 @@ void filter_sensor(){
 			calibrate_yaw(psi,&Filt_r);
 			psi[dXk] = psi[dXs]-psi[dXb];
 
-			ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+			//DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 			filtered_r = psi[dXk];
-			DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+			
+			//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 			break;
 
 		case FULL_CONTROL:
@@ -129,7 +132,7 @@ void filter_sensor(){
 			theta[Xs] = I2FDP(x[test_counter]);
 			test_counter++;
 			#else
-			theta[dXs]= I2FDP(SQ);
+			theta[dXs]= -1*I2FDP(SQ);
 			theta[Xs] = I2FDP(SAX);
 			#endif
 			

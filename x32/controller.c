@@ -19,9 +19,13 @@ extern int filtered_q;	// Pitch rate
 extern int filtered_theta; // Pitch
 extern int ae[];
 
-int P_Y = 34; //1/30
-int P1 = 10;
-int P2 = 51;
+#define PY_BASE 17
+#define P1_BASE 10
+#define P2_BASE 10
+
+int P_Y = PY_BASE; //1/30
+int P1 = P1_BASE;
+int P2 = P2_BASE;
 
 extern int sp;
 extern int sq;
@@ -33,9 +37,9 @@ extern int saz;
 void update_control_parameters(int P1_new, int P2_new, int P3_new)
 {
 	//The control parameters are received with a fraction of 6 bits.
-	P_Y = MULT(1024, (P1_new<<4));
-	P1 = MULT(1024, (P2_new <<4));
-	P2 = MULT(1024, (P3_new <<4));
+	P_Y = MULT(PY_BASE, (P1_new<<4));
+	P1 = MULT(P1_BASE, (P2_new <<4));
+	P2 = MULT(P2_BASE, (P3_new <<4));
 
 }
 
@@ -63,7 +67,8 @@ void control_yaw(Factors *F){
 	
 	//js yaw [-0.5 0.5]
 	//filtered_r [-200 200 ]
-	F->f_y = JS_mes[JS_YAW] + MULT(filtered_r,P_Y);
+	F->f_y = JS_mes[JS_YAW] - MULT(filtered_r,P_Y);
+	//F->f_y = JS_mes[JS_YAW] - filtered_r/60;
 	
 }
 
@@ -72,16 +77,16 @@ void control_pitch(Factors *F){
 	static int des_q=0;
 
 	// Position controller
-	if (count>=LOOP_RATE_FACT){
+	/*if (count>=LOOP_RATE_FACT){
 		//js pitch [-0.25 0.25 ]
 		//filterd_theta [-100 100]
 
 		des_q = JS_mes[JS_PITCH] - MULT(filtered_theta,P1);//MULT((JS_mes[JS_PITCH] - (filtered_theta/100)),P1);
 		count=0;
 	}
-
+*/
 	// Rate controller
-	F->f_p = des_q + MULT(filtered_q,P2);
+	F->f_p = des_q - MULT(filtered_q,P2);
 
 	count++;
 }

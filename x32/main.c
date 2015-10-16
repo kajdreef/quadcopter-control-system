@@ -107,7 +107,7 @@ int main(void)
 	setup_sensor_interrupts(10);
 #endif
 #ifdef DIV_0_INTERRUPT
-	setup_div_0_interrupts(20);
+//setup_div_0_interrupts(20);
 #endif
 
 	//Let the QR begin with a safe configuration
@@ -120,7 +120,7 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
-		filter_sensor();
+
 		/*
 		 Blink the status led(1Hz)
 		 */
@@ -234,7 +234,7 @@ int main(void)
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
 			DAQ_mes[DAQ_ROLL_RATE] = SP;//filtered_p;
-			DAQ_mes[DAQ_PITCH_RATE] = SQ;//filtered_q;
+			DAQ_mes[DAQ_PITCH_RATE] = (FDP2I(filtered_q));
 			DAQ_mes[DAQ_YAW_RATE] = SR;//filtered_theta;
 			
 			DAQ_mes[DAQ_SAX] = SAX;//filtered_p;
@@ -248,8 +248,8 @@ int main(void)
 
 			DAQ_mes[DAQ_MODE] =  mode;
 
-			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time;
-			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;
+			DAQ_mes[DAQ_CONTR_TIME] = (isr_controller_time);
+			DAQ_mes[DAQ_FILTER_TIME] = FDP2I(isr_filter_time);
 			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;
 
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
