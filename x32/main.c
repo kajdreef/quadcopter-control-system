@@ -66,7 +66,7 @@ extern int filtered_r;
 extern int filtered_p;
 extern int filtered_q;
 
-extern int filtered_thet;
+extern int filtered_theta;
 
 void status_led(void);
 void toggle_led(int i);
@@ -233,12 +233,12 @@ int main(void)
 		*/
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
-			DAQ_mes[DAQ_ROLL_RATE] = SP;//filtered_p;
+			DAQ_mes[DAQ_ROLL_RATE] = FDP2I(filtered_p);
 			DAQ_mes[DAQ_PITCH_RATE] = (FDP2I(filtered_q));
 			DAQ_mes[DAQ_YAW_RATE] = SR;//filtered_theta;
 			
 			DAQ_mes[DAQ_SAX] = SAX;//filtered_p;
-			DAQ_mes[DAQ_SAY] = SAY;//filtered_q;
+			DAQ_mes[DAQ_SAY] = FDP2I(filtered_theta);
 
 			//Possible switch of the interrupts;
 			DAQ_mes[DAQ_AE1] = ae[0];

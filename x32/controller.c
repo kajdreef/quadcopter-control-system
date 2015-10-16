@@ -17,11 +17,12 @@ extern int filtered_r;	// Yaw rate
 extern int filtered_p;	// Roll rate
 extern int filtered_q;	// Pitch rate
 extern int filtered_theta; // Pitch
+extern int filtered_phi;//
 extern int ae[];
 
-#define PY_BASE 17
-#define P1_BASE 10
-#define P2_BASE 10
+#define PY_BASE 24
+#define P1_BASE 75
+#define P2_BASE 30
 
 int P_Y = PY_BASE; //1/30
 int P1 = P1_BASE;
@@ -77,14 +78,14 @@ void control_pitch(Factors *F){
 	static int des_q=0;
 
 	// Position controller
-	/*if (count>=LOOP_RATE_FACT){
+	if (count>=LOOP_RATE_FACT){
 		//js pitch [-0.25 0.25 ]
 		//filterd_theta [-100 100]
 
-		des_q = JS_mes[JS_PITCH] - MULT(filtered_theta,P1);//MULT((JS_mes[JS_PITCH] - (filtered_theta/100)),P1);
+		des_q = JS_mes[JS_PITCH]*2 - MULT(filtered_theta,P1);//MULT((JS_mes[JS_PITCH] - (filtered_theta/100)),P1);
 		count=0;
 	}
-*/
+
 	// Rate controller
 	F->f_p = des_q - MULT(filtered_q,P2);
 
@@ -98,19 +99,43 @@ void control_roll(Factors *F){
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
 		//des_p = JS_mes[JS_ROLL]/2;
-		//des_p = MULT((JS_mes[JS_ROLL]/2 - (filtered_phi/100)),P1);
+		des_p = JS_mes[JS_ROLL]*2 + MULT(filtered_phi,P1);
 		count=0;
 	}
 
 	// Rate controller
 	//filtered_p= 0;
-	F->f_r = MULT((des_p - (filtered_p/10)),P2);
+	F->f_r = des_p + MULT(filtered_p,P2);
     
 	count++;
 }
 
 void apply_mot_fact(Factors *F,int *ae){
 
+	if(F->f_y> 512 )
+	{
+		F->f_y = 512;
+	}
+	else if(F->f_y < -512){
+		F->f_y = -512;
+	}
+		
+	if(F->f_p> 512 )
+	{
+		F->f_p = 512;
+	}
+	else if(F->f_p < -512){
+		F->f_p = -512;
+	}
+
+	if(F->f_r> 512 )
+	{
+		F->f_r = 512;
+	}
+	else if(F->f_r < -512){
+		F->f_r = -512;
+	}
+	
 	ae[0] = MULT(F->f_l,(FACTOR - F->f_y + F->f_p));
 	ae[1] = MULT(F->f_l,(FACTOR + F->f_y - F->f_r));
 	ae[2] = MULT(F->f_l,(FACTOR - F->f_y - F->f_p));
@@ -144,11 +169,12 @@ void isr_controller()
 
 		case FULL_CONTROL:
 			// Full
-			manual_yaw(&F);
-			//control_yaw(&F);
+			//manual_yaw(&F);
+			control_yaw(&F);
+			//manual_pitch(&F);
 			control_pitch(&F);
-			//control_roll(&F);
-			manual_roll(&F);
+			control_roll(&F);
+			
 			break;
 	}
 	
