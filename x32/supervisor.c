@@ -164,10 +164,12 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 			case YAW_CONTROL:
 				if(new_mode == PANIC)
 				{
+					calibrated = 0;
 					*mode = new_mode;
 				}
 				if(new_mode == SAFE)
-				{
+				{	
+					calibrated = 0;
 					*mode = PANIC;
 					new_mode = PANIC;
 				}
@@ -179,11 +181,13 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		 */	
 			case FULL_CONTROL:
 				if(new_mode == PANIC)
-				{
+				{	
+					calibrated = 0;
 					*mode = new_mode;
 				}
 				if(new_mode == SAFE)
-				{
+				{	
+					calibrated = 0;
 					*mode = PANIC;
 					new_mode = PANIC;
 				}
