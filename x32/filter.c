@@ -100,6 +100,10 @@ void filter_sensor(){
 			calibrate_yaw(psi,&Filt_r);
 			
 			calibrated = is_calibrated(phi,theta,psi);
+			if(calibrated)
+			{
+				supervisor_set_mode(&mode, SAFE);			
+			}
 			#else
 			calibrated = 1;
 			#endif

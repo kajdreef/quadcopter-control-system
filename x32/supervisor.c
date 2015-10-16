@@ -89,9 +89,9 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		 */
 			case SAFE:
 				if(neutral_input()){
-					if(new_mode == YAW_CONTROL)
+					if(new_mode == YAW_CONTROL && calibrated)
 					{
-						*mode = CALIBRATION;
+						*mode = YAW_CONTROL;
 					}
 					else if(new_mode == CALIBRATION)
 					{
@@ -102,9 +102,9 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 						*mode = new_mode;
 						
 					}
-					else if(new_mode == FULL_CONTROL)
+					else if(new_mode == FULL_CONTROL && calibrated)
 					{
-						*mode = CALIBRATION;
+						*mode = FULL_CONTROL;
 					}
 				}
 				break;
@@ -145,7 +145,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				{
 					*mode = SAFE;
 				}
-				else if(new_mode == YAW_CONTROL && calibrated && neutral_input())
+			/*	else if(new_mode == YAW_CONTROL && calibrated && neutral_input())
 				{
 					*mode  = new_mode;
 				}
@@ -153,6 +153,8 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				{
 					*mode  = new_mode;
 				}
+				break;
+		*/
 				break;
 		/* YAW CONTROL MODE:
 		 * Turning the engines on is allowed in yaw control mode.
@@ -195,10 +197,11 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		{
 			panic_time = X32_clock_us;
 		}
-		if(new_mode == SAFE)
+		/*if(new_mode == SAFE)
 		{
-			calibrated = 0;
+			//calibrated = 0;
 		}
+		*/
 	}
 
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
