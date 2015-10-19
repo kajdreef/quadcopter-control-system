@@ -12,8 +12,10 @@ extern int panic_time;
 extern int JS_mes[];
 extern int calibrated;
 extern enum QR mode;
+
 /*------------------------------------------------------------------
- * supervisor_received_mode --  Check the received mode and change it if needed
+ * supervisor_received_mode --  Checks the received mode and change it if needed.
+ * If a new mode is received 3 times it is considered to be received properly	
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -58,7 +60,9 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 }
 
 /*------------------------------------------------------------------
- * supervisor_check_panic --  Check to see if in panic mode and call the supervisor to possible set safe mode
+ * supervisor_check_panic --  Checks to see if the QR is in panic mode and 
+ * and if so if it can already switch to SAFE mode which is only possibly once
+ * the panic time has elapsed.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -73,7 +77,9 @@ void supervisor_check_panic(enum QR *mode){
 }
 
 /*------------------------------------------------------------------
- * supervisor_set_mode -- Change modes and enforce conditions for changing modes.
+ * supervisor_set_mode -- This function is used to change modes.
+ * It implements the state machine used to obtain safety by enforcing 
+ * That state changes can only occur under certain conditions.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -216,7 +222,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 }
 
 /*------------------------------------------------------------------
- * neutral_input --  Function to check if the received inputs are neutral
+ * neutral_input --  Function to check if the received inputs are neutral.	
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -233,6 +239,14 @@ int neutral_input(void)
 
 }
 
+/*------------------------------------------------------------------
+ * check_inputs --  Function used to check if the inputs(setpoints) received by
+ * The PC link are within valid ranges to make sure that no incorrect
+ * information is used by the supervisor/controller. If the inputs are 
+ * incorrect the values are nog used
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 int check_inputs(int *unchecked, int *checked)
 {	int i;
 	int flag = 0;
@@ -272,11 +286,11 @@ int check_inputs(int *unchecked, int *checked)
 }
 
 /*------------------------------------------------------------------
- * setup_div_0_interrupts -- Setup the interrupts used when a division by zero is attempted
+ * setup_div_0_interrupts -- Setup the interrupts used when a division 
+ * by zero is attempted.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void setup_div_0_interrupts(int prio){
 
 	/*
@@ -290,7 +304,12 @@ void setup_div_0_interrupts(int prio){
 
 
 }
-
+/*------------------------------------------------------------------
+ * div0_isr -- Interrupt service routine for when a division by zero
+ * is attempted. The system will then go to panic mode to ensure safety.
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void div0_isr()
 {
 	if(mode != SAFE){
