@@ -14,22 +14,28 @@ extern int ae[];
 void calc_actuators(int *ae, int *prev_ae)
 {
 	int i = 0;
-	for(i=0;i<4;i++){
-		if(ae[i] != 0){
+
+	if(!(ae[0] == 0 && ae[1] == 0 && ae[2] == 0 && ae[3] == 0)){
+		for(i=0;i<4;i++){
+			
+			if(ae[i]<64){
+				ae[i]=64;
+			}else if(ae[i]>1024){
+				ae[i] = 1024;
+			}
+
 			ae[i] = F_sqrt(ae[i]);
 			
-			if(ae[i]<0x00000100){
-				ae[i]=0x00000100;
-			}
-			else if(ae[i]>0x000003ff){
+			if(ae[i]>0x000003ff){
 				ae[i]=0x000003ff;	
 			}
-		}
+			
 
-		if(ae[i]-prev_ae[i]>MAX_ACC)	// Accelerating
-		{	
-			ae[i] = prev_ae[i] + MAX_ACC;
-		}	
+			if(ae[i]-prev_ae[i]>MAX_ACC)	// Accelerating
+			{	
+				ae[i] = prev_ae[i] + MAX_ACC;
+			}	
+		}
 	}
 
 }
