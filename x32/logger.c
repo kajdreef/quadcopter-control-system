@@ -9,11 +9,23 @@
 int START = 0;
 int PRINTED = 0;
 
+/*------------------------------------------------------------------
+ * toggle_led -- Functions used to toggle a certain led
+ * Author: Arjan van Gemund (resources page IN4073) 
+ *------------------------------------------------------------------
+ */
 void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
 }
 
+/*------------------------------------------------------------------
+ * log_toggle_led -- Function used to toggle the le while the x32
+ * is logging. This is to visualize on the QR or nexys board that the
+ * logging is indeed occuring.
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void log_toggle_led(int i)
 {
 	static int count = 0;

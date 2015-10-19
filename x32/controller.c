@@ -35,6 +35,13 @@ extern int sax;
 extern int say;
 extern int saz;
 
+/*------------------------------------------------------------------
+ * update_control_parameters -- Function used to update the values of the P
+ * controllers. The current value is multiplied with the received value of the 
+ * PC side.
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void update_control_parameters(int P1_new, int P2_new, int P3_new)
 {
 	//The control parameters are received with a fraction of 6 bits.

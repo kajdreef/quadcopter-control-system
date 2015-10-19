@@ -115,10 +115,8 @@ void filter_sensor(){
 			calibrate_yaw(psi,&Filt_r);
 			psi[dXk] = psi[dXs]-psi[dXb];
 
-			//DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
 			filtered_r = psi[dXk];
 			
-			//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 			break;
 
 		case FULL_CONTROL:
@@ -142,13 +140,13 @@ void filter_sensor(){
 			calibrate_yaw(psi,&Filt_r);
 			psi[dXk] = psi[dXs]-psi[dXb];
 
-			//DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+
 			filtered_phi = phi[Xk];
 			filtered_theta = theta[Xk];
 			filtered_p = phi[dXk];
 			filtered_q = theta[dXk];
 			filtered_r = psi[dXk];
-			//ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+	
 			break;
 	}
 	// Needed so the QR Link can be checked

@@ -1,7 +1,8 @@
 #ifndef FIXED_POINT_H
 #define FIXED_POINT_H 
 
-/* Fixed point macros
+/* Fixed point macros 
+ * Contains both macros for variable size and macros for 10bit precision.
  * Author: Bastiaan Oosterhuis
  *	
  */
