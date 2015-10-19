@@ -110,7 +110,7 @@ int main(void)
 #ifdef DIV_0_INTERRUPT
 //setup_div_0_interrupts(20);
 #endif
-
+	X32_leds = 0;
 	//Let the QR begin with a safe configuration
 	supervisor_set_mode(&mode, SAFE);
 
@@ -150,6 +150,7 @@ int main(void)
 		if(!check_qr_link(last_sensor_irs_time))
 		{	//Too long since last received message
 			qr_link_led(0);
+			
 		}
 		else {
 			qr_link_led(1);
