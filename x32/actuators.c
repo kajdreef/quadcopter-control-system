@@ -16,11 +16,13 @@ void calc_actuators(int *ae, int *prev_ae)
 	int i = 0;
 
 	if(!(ae[0] == 0 && ae[1] == 0 && ae[2] == 0 && ae[3] == 0)){
+		
 		for(i=0;i<4;i++){
 			
-			if(ae[i]<64){
-				ae[i]=64;
-			}else if(ae[i]>1024){
+			if(ae[i]<63){
+				ae[i]=63;
+			}
+			else if(ae[i]>1024){
 				ae[i] = 1024;
 			}
 
@@ -28,6 +30,10 @@ void calc_actuators(int *ae, int *prev_ae)
 			
 			if(ae[i]>0x000003ff){
 				ae[i]=0x000003ff;	
+			}
+			else if(ae[i]<0x100)
+			{
+				ae[i]=0x100;		
 			}
 			
 

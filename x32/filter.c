@@ -107,6 +107,7 @@ void filter_sensor(){
 			#else
 			calibrated = 1;
 			#endif
+			
 			break;
 
 		case YAW_CONTROL:
