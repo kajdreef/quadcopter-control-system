@@ -274,7 +274,8 @@ int main(void)
 }
 
 /*------------------------------------------------------------------
- * check_pc_led -- CHecks what the status of the PC link is
+ * check_pc_link -- Checks what the status of the PC link is by observing
+ * how long it was since the last message was received correctly.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -345,12 +346,16 @@ void status_led(void){
 
 	if(X32_clock_us - prev > 1000000)
 	{
-		//X32_leds ^= 1;
 		toggle_led(0);
 		prev = X32_clock_us;
 	}
 }
 
+/*------------------------------------------------------------------
+ * toggle_led -- Functions used to toggle a certain led
+ * Author: Arjan van Gemund (resources page IN4073) 
+ *------------------------------------------------------------------
+ */
 void toggle_led(int i)
 {
 	X32_leds = (X32_leds ^ (1 << i));
