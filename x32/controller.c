@@ -21,8 +21,8 @@ extern int filtered_phi;//
 extern int ae[];
 
 #define PY_BASE 24
-#define P1_BASE 30
-#define P2_BASE 540
+#define P1_BASE 75
+#define P2_BASE 30
 
 int P_Y = PY_BASE; //1/30
 int P1 = P1_BASE;
