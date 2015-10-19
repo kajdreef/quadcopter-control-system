@@ -80,8 +80,8 @@ int send (char* msg, int msgSize) {
 }
 
 /*------------------------------------------------------------------
- * getchar -- get a character from the fifo buffer
- * Author: Bastiaan Oosterhuis
+ * get_char -- get a character from the fifo buffer
+ * Author: Bastiaan Oosterhuis (Adapted from the example on the resources pages)
  *------------------------------------------------------------------
  */
 int get_char(void)
@@ -162,7 +162,8 @@ void received_new_IO (int status){
 }
 
 /*------------------------------------------------------------------
- * isr_char_available -- checks if a character is available in the FIFO buffer
+ * is_char_available -- checks if a character is available in the FIFO buffer
+ * to determine whether processing is needed.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

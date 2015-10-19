@@ -55,7 +55,7 @@ void encode_message(int mask, int message_length, int *input, char *output_buffe
 
 /*------------------------------------------------------------------
  *	encode -- Encode one integer value to 18 bits and place the result
- *  in a buffer. The first to bit contain the mask that indicates the message type.
+ *  in a buffer. The first two bit contain the mask that indicates the message type.
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

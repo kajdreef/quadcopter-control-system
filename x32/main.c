@@ -67,6 +67,7 @@ extern int filtered_p;
 extern int filtered_q;
 
 extern int filtered_theta;
+extern int filtered_phi;
 
 void status_led(void);
 void toggle_led(int i);

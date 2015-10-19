@@ -36,7 +36,9 @@ extern int CON_mes[3];
 }
 
 /*------------------------------------------------------------------
- *	encode_message -- Encode a complete message
+ *	encode_message -- Encode a complete message(input) with a certain mask
+ *  which indicates the message type. The result is placed in the output
+ *  buffer
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -52,7 +54,8 @@ void encode_message(int mask, int message_length, int *input, char *output_buffe
 
 
 /*------------------------------------------------------------------
- *	encode -- Encode one integer value to 3 chars and place them in a buffer
+ *	encode -- Encode one integer value to 18 bits and place the result
+ *  in a buffer. The first two bit contain the mask that indicates the message type.
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

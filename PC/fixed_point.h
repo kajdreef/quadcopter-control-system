@@ -2,8 +2,9 @@
 #define FIXED_POINT_H 
 
 /* Fixed point macros
+
  * Author: Bastiaan Oosterhuis
- *	
+ * Contains both macros for variable size and macros for 10bit precision.	
  */
 
 #define INT_PART	22	
