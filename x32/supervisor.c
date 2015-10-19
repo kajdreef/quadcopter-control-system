@@ -138,7 +138,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		/* CALIBRATION MODE:
 		 * The set actuator enforces that the engines are turned off during calibration mode
 		 * In calibration mode we can always go to panic mode or safe mode
-		 * Once the system is calibrated we could also go to yaw mode
+		 * Once the system is calibrated the system goes back to safe mode
 		 */
 			case CALIBRATION:
 				if(new_mode == SAFE | new_mode == PANIC)
@@ -153,7 +153,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				{
 					*mode  = new_mode;
 				}
-				break;
+				
 		*/
 				break;
 		/* YAW CONTROL MODE:
