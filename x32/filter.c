@@ -61,7 +61,7 @@ int is_calibrated(int phi[], int theta[], int psi[]){
 	int dphi_err = phi[dXs] - phi[dXb];
 	int dtheta_err = theta[dXs] - theta[dXb];
 	int dpsi_err = psi[dXs] - psi[dXb];
-	isr_filter_time = dpsi_err;
+	
 
 return (phi_err<CALIBRATE_THRESHOLD ) && (phi_err>-CALIBRATE_THRESHOLD ) && 
 			(theta_err<CALIBRATE_THRESHOLD ) && (theta_err>-CALIBRATE_THRESHOLD ) && 

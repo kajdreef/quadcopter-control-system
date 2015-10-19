@@ -234,10 +234,10 @@ int main(void)
 		if(X32_clock_us - send_message_time > DAQ_MESSAGE_PERIOD)
 		{
 			DAQ_mes[DAQ_ROLL_RATE] = FDP2I(filtered_p);
-			DAQ_mes[DAQ_PITCH_RATE] = (FDP2I(filtered_q));
-			DAQ_mes[DAQ_YAW_RATE] = SR;//filtered_theta;
+			DAQ_mes[DAQ_PITCH_RATE] = FDP2I(filtered_q);
+			DAQ_mes[DAQ_YAW_RATE] = FDP2I(filtered_r);
 			
-			DAQ_mes[DAQ_SAX] = SAX;//filtered_p;
+			DAQ_mes[DAQ_SAX] = FDP2I(filtered_phi);
 			DAQ_mes[DAQ_SAY] = FDP2I(filtered_theta);
 
 			//Possible switch of the interrupts;
@@ -248,8 +248,8 @@ int main(void)
 
 			DAQ_mes[DAQ_MODE] =  mode;
 
-			DAQ_mes[DAQ_CONTR_TIME] = (isr_controller_time);
-			DAQ_mes[DAQ_FILTER_TIME] = FDP2I(isr_filter_time);
+			DAQ_mes[DAQ_CONTR_TIME] = isr_controller_time;
+			DAQ_mes[DAQ_FILTER_TIME] = isr_filter_time;
 			DAQ_mes[DAQ_VOLTAGE] = battery_voltage;
 
 			encode_message(DAQ_MASK, sizeof(DAQ_mes)/sizeof(DAQ_mes[0]), DAQ_mes, output_buffer);
