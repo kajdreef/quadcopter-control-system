@@ -38,15 +38,19 @@ Filt.a0 = a(1)/b(1);
 
 xy = zeros(6,1);
 
-x = log6(1:2048,2);
-dx= log6(2049:end,3);
-t = log6(1:2048,1)/1e6;
-[t,i] =sortrows(t,1);
-x = x(i)-504;%+%400*(rand(length(t),1)-0.5);
-dx = -1*dx(i);%+%20*(rand(length(t),1)-0.5);
+%x = log6(1:2048,2);
+%dx= log6(2049:end,3);
+%t = log6(1:2048,1)/1e6;
+
+%[t,i] =sortrows(t,1);
+t = 0:1/1270:10;
+x = 504 + 50*sin(t);
+dx = -50*cos(t)+310;
+x = x-504+400*(rand(1,length(t))-0.5);
+dx = -1*dx+20*(rand(1,length(t))-0.5);
 %dx = dx(i)-300;
 
-bias = -310;
+bias = -10;
 phi = 0;
 p = 0;
 
