@@ -51,8 +51,8 @@ void isr_rx_fifo(void){
 
 /*------------------------------------------------------------------
  * is_char_available -- checks if a character is available in the FIFO buffer
- * Returns:	
- *			int 1/0: Whether or not a character is available 
+ * Returns:
+ *			int 1/0: Whether or not a character is available
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -69,6 +69,7 @@ int is_char_available(void){
 
 /*------------------------------------------------------------------
  * get_char -- get a character form the fifo buffer
+ *
  * Returns:	
  *			char c: The character that is read from the FIFO 
  * Author: Bastiaan Oosterhuis(Adapted from the example on the resources pages)
@@ -93,7 +94,7 @@ char get_char(void)
  *
  * Input :
  *			char data:	The character to be processed
- *			
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -113,7 +114,7 @@ void detect_message(char data){
 		receive_count++;
 		message_type = 0;
 		message_type ^= (data & END);
-		
+
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1 && message_length(data) == MESSAGE_LENGTH)
 	{
@@ -158,7 +159,7 @@ void detect_message(char data){
  *
  * Input :
  *			int prio:	priority of the interrupts
- *			
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
