@@ -14,8 +14,12 @@ extern int calibrated;
 extern enum QR mode;
 
 /*------------------------------------------------------------------
- * supervisor_received_mode --  Checks the received mode and change it if needed.
- * If a new mode is received 3 times it is considered to be received properly	
+ * supervisor_received_mode -- Checks if a mode is received 3 times in a row 
+ * and then tries to change it.
+ * Input :
+ *			enum QR *mode:		The current mode of the QR
+ *			int received_mode:	The newly received mode 
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -60,9 +64,11 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 }
 
 /*------------------------------------------------------------------
- * supervisor_check_panic --  Checks to see if the QR is in panic mode and 
- * and if so if it can already switch to SAFE mode which is only possibly once
- * the panic time has elapsed.
+ * supervisor_check_panic -- Checks to see if the QR is in panic mode and is so
+ * tries to change to safe mode.
+ * Input :
+ *			enum QR *mode:	The current mode of the QR
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -77,9 +83,12 @@ void supervisor_check_panic(enum QR *mode){
 }
 
 /*------------------------------------------------------------------
- * supervisor_set_mode -- This function is used to change modes.
- * It implements the state machine used to obtain safety by enforcing 
- * That state changes can only occur under certain conditions.
+ * supervisor_set_mode -- Function used to change modes while enforcing the
+ * state machine to have safe operation
+ * Input :
+ *			enum QR *mode:	The current mode of the QR
+ *			enum QR new_mode: The newly intended mode of the QR 
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -144,7 +153,6 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		/* CALIBRATION MODE:
 		 * The set actuator enforces that the engines are turned off during calibration mode
 		 * In calibration mode we can always go to panic mode or safe mode
-		 * Once the system is calibrated the system goes back to safe mode
 		 */
 			case CALIBRATION:
 				if(new_mode == SAFE | new_mode == PANIC)
@@ -198,11 +206,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		{
 			panic_time = X32_clock_us;
 		}
-		/*if(new_mode == SAFE)
-		{
-			//calibrated = 0;
-		}
-		*/
+	
 	}
 
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
@@ -213,7 +217,9 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 }
 
 /*------------------------------------------------------------------
- * neutral_input --  Function to check if the received inputs are neutral.	
+ * neutral_input -- Function used to check if the received intputs are neutral.
+ * Returns:
+ *			int 1/0: Whether or not the received inputs are neutral
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -231,10 +237,16 @@ int neutral_input(void)
 }
 
 /*------------------------------------------------------------------
- * check_inputs --  Function used to check if the inputs(setpoints) received by
- * The PC link are within valid ranges to make sure that no incorrect
- * information is used by the supervisor/controller. If the inputs are 
- * incorrect the values are nog used
+ * check_inputs -- Function used to check if the inputs received by the PC link
+ * are within the valid ranges.
+ *
+ * Input:
+ *		int *unchecked: The Array containing the unchecked values
+ *		int *checked:	The array in which the checked values are stored
+ *
+ * Returns:
+ *		int 1/0:		Whether or not the inputs are within valid ranges
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -277,8 +289,9 @@ int check_inputs(int *unchecked, int *checked)
 }
 
 /*------------------------------------------------------------------
- * setup_div_0_interrupts -- Setup the interrupts used when a division 
- * by zero is attempted.
+ * setup_div_0_interrupts -- Setup the interrupts for a division by 0
+ * Input
+			int prio:  The priority of the interrupts
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -295,9 +308,10 @@ void setup_div_0_interrupts(int prio){
 
 
 }
+
 /*------------------------------------------------------------------
- * div0_isr -- Interrupt service routine for when a division by zero
- * is attempted. The system will then go to panic mode to ensure safety.
+ * div0_isr -- The divide by zero isr. switches the system to panic mode
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

@@ -2,7 +2,10 @@
 
 /*------------------------------------------------------------------
  * toggle_led -- Functions used to toggle a certain led
- * Author: Arjan van Gemund (resources page IN4073) 
+ * Input :
+ *			int i:	The led to toggle
+ *			
+ * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
 void toggle_led(int i)
@@ -11,7 +14,11 @@ void toggle_led(int i)
 }
 
 /*------------------------------------------------------------------
- * set_led -- Sets status to an led
+ * set_led -- Function to set a specific led
+ * Input :
+ *			int status:	The value to set the led to
+			int i:		The led to be set 
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

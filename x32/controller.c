@@ -24,7 +24,7 @@ extern int ae[];
 #define P1_BASE 75
 #define P2_BASE 30
 
-int P_Y = PY_BASE; //1/30
+int P_Y = PY_BASE; 
 int P1 = P1_BASE;
 int P2 = P2_BASE;
 
@@ -36,9 +36,12 @@ extern int say;
 extern int saz;
 
 /*------------------------------------------------------------------
- * update_control_parameters -- Function used to update the values of the P
- * controllers. The current value is multiplied with the received value of the 
- * PC side.
+ * update_control_parameters -- Updates the control parameters of the P controllers
+ * by multiplying the current value with the received update value.
+ *
+ * Input :
+ *			int P1_new, P2_new, P3_new:	The multipliers for the current P values
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -224,6 +227,10 @@ void isr_controller()
 
 /*------------------------------------------------------------------
  * setup_controller_interrupts -- Setup the interrupts used for the controller with a rate of 500Hz
+ *
+ * Input :
+ *			int prio:	The priority of the interrupts
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
