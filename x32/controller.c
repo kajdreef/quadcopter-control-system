@@ -51,19 +51,43 @@ void update_control_parameters(int P1_new, int P2_new, int P3_new)
 
 }
 
+/*------------------------------------------------------------------
+ * manual_lift -- Applies the JS-value of the lift to the lift factor.
+ * The JS-value is FP in the range [0 1].
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void manual_lift(Factors *F){
 	F->f_l = JS_mes[JS_LIFT];
-
 }
 
+/*------------------------------------------------------------------
+ * manual_yaw -- Applies the JS-value of the yaw to the yaw factor.
+ * The JS-value is FP in the range [-0.5 0.5].
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void manual_yaw(Factors *F){
-	F->f_y = JS_mes[JS_YAW];		// Max 0.5
-	// -0.50 - 0.50
+	F->f_y = JS_mes[JS_YAW];
 }
 
+/*------------------------------------------------------------------
+ * manual_pitch -- Applies the JS-value of the pitch to the pitch factor.
+ * The JS-value is FP in the range [-0.5 0.5].
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void manual_pitch(Factors *F){
-	F->f_p = JS_mes[JS_PITCH];	// Max 0.5
-	// -0.25 - 0.25
+	F->f_p = JS_mes[JS_PITCH];
 }
 
 void manual_roll(Factors *F){
