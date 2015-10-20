@@ -32,6 +32,16 @@ extern int battery_voltage;
 extern int last_sensor_irs_time;
 extern enum QR mode;
 
+/*------------------------------------------------------------------
+ * kalman -- A Kalman filter implementation, from the example in the
+ * IN4073 slides (Koen Langendoen).
+ * Input :
+ *			int p[]:			The measurement array
+ * 			Filt_Param *Filt:	The filter parameters
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void kalman(int p[], Filt_Param *Filt){
 	int e;
 	p[dXk] = p[dXs]-p[dXb];
@@ -42,6 +52,16 @@ void kalman(int p[], Filt_Param *Filt){
 	
 }
 
+/*------------------------------------------------------------------
+ * calibrate -- Sets the bias of the gyro and accalerometer measurement.
+ * Uses the low passed input signal to determine the bias.
+ * Input :
+ *			int p[]:			The measurement array
+ * 			Filt_Param *Filt:	The filter parameters
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void calibrate(int p[], Filt_Param *Filt){
 	// Calibrate the rate
 	p[dXb] += (p[dXs]-p[dXb])>>Filt->lp;
@@ -50,11 +70,32 @@ void calibrate(int p[], Filt_Param *Filt){
 	p[Xb] += (p[Xs]-p[Xb])>>Filt->lp;
 }
 
+/*------------------------------------------------------------------
+ * calibrate_yaw -- Sets the bias of only the gyro measurement.
+ * Uses the low passed input signal to determine the bias.
+ * Input :
+ *			int p[]:			The measurement array
+ * 			Filt_Param *Filt:	The filter parameters
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void calibrate_yaw(int p[],Filt_Param *Filt){
 	p[dXb] += (p[dXs]-p[dXb])>>Filt->lp;
 	
 }
 
+/*------------------------------------------------------------------
+ * is_calibrated -- Determines if all the sensors are calibrated.
+ * Input :
+ *			int phi[]:			The roll measurement array
+ *			int theta[]:		The pitch measurement array	
+ * 			int psi[]:			The yaw measurement array
+ * Returns:	
+ *			int :	1 if the sensors are calibrated, otherwise 0.
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 int is_calibrated(int phi[], int theta[], int psi[]){
 	int phi_err = phi[Xs] - phi[Xb];
 	int theta_err = theta[Xs] - theta[Xb];
@@ -71,14 +112,23 @@ return (phi_err<CALIBRATE_THRESHOLD ) && (phi_err>-CALIBRATE_THRESHOLD ) &&
 			(dpsi_err<CALIBRATE_THRESHOLD ) && (dpsi_err>-CALIBRATE_THRESHOLD );
 }
 
+
+/*------------------------------------------------------------------
+ * filter_sensor -- The sensor interrupt, called at ~1270Hz. 
+ * Uses measurement arrays to store (and shift) the sensor and filtered
+ * data.
+ *		- In CALIBRATION, the sensor data is fetched and the bias is set
+ *		- In YAW_CONTROL, only the yaw data is fetched and is continuesly calibrated
+ *		- In FULL_CONTROL, all sensor data is fetched and the Kalman filter
+ *			is used to continuesly calibrate the pitch and yaw gyros.
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void filter_sensor(){
 	
 	static int phi[6] = {0,387072,0,0,519168,0};	// Roll 310, 507
-	//static int phi[6] = {0};
 	static int theta[6] = {0,-317440,0,0,510976,0}; // Pitch 378, 499
-	//static int theta[6] = {0};	
 	static int psi[3] = {0,499712,0}; // Yaw 488
-	//static int psi[3] = {0};
 	int old = X32_clock_us;
 
 	static int test_counter = 0;
@@ -174,8 +224,14 @@ void filter_sensor(){
 	
 }
 
+/*------------------------------------------------------------------
+ * setup_sensor_interrupts -- Sets up the sensor interrupt
+ * Input :
+ *			int prio:		The priority of this interrupt [0 999]
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void setup_sensor_interrupts(int prio){
-
 	SET_INTERRUPT_VECTOR(INTERRUPT_XUFO, &filter_sensor);
 	SET_INTERRUPT_PRIORITY(INTERRUPT_XUFO, prio);
 	ENABLE_INTERRUPT(INTERRUPT_XUFO);
