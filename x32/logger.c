@@ -135,34 +135,34 @@ void log_data_profile(enum ProfileType profile, int timestamp, int profileData){
 void log_print(void){
 #if LOGGER
 	int i = 0;
-	char str[70];
+	char str[80];
 
 	if(PRINTED == 0){
 		// Print the log data (Accelerometer and Gyroscope)
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			sprintf(str, "%08d %08d %08d %08d %08d %08d %08d\n", logData[i][0],
+			sprintf(str, "%010d %010d %010d %010d %010d %010d %010d\n", logData[i][0],
 					logData[i][1], logData[i][2], logData[i][3], logData[i][4],
 					logData[i][5], logData[i][6]);
-			send_message(str, 63);
+			send_message(str, 77);
 		}
 
 		printf("\n");
 
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			sprintf(str, "%08d %08d\n", controlPData[i][0],
+			sprintf(str, "%010d %010d\n", controlPData[i][0],
 					controlPData[i][1]);
-			send_message(str, 18);
+			send_message(str, 22);
 		}
 
 		printf("\n");
 
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			sprintf(str, "%08d %08d\n", filterPData[i][0],
+			sprintf(str, "%010d %010d\n", filterPData[i][0],
 					filterPData[i][1]);
-			send_message(str, 18);
+			send_message(str, 22);
 		}
 
 		PRINTED = 1;
@@ -176,7 +176,7 @@ void log_print(void){
  *------------------------------------------------------------------
  */
 void log_start(void){
-	toggle_led(6);
+	set_led(1, 6);
 
 #if LOGGER
 	PRINTED = 0;
@@ -190,7 +190,7 @@ void log_start(void){
  *------------------------------------------------------------------
  */
 void log_stop(void){
-	toggle_led(6);
+	set_led(0, 6);
 #if LOGGER
 	START = 0;
 #endif
