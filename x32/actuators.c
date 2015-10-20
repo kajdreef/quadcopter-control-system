@@ -15,7 +15,7 @@ void calc_actuators(int *ae, int *prev_ae)
 {
 	int i = 0;
 
-	if(!(ae[0] == 0 && ae[1] == 0 && ae[2] == 0 && ae[3] == 0)){
+	if(!((ae[0] == 0) && (ae[1] == 0) && (ae[2] == 0) && (ae[3] == 0))){
 		
 		for(i=0;i<4;i++){
 			
@@ -64,14 +64,13 @@ void set_actuators(int *ae){
 			ae[3]=0;
 			break;
 		case PANIC:
-			if(ae[0] != 0)
+			if(!((ae[0] == 0) && (ae[1] == 0) && (ae[2] == 0) && (ae[3] == 0)))
+			{
 				ae[0] = 0x00000100;
-			if(ae[1] != 0)
 				ae[1] = 0x00000100;
-			if(ae[2] != 0)
 				ae[2] = 0x00000100;
-			if(ae[3] != 0)
 				ae[3] = 0x00000100;
+			}
 			break;
 
 		case CALIBRATION:

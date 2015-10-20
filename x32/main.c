@@ -121,7 +121,8 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
-
+		
+		filter_sensor();
 		/*
 		 Blink the status led(1Hz)
 		 */

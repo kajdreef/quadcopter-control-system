@@ -151,16 +151,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 				{
 					*mode = SAFE;
 				}
-			/*	else if(new_mode == YAW_CONTROL && calibrated && neutral_input())
-				{
-					*mode  = new_mode;
-				}
-				else if(new_mode == FULL_CONTROL && calibrated && neutral_input())
-				{
-					*mode  = new_mode;
-				}
-				
-		*/
+	
 				break;
 		/* YAW CONTROL MODE:
 		 * Turning the engines on is allowed in yaw control mode.
@@ -216,7 +207,7 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	//set the mode on the LEDs
-	X32_leds &= 7;
+	X32_leds &= 199;
 	X32_leds |= (*mode+1) << 3;
 
 }
