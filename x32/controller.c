@@ -13,27 +13,20 @@ extern int JS_mes[5];
 extern int state;
 extern int isr_controller_time;
 extern enum QR mode;
-extern int filtered_r;	// Yaw rate
-extern int filtered_p;	// Roll rate
-extern int filtered_q;	// Pitch rate
-extern int filtered_theta; // Pitch
-extern int filtered_phi;//
+extern int filtered_r;		// Yaw rate
+extern int filtered_p;		// Roll rate
+extern int filtered_q;		// Pitch rate
+extern int filtered_theta;  // Pitch
+extern int filtered_phi;	// Roll
 extern int ae[];
 
 #define PY_BASE 24
 #define P1_BASE 75
 #define P2_BASE 30
 
-int P_Y = PY_BASE; //1/30
+int P_Y = PY_BASE;
 int P1 = P1_BASE;
 int P2 = P2_BASE;
-
-extern int sp;
-extern int sq;
-extern int sr;
-extern int sax;
-extern int say;
-extern int saz;
 
 /*------------------------------------------------------------------
  * update_control_parameters -- Function used to update the values of the P
@@ -79,7 +72,7 @@ void manual_yaw(Factors *F){
 
 /*------------------------------------------------------------------
  * manual_pitch -- Applies the JS-value of the pitch to the pitch factor.
- * The JS-value is FP in the range [-0.5 0.5].
+ * The JS-value is FP in the range [-0.25 0.25].
  * Input :
  *			Factors *F:		The array with actuator factors.
  * 	
@@ -90,20 +83,44 @@ void manual_pitch(Factors *F){
 	F->f_p = JS_mes[JS_PITCH];
 }
 
+/*------------------------------------------------------------------
+ * manual_roll -- Applies the JS-value of the roll to the roll factor.
+ * The JS-value is FP in the range [-0.25 0.25].
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void manual_roll(Factors *F){
-	F->f_r = JS_mes[JS_ROLL];		// Max 0.5
-	// -0.25 - 0.25
+	F->f_r = JS_mes[JS_ROLL];
 }
 
+/*------------------------------------------------------------------
+ * control_yaw -- Applies the JS-value of the yaw and the controller input
+ * to the yaw factor. The controller uses the filtered yaw-rate (FP), range ~[-100 100].
+ * The JS-value is FP in the range [-0.25 0.25].
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void control_yaw(Factors *F){
-	
-	//js yaw [-0.5 0.5]
-	//filtered_r [-200 200 ]
-	F->f_y = JS_mes[JS_YAW] - MULT(filtered_r,P_Y);
-	//F->f_y = JS_mes[JS_YAW] - filtered_r/60;
-	
+	F->f_y = JS_mes[JS_YAW] - MULT(filtered_r,P_Y);	
 }
 
+/*------------------------------------------------------------------
+ * control_pitch -- Uses the JS-value (FP [-0.25 0.25]) and the measured
+ * angle (FP [-100 100]) to control the desired pitch-rate. The desired
+ * pitch rate is compared to the measured pitch rate (FP [-100 100]),
+ * the result is used to write the pitch factor. 
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void control_pitch(Factors *F){
 	static int count=0;
 	static int des_q=0;
@@ -113,7 +130,7 @@ void control_pitch(Factors *F){
 		//js pitch [-0.25 0.25 ]
 		//filterd_theta [-100 100]
 
-		des_q = JS_mes[JS_PITCH]*2 - MULT(filtered_theta,P1);//MULT((JS_mes[JS_PITCH] - (filtered_theta/100)),P1);
+		des_q = JS_mes[JS_PITCH]*2 - MULT(filtered_theta,P1);
 		count=0;
 	}
 
@@ -123,6 +140,17 @@ void control_pitch(Factors *F){
 	count++;
 }
 
+/*------------------------------------------------------------------
+ * control_roll -- Uses the JS-value (FP [-0.25 0.25]) and the measured
+ * angle (FP [-100 100]) to control the desired roll-rate. The desired
+ * roll rate is compared to the measured roll rate (FP [-100 100]),
+ * the result is used to write the roll factor.
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void control_roll(Factors *F){
 	static int count=0;
 	static int des_p=0;
@@ -141,40 +169,33 @@ void control_roll(Factors *F){
 	count++;
 }
 
+/*------------------------------------------------------------------
+ * apply_mot_face -- Applies the lift factors to the desired actuator values.
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ *			int *ae:		The array with desired actuator values.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void apply_mot_fact(Factors *F,int *ae){
-
-	/*if(F->f_y> 512 )
-	{
-		F->f_y = 512;
-	}
-	else if(F->f_y < -512){
-		F->f_y = -512;
-	}
-		
-	if(F->f_p> 512 )
-	{
-		F->f_p = 512;
-	}
-	else if(F->f_p < -512){
-		F->f_p = -512;
-	}
-
-	if(F->f_r> 512 )
-	{
-		F->f_r = 512;
-	}
-	else if(F->f_r < -512){
-		F->f_r = -512;
-	}
-	*/
 	ae[0] = MULT(F->f_l,(FACTOR - F->f_y + F->f_p));
 	ae[1] = MULT(F->f_l,(FACTOR + F->f_y - F->f_r));
 	ae[2] = MULT(F->f_l,(FACTOR - F->f_y - F->f_p));
 	ae[3] = MULT(F->f_l,(FACTOR + F->f_y + F->f_r));
-
-	//0-1023
 }
 
+/*------------------------------------------------------------------
+ * isr_controller -- The interrupt routine of the controller. Depending
+ * on the mode, different control actions are taken. The lift factor is 
+ * always set, the default is that all the other factors are 0.
+ * Input :
+ *			Factors *F:		The array with actuator factors.
+ *			int *ae:		The array with desired actuator values.
+ * 	
+ * Author: Gijs Bruining
+ *------------------------------------------------------------------
+ */
 void isr_controller()
 {
 	static Factors F={0,0,0,0};
