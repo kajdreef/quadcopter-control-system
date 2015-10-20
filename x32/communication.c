@@ -28,8 +28,8 @@ void send_message(char msg[], int length)
 }
 
 /*------------------------------------------------------------------
- * isr_rx_fifo -- receival interrupt service routine that places received chars 
- * in the FIFO BUFFER in order to be processed later. 	
+ * isr_rx_fifo -- receival interrupt service routine that places received chars
+ * in the FIFO BUFFER in order to be processed later.
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -106,7 +106,7 @@ void detect_message(char data){
 		receive_count++;
 		message_type = 0;
 		message_type ^= (data & END);
-		
+
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1 && message_length(data) == MESSAGE_LENGTH)
 	{

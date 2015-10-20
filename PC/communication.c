@@ -32,8 +32,12 @@ extern int DAQ_mes[13];
 struct sigaction saio;           /* definition of signal action */
 
 /*------------------------------------------------------------------
- *	send_char -- Send one character to the x32
- *	Author: Kaj Dreef
+ * send_char -- Send one character to the x32
+ * Input:
+ *			char c - character that needs to be sent
+ * Output:
+ *			int result - return 1 if sending completed
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 int send_char (char c) {
@@ -45,9 +49,13 @@ int send_char (char c) {
 	return result;
 }
 
+
 /*------------------------------------------------------------------
- *	send -- Send a string of characters to the x32
- *	Author: Kaj Dreef
+ * send -- Send a string of characters to the x32
+ * Input :
+ *			char *msg - pointer to the string that needs to be sent
+ *			int msgSize - Length of the string
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 int send (char* msg, int msgSize) {
@@ -81,10 +89,13 @@ int send (char* msg, int msgSize) {
 
 /*------------------------------------------------------------------
  * get_char -- get a character from the fifo buffer
+ * Output:
+ *			int c: return integer value of the character.
+ *
  * Author: Bastiaan Oosterhuis (Adapted from the example on the resources pages)
  *------------------------------------------------------------------
  */
-int get_char(void)
+char get_char(void)
 {
 	char c;
     c = fifo_buffer[rear++];
@@ -94,12 +105,15 @@ int get_char(void)
 	return c;
 }
 
-/*------------------------------------------------------------------
- *	detect_message -- receive a string of characters
- *		return amount of read bytes
- *	Author: Bastiaan Oosterhuis (modified by Kaj Dreef)
- *------------------------------------------------------------------
- */
+
+ /*------------------------------------------------------------------
+  * detect_message -- receive a string of characters
+  * Input:
+  *			char data - new character in the data message
+	*
+  * Author: Bastiaan Oosterhuis (modified by Kaj Dreef)
+  *------------------------------------------------------------------
+  */
 void detect_message (char data) {
 
 	static int receive_count = 0;
@@ -143,8 +157,11 @@ void detect_message (char data) {
 
 
 /*------------------------------------------------------------------
- *	received_new_IO -- Put the received data into the FIFO
- *	Author: Kaj Dreef
+ * received_new_IO -- Put the received data into the FIFO
+ * Output:
+ *			int c: return integer value of the character.
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void received_new_IO (int status){
@@ -176,9 +193,10 @@ int is_char_available(void){
 	}
 }
 
+
 /*------------------------------------------------------------------
- *	initSig -- initialize SIGIO (needed for interrupts)
- *	Author: Kaj Dreef
+ * initSig -- initialize SIGIO (needed for interrupts)
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void initSig(void){
@@ -187,9 +205,12 @@ void initSig(void){
 	saio.sa_restorer = NULL;
 }
 
+
 /*------------------------------------------------------------------
- *	enable_interrupts -- Enables the interrupts by assigning the right settings
- *	Author: Kaj Dreef
+ * enable_interrupts -- Enables the interrupts by assigning the right
+ * 	settings.
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void enable_interrupts(void) {
@@ -209,9 +230,10 @@ void disable_interrupts(void) {
 	fcntl(fd, F_SETFL, FASYNC | O_NONBLOCK);
 }
 
+
 /*------------------------------------------------------------------
- *	rs232_open -- setup connection
- *	Author: Kaj Dreef
+ * rs232_open -- setup connection
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 int rs232_open (void) {

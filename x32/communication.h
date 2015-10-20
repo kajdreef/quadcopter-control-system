@@ -21,4 +21,4 @@ int get_char(void);
 void detect_message(char data);
 void setup_uart_interrupts(int prio);
 
-#endif 
+#endif
