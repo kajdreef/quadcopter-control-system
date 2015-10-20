@@ -122,7 +122,7 @@ int main(void)
 
 	while (1){
 		
-		filter_sensor();
+	
 		/*
 		 Blink the status led(1Hz)
 		 */
