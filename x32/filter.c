@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "config.h"
 #include "communication.h"
+#include "led.h"
 
 #define TEST_FILTERS 0
 #define CALIBRATE_THRESHOLD 2048
@@ -155,11 +156,11 @@ void filter_sensor(){
 	
 	if(calibrated)
 	{
-		calibrated_led(1);
+		set_led(1,7);
 	}
 	else
 	{
-		calibrated_led(0);
+		set_led(0,7);
 	}
 
 	isr_filter_time = X32_clock_us - old;
@@ -181,14 +182,5 @@ void setup_sensor_interrupts(int prio){
 
 }
 
-
-/*------------------------------------------------------------------
- * calibrated_led -- Sets the led that shows the status of the calibration
- * Author: Bastiaan Oosterhuis
- *------------------------------------------------------------------
- */
-void calibrated_led(int status){
-	X32_leds = (X32_leds & 127) | status << 7;
-}
 
 
