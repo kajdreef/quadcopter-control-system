@@ -165,6 +165,7 @@ void log_print(void){
 			send_message(str, 22);
 		}
 
+		set_led(0, 6);
 		PRINTED = 1;
 	}
 #endif
