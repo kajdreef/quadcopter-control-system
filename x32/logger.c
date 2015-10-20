@@ -2,22 +2,12 @@
 #include <string.h>
 #include "logger.h"
 #include "communication.h"
-
+#include "led.h"
 
 #define LOGGER 1
 
 int START = 0;
 int PRINTED = 0;
-
-/*------------------------------------------------------------------
- * toggle_led -- Functions used to toggle a certain led
- * Author: Arjan van Gemund (resources page IN4073) 
- *------------------------------------------------------------------
- */
-void toggle_led(int i)
-{
-	X32_leds = (X32_leds ^ (1 << i));
-}
 
 /*------------------------------------------------------------------
  * log_toggle_led -- Function used to toggle the le while the x32

@@ -9,16 +9,6 @@ int rear = 0, front = 0;
 //type of the latest received message
 extern int message_type;
 
-/*------------------------------------------------------------------
- * toggle_led -- Functions used to toggle a certain led
- * Author: Arjan van Gemund (resources page IN4073) 
- *------------------------------------------------------------------
- */
-void toggle_led(int i)
-{
-	X32_leds = (X32_leds ^ (1 << i));
-}
-
 
 /*------------------------------------------------------------------
  * send_message -- send the characters stored in an array for a specific

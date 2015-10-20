@@ -8,6 +8,7 @@
 #include "actuators.h"
 #include "logger.h"
 #include "actuators.h"
+#include "led.h"
 
 //Interrupt enabling
 #define MESSAGE_INTERRUPT
@@ -143,7 +144,7 @@ int main(void)
 				supervisor_set_mode(&mode, PANIC);
 				
 				set_led(0,1);
-				//pc_link_led(0);
+				
 			}
 		}
 
@@ -192,7 +193,7 @@ int main(void)
 			}
 			else if(message_type == CON_MASK)
 			{	//if it is a controller message for tuning the P values
-				toggle_led(7);
+				
 				decode(message,sizeof(CON_mes)/sizeof(CON_mes[0]), CON_mes);
 				update_control_parameters(CON_mes[0], CON_mes[1], CON_mes[2]);
 
@@ -228,7 +229,7 @@ int main(void)
 			{	//To not switch to panic mode when the system starts and is not yet connected
 				com_started = 1;
 			}
-			//pc_link_led(1);
+			
 			set_led(1,1);
 			MESSAGE_FLAG = FALSE;
 		}
@@ -332,16 +333,6 @@ void qr_link_led(int status){	// led 2
 }
 
 /*------------------------------------------------------------------
- * set_led -- Sets status to an led
- * Author: Bastiaan Oosterhuis
- *------------------------------------------------------------------
- */
-void set_led(int status, int i)
-{
-	X32_leds = (X32_leds & ~(1<<i)) | status <<i;
-}
-
-/*------------------------------------------------------------------
  * status_led -- Toggle the led showing that the x32 is running every second
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
@@ -357,12 +348,3 @@ void status_led(void){
 	}
 }
 
-/*------------------------------------------------------------------
- * toggle_led -- Functions used to toggle a certain led
- * Author: Arjan van Gemund (resources page IN4073) 
- *------------------------------------------------------------------
- */
-void toggle_led(int i)
-{
-	X32_leds = (X32_leds ^ (1 << i));
-}
