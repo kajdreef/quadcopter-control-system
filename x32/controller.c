@@ -119,7 +119,7 @@ void control_roll(Factors *F){
 
 void apply_mot_fact(Factors *F,int *ae){
 
-	if(F->f_y> 512 )
+	/*if(F->f_y> 512 )
 	{
 		F->f_y = 512;
 	}
@@ -142,7 +142,7 @@ void apply_mot_fact(Factors *F,int *ae){
 	else if(F->f_r < -512){
 		F->f_r = -512;
 	}
-	
+	*/
 	ae[0] = MULT(F->f_l,(FACTOR - F->f_y + F->f_p));
 	ae[1] = MULT(F->f_l,(FACTOR + F->f_y - F->f_r));
 	ae[2] = MULT(F->f_l,(FACTOR - F->f_y - F->f_p));
@@ -181,8 +181,12 @@ void isr_controller()
 			//manual_pitch(&F);
 			control_pitch(&F);
 			control_roll(&F);
-			
 			break;
+		default:
+			F.f_y = 0;
+			F.f_p = 0;
+			F.f_r = 0;
+			
 	}
 	
 	apply_mot_fact(&F,ae);

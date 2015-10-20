@@ -121,7 +121,8 @@ int main(void)
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 
 	while (1){
-
+		
+	
 		/*
 		 Blink the status led(1Hz)
 		 */
@@ -140,7 +141,9 @@ int main(void)
 			if(mode != PANIC)
 			{
 				supervisor_set_mode(&mode, PANIC);
-				pc_link_led(0);
+				
+				set_led(0,1);
+				//pc_link_led(0);
 			}
 		}
 
@@ -225,8 +228,8 @@ int main(void)
 			{	//To not switch to panic mode when the system starts and is not yet connected
 				com_started = 1;
 			}
-			pc_link_led(1);
-
+			//pc_link_led(1);
+			set_led(1,1);
 			MESSAGE_FLAG = FALSE;
 		}
 
@@ -329,12 +332,13 @@ void qr_link_led(int status){	// led 2
 }
 
 /*------------------------------------------------------------------
- * pc_link_led -- Sets the led that shows the status of the pc link
+ * set_led -- Sets status to an led
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-void pc_link_led(int status){
-	X32_leds = (X32_leds & 253) | status << 1;
+void set_led(int status, int i)
+{
+	X32_leds = (X32_leds & ~(1<<i)) | status <<i;
 }
 
 /*------------------------------------------------------------------

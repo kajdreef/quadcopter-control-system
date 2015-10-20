@@ -100,14 +100,12 @@ void filter_sensor(){
 			calibrate_yaw(psi,&Filt_r);
 			
 			calibrated = is_calibrated(phi,theta,psi);
-			if(calibrated)
-			{
-				supervisor_set_mode(&mode, SAFE);			
-			}
+			
 			#else
 			calibrated = 1;
 			#endif
 			
+		
 			break;
 
 		case YAW_CONTROL:
@@ -154,6 +152,15 @@ void filter_sensor(){
 	last_sensor_irs_time = X32_clock_us;
 
 	battery_voltage = X32_QR_S6;
+	
+	if(calibrated)
+	{
+		calibrated_led(1);
+	}
+	else
+	{
+		calibrated_led(0);
+	}
 
 	isr_filter_time = X32_clock_us - old;
 	#if TEST_FILTERS
@@ -173,3 +180,15 @@ void setup_sensor_interrupts(int prio){
 	ENABLE_INTERRUPT(INTERRUPT_XUFO);
 
 }
+
+
+/*------------------------------------------------------------------
+ * calibrated_led -- Sets the led that shows the status of the calibration
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
+void calibrated_led(int status){
+	X32_leds = (X32_leds & 127) | status << 7;
+}
+
+
