@@ -24,7 +24,10 @@
 
 //period used for the sending of a DAQ message in us
 #define DAQ_MESSAGE_PERIOD	100000
+
+#if TEST_QR_LINK
 #define QR_LINK_PERIOD 1000
+#endif
 
 //Messages
 int DAQ_mes[13];
