@@ -35,8 +35,9 @@ struct sigaction saio;           /* definition of signal action */
  * send_char -- Send one character to the x32
  * Input:
  *			char c - character that needs to be sent
- * Output:
+ * Return:
  *			int result - return 1 if sending completed
+ *
  * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
@@ -55,6 +56,7 @@ int send_char (char c) {
  * Input :
  *			char *msg - pointer to the string that needs to be sent
  *			int msgSize - Length of the string
+ *
  * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
@@ -89,7 +91,7 @@ int send (char* msg, int msgSize) {
 
 /*------------------------------------------------------------------
  * get_char -- get a character from the fifo buffer
- * Output:
+ * Return:
  *			int c: return integer value of the character.
  *
  * Author: Bastiaan Oosterhuis (Adapted from the example on the resources pages)
@@ -106,14 +108,14 @@ char get_char(void)
 }
 
 
- /*------------------------------------------------------------------
-  * detect_message -- receive a string of characters
-  * Input:
-  *			char data - new character in the data message
-	*
-  * Author: Bastiaan Oosterhuis (modified by Kaj Dreef)
-  *------------------------------------------------------------------
-  */
+/*------------------------------------------------------------------
+ * detect_message -- receive a string of characters
+ * Input:
+ *			char data - new character in the data message
+ *
+ * Author: Bastiaan Oosterhuis (modified by Kaj Dreef)
+ *------------------------------------------------------------------
+ */
 void detect_message (char data) {
 
 	static int receive_count = 0;
@@ -158,7 +160,7 @@ void detect_message (char data) {
 
 /*------------------------------------------------------------------
  * received_new_IO -- Put the received data into the FIFO
- * Output:
+ * Return:
  *			int c: return integer value of the character.
  *
  * Author: Kaj Dreef
@@ -208,7 +210,7 @@ void initSig(void){
 
 /*------------------------------------------------------------------
  * enable_interrupts -- Enables the interrupts by assigning the right
- * 	settings.
+ * 											settings.
  *
  * Author: Kaj Dreef
  *------------------------------------------------------------------

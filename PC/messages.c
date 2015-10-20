@@ -78,9 +78,16 @@ void encode(int value, char* buffer,int index, int mask, int end){
 
 }
 
+
 /*------------------------------------------------------------------
- *	decode -- Decode the messeges into int messages (Can only do int messages)
- *	Author: Kaj Dreef
+ * decode -- Decode the messeges into int messages (Can only do int
+ *            messages)
+ * Input:
+ *			char *input - message that needs to be decoded
+ *      int msg_length - length of the destination message
+ *      int * dest - destination of the decoded message
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void decode (char* input, int msg_length, int* dest ){

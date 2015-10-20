@@ -14,7 +14,7 @@ int PRINTED = 0;
  * the logging process.
  * Input :
  *			int i:	The led to toggle
- *			
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -24,14 +24,15 @@ void log_toggle_led(int i)
 	count++;
 	if(count == 30){
 		toggle_led(i);
-		
+
 		count = 0;
 	}
 }
 
+
 /*------------------------------------------------------------------
- *	log_init -- initialise all the arrays to 0
- *	Author: Kaj Dreef
+ * log_init -- initialise all the arrays to 0
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void log_init() {
@@ -49,8 +50,17 @@ void log_init() {
 }
 
 /*------------------------------------------------------------------
- *	log_data_sensor -- put sensor data in its specified array with an timestamp
- *	Author: Kaj Dreef
+ * log_data_sensor -- put sensor data in its specified array with an timestamp
+ * Input:
+ *			int timestamp
+ *			int xAccel - x value of the Accelerometer
+ *			int yAccel - y value of the Accelerometer
+ *			int zAccel - z value of the Accelerometer
+ *			int xGyro - x value of the Gyroscope
+ *			int yGyro - y value of the Gyroscope
+ *			int zGyro - z value of the Gyroscope
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void log_data_sensor(int timestamp, int xAccel, int yAccel, int zAccel, int xGyro, int yGyro, int zGyro){
@@ -75,9 +85,15 @@ void log_data_sensor(int timestamp, int xAccel, int yAccel, int zAccel, int xGyr
 #endif
 }
 
+
 /*------------------------------------------------------------------
- *	log_data_profile -- put profile data in its specified array with an timestamp
- *	Author: Kaj Dreef
+ * log_data_profile -- put profile data in its specified array with an timestamp
+ * Input:
+ *			ProfileType profile - the profile that you're going to log (controller/filter)
+ *			int timestamp
+ *			int profileData
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void log_data_profile(enum ProfileType profile, int timestamp, int profileData){

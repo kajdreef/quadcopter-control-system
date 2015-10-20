@@ -12,12 +12,12 @@ extern int JS_mes[5];
 extern int CON_mes[3];
 
 /*------------------------------------------------------------------
- * message_length -- Return the number of bytes to be received for a 
+ * message_length -- Return the number of bytes to be received for a
  * specific message type
  * Input :
  *			char data:	The received byte to be checked(the first two bits
  *						represents the message type)
- *			
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -45,8 +45,8 @@ int message_length(char data)
  *		int mask:			The mask that is encoded in the message
  *		int message_length:	The message length in values(integers) to send
  *		int *input: 		The array containing the input data
- *		char *output_buffer:The array in which the decoded message is placed 
- *			
+ *		char *output_buffer:The array in which the decoded message is placed
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -62,15 +62,15 @@ void encode_message(int mask, int message_length, int *input, char *output_buffe
 
 /*------------------------------------------------------------------
  *	encode -- Encode one integer value to 2 bytes and place the result
- *  in a buffer. 
- *  Input:	
+ *  in a buffer.
+ *  Input:
  *			int value:	 The value to be encoded
  *			char* buffer:The buffer in which the encoded value is placed
  *			int index:	The index index of the encoded message
- *			int mask:	The mask to be used for encoding(message type)	
+ *			int mask:	The mask to be used for encoding(message type)
  *			int end:	Indicating whether the end of the message is reached
- *						and a different mask must be used	
- *			
+ *						and a different mask must be used
+ *
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -88,9 +88,14 @@ void encode(int value, char* buffer,int index, int mask, int end){
 }
 
 /*------------------------------------------------------------------
- *	decode -- Decode the messeges into int messages (Can only do int messages)
- *  Msg length are the number of ints encoded in the message
- *	Author: Kaj Dreef
+ * decode -- Decode the messeges into int messages (Can only do int
+ *            messages)
+ * Input:
+ *			char *input - message that needs to be decoded
+ *      int msg_length - length of the destination message
+ *      int * dest - destination of the decoded message
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void decode (char* input, int msg_length, int* dest ){
