@@ -29,7 +29,7 @@ int calibrated = 0;
 
 extern int isr_filter_time;
 extern int battery_voltage;
-extern int last_sensor_irs_time;
+extern int last_sensor_isr_time;
 extern enum QR mode;
 
 void kalman(int p[], Filt_Param *Filt){
@@ -150,7 +150,7 @@ void filter_sensor(){
 			break;
 	}
 	// Needed so the QR Link can be checked
-	last_sensor_irs_time = X32_clock_us;
+	last_sensor_isr_time = X32_clock_us;
 
 	battery_voltage = X32_QR_S6;
 	
