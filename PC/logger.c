@@ -6,9 +6,15 @@ FILE *logFile = NULL;
 char* filename = "log.txt";
 int LOG_EXIST = 0;
 
+
 /*------------------------------------------------------------------
- *	log_write_char -- Write character to a file.
- *	Author: Kaj Dreef
+ * log_write_char -- Write character to a file.
+ * Input:
+ * 			char c - character that needs to be logged to the file
+ * Return:
+ *			int - return 1 logging succeeded, 0 logging failed
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 int log_write_char(char c){

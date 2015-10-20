@@ -8,7 +8,7 @@
 #include "keyboard.h"
 #include "fixed_point.h"
 
-#define JOYSTICK 1
+#define JOYSTICK 0
 
 #define SEND_MESSAGE_PRINT 0
 #define RECEIVED_MSG_PRINT 1
@@ -37,9 +37,11 @@ char msg[15];
 int keyboard_input_read(int *new_mode, int *trimming);
 int initialization(int *fd, int *js_fd);
 
+
 /*------------------------------------------------------------------
- *	Main function of the pc application
- *	Author: Kaj Dreef
+ * main - Main function of the pc application
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 int main (void) {

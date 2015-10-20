@@ -6,23 +6,33 @@ extern int	axis[6];
 extern int	button[12];
 
 /*------------------------------------------------------------------
- * scale_joystick_lift -- scales the value of the lift to 0 -1 in
- * fixed point representation
- *
+ * scale_joystick_lift -- scales the value of the lift to be between 
+ * [0 1] in fixed point representation
+ * Input:
+ *			int lift: The lift to be scaled
+ * 
+ * Returns:	
+ *			int : returns the scaled value in the range(fdp): [0 1]
+ * 	
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
+
 int scale_joystick_lift(int lift){
 
 	return (I2FDP_S((-1*lift+0x00007FFF)/64,10) >> FRACT_PART);
 
 }
 
-
 /*------------------------------------------------------------------
- * scale_joystick_yaw -- scales the value of the yaw to -0.5 0.5 in
+ * scale_joystick_yaw -- scales the value of the yaw to [-0.5 0.5] in
  * fixed point representation
- *
+ * Input:
+ *			int yaw: The yaw to be scalend
+ * 
+ * Returns:	
+ *			int : returns the scaled value in the range(fdp): [-0.5 0.5]
+ * 	
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -33,11 +43,15 @@ int scale_joystick_yaw(int yaw){
 	return  result;
 }
 
-
 /*------------------------------------------------------------------
- * scale_joystick_pr -- scales the value of the pitch or roll to -0.25 and 0.25 in
+ * scale_joystick_pr -- scales the value of the pitch or roll to [-0.25 0.25] in
  * fixed point representation
- *
+ * Input:
+ *			int value: The pitch/roll to be scalend
+ * 
+ * Returns:	
+ *			int : returns the scaled value in the range(fdp): [-0.25 0.25]
+ * 	
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -48,11 +62,13 @@ int scale_joystick_pr(int value){
 	return result;
 }
 
-
 /*------------------------------------------------------------------
  * configure_joystick -- open the joystick and configure it
- *
- * Author: Bastiaan Oosterhuis
+ * Returns:	
+ *			int : returns the file descriptor of the joystick
+ * 	
+ * Author: Adapted from the resources page example by
+ * Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
 int configure_joystick(void){
@@ -71,15 +87,17 @@ int configure_joystick(void){
 	return fd;
 }
 
-
 /*------------------------------------------------------------------
  * read_joystick -- process all available joystick events
- * adapted from the given example
- * Author: Bastiaan Oosterhuis
+ * Returns:	
+ *			int : whether the read was succesful
+ * 	
+ * Author: Adapted from the resources page example by
+ * Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
 int read_joystick(int jfd, struct js_event *js, int axis[], int button[]){
-	//printf("read_joystick %d \n", jfd);
+	
 	while (read(jfd, js, sizeof(struct js_event)) == sizeof(struct js_event))
 	{
 		switch(js->type & ~JS_EVENT_INIT)
@@ -105,7 +123,10 @@ int read_joystick(int jfd, struct js_event *js, int axis[], int button[]){
 
 /*------------------------------------------------------------------
  * print_joystick -- print all the (relevant) joystick values
- *
+ * Input:
+ *			int *axis: the axis array of the joystick
+ *			int *button: the button array of the joystick
+ *			int t: timestampz
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

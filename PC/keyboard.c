@@ -52,8 +52,12 @@ int	term_getchar(void){
 }
 
 /*------------------------------------------------------------------
- *	keyboard_log_input Check whether the keyboard input is related
+ *	keyboard_log_input -- Check whether the keyboard input is related
  *  to logging
+ *	Input:
+ *			char input: the character to be checked
+ *	Returns: 
+ *			int 1/-1 : whether or not the input was a log input
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -76,8 +80,12 @@ int keyboard_log_input(char input)
 }
 
 /*------------------------------------------------------------------
- *	keyboard_control_input Check whether the keyboard input is related
+ *	keyboard_control_input -- Check whether the keyboard input is related
  *  to tuning the controller
+ * 	Input:
+ *			char input: The character to be checked
+ *	Returns:
+ *			int 1/-1: whether or not the input is a control input
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -109,6 +117,12 @@ int keyboard_control_input(char input)
 	}
 }
 
+/*------------------------------------------------------------------
+ *	trim_pitch_roll_yaw_up trim the pitch roll and yaw value of the joystick
+ *  upwards.
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void trim_pitch_roll_yaw_up(int *trim, int index)
 {
 	trim[index] += TRIM;
@@ -119,6 +133,12 @@ void trim_pitch_roll_yaw_up(int *trim, int index)
 
 }
 
+/*------------------------------------------------------------------
+ *	trim_pitch_roll_yaw_down trim the pitch roll and yaw value of the joystick
+ *  downwards.
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void trim_pitch_roll_yaw_down(int *trim, int index)
 {
 	trim[index] -= TRIM;
@@ -128,6 +148,11 @@ void trim_pitch_roll_yaw_down(int *trim, int index)
 	}
 }
 
+/*------------------------------------------------------------------
+ *	trim_lift_up trim the lift value of the joystick upwards.
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void trim_lift_up(int *trim, int index)
 {
 	trim[index] += TRIM;
@@ -137,6 +162,11 @@ void trim_lift_up(int *trim, int index)
 	}
 }
 
+/*------------------------------------------------------------------
+ *	trim_lift_down trim the lift value of the joystick downwards.
+ *	Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void trim_lift_down(int *trim, int index)
 {
 	trim[TRIM_LIFT] -= TRIM;
@@ -148,7 +178,8 @@ void trim_lift_down(int *trim, int index)
 }
 
 /*------------------------------------------------------------------
- *	process_keyboard function used to process the keymap
+ *	process_keyboard function used to process the keymap that has to 
+ *  be abided.
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

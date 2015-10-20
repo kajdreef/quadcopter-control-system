@@ -12,8 +12,14 @@ extern int panic_time;
 extern int JS_mes[];
 extern int calibrated;
 extern enum QR mode;
+
 /*------------------------------------------------------------------
- * supervisor_received_mode --  Check the received mode and change it if needed
+ * supervisor_received_mode -- Checks if a mode is received 3 times in a row 
+ * and then tries to change it.
+ * Input :
+ *			enum QR *mode:		The current mode of the QR
+ *			int received_mode:	The newly received mode 
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -58,7 +64,11 @@ void supervisor_received_mode(enum QR *mode, int received_mode)
 }
 
 /*------------------------------------------------------------------
- * supervisor_check_panic --  Check to see if in panic mode and call the supervisor to possible set safe mode
+ * supervisor_check_panic -- Checks to see if the QR is in panic mode and is so
+ * tries to change to safe mode.
+ * Input :
+ *			enum QR *mode:	The current mode of the QR
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -73,7 +83,12 @@ void supervisor_check_panic(enum QR *mode){
 }
 
 /*------------------------------------------------------------------
- * supervisor_set_mode -- Change modes and enforce conditions for changing modes.
+ * supervisor_set_mode -- Function used to change modes while enforcing the
+ * state machine to have safe operation
+ * Input :
+ *			enum QR *mode:	The current mode of the QR
+ *			enum QR new_mode: The newly intended mode of the QR 
+ *			
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -138,23 +153,13 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		/* CALIBRATION MODE:
 		 * The set actuator enforces that the engines are turned off during calibration mode
 		 * In calibration mode we can always go to panic mode or safe mode
-		 * Once the system is calibrated we could also go to yaw mode
 		 */
 			case CALIBRATION:
 				if(new_mode == SAFE | new_mode == PANIC)
 				{
 					*mode = SAFE;
 				}
-			/*	else if(new_mode == YAW_CONTROL && calibrated && neutral_input())
-				{
-					*mode  = new_mode;
-				}
-				else if(new_mode == FULL_CONTROL && calibrated && neutral_input())
-				{
-					*mode  = new_mode;
-				}
-				break;
-		*/
+	
 				break;
 		/* YAW CONTROL MODE:
 		 * Turning the engines on is allowed in yaw control mode.
@@ -201,22 +206,20 @@ void supervisor_set_mode(enum QR *mode, enum QR new_mode){
 		{
 			panic_time = X32_clock_us;
 		}
-		/*if(new_mode == SAFE)
-		{
-			//calibrated = 0;
-		}
-		*/
+	
 	}
 
 	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
 	//set the mode on the LEDs
-	X32_leds &= 7;
+	X32_leds &= 199;
 	X32_leds |= (*mode+1) << 3;
 
 }
 
 /*------------------------------------------------------------------
- * neutral_input --  Function to check if the received inputs are neutral
+ * neutral_input -- Function used to check if the received intputs are neutral.
+ * Returns:
+ *			int 1/0: Whether or not the received inputs are neutral
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -233,6 +236,20 @@ int neutral_input(void)
 
 }
 
+/*------------------------------------------------------------------
+ * check_inputs -- Function used to check if the inputs received by the PC link
+ * are within the valid ranges.
+ *
+ * Input:
+ *		int *unchecked: The Array containing the unchecked values
+ *		int *checked:	The array in which the checked values are stored
+ *
+ * Returns:
+ *		int 1/0:		Whether or not the inputs are within valid ranges
+ *
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 int check_inputs(int *unchecked, int *checked)
 {	int i;
 	int flag = 0;
@@ -272,11 +289,12 @@ int check_inputs(int *unchecked, int *checked)
 }
 
 /*------------------------------------------------------------------
- * setup_div_0_interrupts -- Setup the interrupts used when a division by zero is attempted
+ * setup_div_0_interrupts -- Setup the interrupts for a division by 0
+ * Input
+			int prio:  The priority of the interrupts
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void setup_div_0_interrupts(int prio){
 
 	/*
@@ -291,6 +309,12 @@ void setup_div_0_interrupts(int prio){
 
 }
 
+/*------------------------------------------------------------------
+ * div0_isr -- The divide by zero isr. switches the system to panic mode
+ *
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void div0_isr()
 {
 	if(mode != SAFE){

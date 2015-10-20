@@ -9,14 +9,12 @@ int rear = 0, front = 0;
 //type of the latest received message
 extern int message_type;
 
-void toggle_led(int i)
-{
-	X32_leds = (X32_leds ^ (1 << i));
-}
-
-
 /*------------------------------------------------------------------
- * send_message -- send characters from an array
+ * send_message -- Sends the characters from an array for a specific length
+ * Input :
+ *			char msg:	Array containing the message
+ *			int length: Length of the message to send
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -32,11 +30,10 @@ void send_message(char msg[], int length)
 }
 
 /*------------------------------------------------------------------
- * isr_rx_fifo -- receival interrupt service routine that places received chars in the FIFO BUFFER
+ * isr_rx_fifo -- uart ISR that places receives chars into the FIFO bufer
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
-
 void isr_rx_fifo(void){
 
 	char data;
@@ -53,7 +50,9 @@ void isr_rx_fifo(void){
 }
 
 /*------------------------------------------------------------------
- * isr_char_available -- checks if a character is available in the FIFO buffer
+ * is_char_available -- checks if a character is available in the FIFO buffer
+ * Returns:
+ *			int 1/0: Whether or not a character is available
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -69,11 +68,14 @@ int is_char_available(void){
 }
 
 /*------------------------------------------------------------------
- * isr_getchar -- get a character from the fifo buffer
- * Author: Bastiaan Oosterhuis
+ * get_char -- get a character form the fifo buffer
+ *
+ * Returns:	
+ *			char c: The character that is read from the FIFO 
+ * Author: Bastiaan Oosterhuis(Adapted from the example on the resources pages)
  *------------------------------------------------------------------
  */
-int get_char(void)
+char get_char(void)
 {
 	char c;
 	int temp = rear;
@@ -85,8 +87,13 @@ int get_char(void)
 }
 
 /*------------------------------------------------------------------
- * detect_message -- Detect a message by searching for a pattern in the received messages
- * If too many packages losses the system will switch to panic mode
+ * detect_message -- Detects a message by looking for a pattern in the received characters.
+ * If there are too many package losses it will switch the system to panic mode.
+ * A message is detected by looking at the first two bits of each message. The first two
+ * bits indicate the message type or the end of a message
+ *
+ * Input :
+ *			char data:	The character to be processed
  *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
@@ -107,7 +114,7 @@ void detect_message(char data){
 		receive_count++;
 		message_type = 0;
 		message_type ^= (data & END);
-		
+
 	}
 	else if (receive_count > 0 && receive_count < MESSAGE_LENGTH-1 && message_length(data) == MESSAGE_LENGTH)
 	{
@@ -148,17 +155,16 @@ void detect_message(char data){
 
 
 /*------------------------------------------------------------------
- * setup_uart_interrupts -- Setup the interrupts used for receiving data
+ * setup_uart_interrupts -- Setup the uart interrupts
+ *
+ * Input :
+ *			int prio:	priority of the interrupts
+ *
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
 void setup_uart_interrupts(int prio){
 
-	/*
-		Attach an interrupt to the receival of a byte
-		Set the priority
-		Enable the interrupt
-	*/
 	SET_INTERRUPT_VECTOR(INTERRUPT_PRIMARY_RX, &isr_rx_fifo);
 	SET_INTERRUPT_PRIORITY(INTERRUPT_PRIMARY_RX, prio);
 	ENABLE_INTERRUPT(INTERRUPT_PRIMARY_RX);

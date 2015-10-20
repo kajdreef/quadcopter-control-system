@@ -17,7 +17,7 @@ int rs232_open (void);
 int send_char (char c);
 int send (char* msg, int msgSize);
 
-int get_char(void);
+char get_char(void);
 void detect_message (char data);
 int is_char_available(void);
 

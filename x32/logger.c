@@ -2,31 +2,37 @@
 #include <string.h>
 #include "logger.h"
 #include "communication.h"
-
+#include "led.h"
 
 #define LOGGER 1
 
 int START = 0;
 int PRINTED = 0;
 
-void toggle_led(int i)
-{
-	X32_leds = (X32_leds ^ (1 << i));
-}
-
+/*------------------------------------------------------------------
+ * log_toggle_led -- Toggles the led while the x32 is logging to visualize
+ * the logging process.
+ * Input :
+ *			int i:	The led to toggle
+ *
+ * Author: Bastiaan Oosterhuis
+ *------------------------------------------------------------------
+ */
 void log_toggle_led(int i)
 {
 	static int count = 0;
 	count++;
 	if(count == 30){
-		X32_leds = (X32_leds ^ (1 << i));
+		toggle_led(i);
+
 		count = 0;
 	}
 }
 
+
 /*------------------------------------------------------------------
- *	log_init -- initialise all the arrays to 0
- *	Author: Kaj Dreef
+ * log_init -- initialise all the arrays to 0
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void log_init() {
@@ -44,8 +50,17 @@ void log_init() {
 }
 
 /*------------------------------------------------------------------
- *	log_data_sensor -- put sensor data in its specified array with an timestamp
- *	Author: Kaj Dreef
+ * log_data_sensor -- put sensor data in its specified array with an timestamp
+ * Input:
+ *			int timestamp
+ *			int xAccel - x value of the Accelerometer
+ *			int yAccel - y value of the Accelerometer
+ *			int zAccel - z value of the Accelerometer
+ *			int xGyro - x value of the Gyroscope
+ *			int yGyro - y value of the Gyroscope
+ *			int zGyro - z value of the Gyroscope
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void log_data_sensor(int timestamp, int xAccel, int yAccel, int zAccel, int xGyro, int yGyro, int zGyro){
@@ -70,9 +85,15 @@ void log_data_sensor(int timestamp, int xAccel, int yAccel, int zAccel, int xGyr
 #endif
 }
 
+
 /*------------------------------------------------------------------
- *	log_data_profile -- put profile data in its specified array with an timestamp
- *	Author: Kaj Dreef
+ * log_data_profile -- put profile data in its specified array with an timestamp
+ * Input:
+ *			ProfileType profile - the profile that you're going to log (controller/filter)
+ *			int timestamp
+ *			int profileData
+ *
+ * Author: Kaj Dreef
  *------------------------------------------------------------------
  */
 void log_data_profile(enum ProfileType profile, int timestamp, int profileData){
@@ -114,34 +135,34 @@ void log_data_profile(enum ProfileType profile, int timestamp, int profileData){
 void log_print(void){
 #if LOGGER
 	int i = 0;
-	char str[70];
+	char str[80];
 
 	if(PRINTED == 0){
 		// Print the log data (Accelerometer and Gyroscope)
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			sprintf(str, "%08d %08d %08d %08d %08d %08d %08d\n", logData[i][0],
+			sprintf(str, "%010d %010d %010d %010d %010d %010d %010d\n", logData[i][0],
 					logData[i][1], logData[i][2], logData[i][3], logData[i][4],
 					logData[i][5], logData[i][6]);
-			send_message(str, 63);
+			send_message(str, 77);
 		}
 
 		printf("\n");
 
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			sprintf(str, "%08d %08d\n", controlPData[i][0],
+			sprintf(str, "%010d %010d\n", controlPData[i][0],
 					controlPData[i][1]);
-			send_message(str, 18);
+			send_message(str, 22);
 		}
 
 		printf("\n");
 
 		for(i = 0; i < LOGGER_ARRAY_SIZE; i++) {
 			log_toggle_led(6);
-			sprintf(str, "%08d %08d\n", filterPData[i][0],
+			sprintf(str, "%010d %010d\n", filterPData[i][0],
 					filterPData[i][1]);
-			send_message(str, 18);
+			send_message(str, 22);
 		}
 
 		PRINTED = 1;
@@ -155,7 +176,7 @@ void log_print(void){
  *------------------------------------------------------------------
  */
 void log_start(void){
-	toggle_led(6);
+	set_led(1, 6);
 
 #if LOGGER
 	PRINTED = 0;
@@ -169,7 +190,7 @@ void log_start(void){
  *------------------------------------------------------------------
  */
 void log_stop(void){
-	toggle_led(6);
+	set_led(0, 6);
 #if LOGGER
 	START = 0;
 #endif
