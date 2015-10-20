@@ -80,11 +80,13 @@ int send (char* msg, int msgSize) {
 }
 
 /*------------------------------------------------------------------
- * get_char -- get a character from the fifo buffer
- * Author: Bastiaan Oosterhuis (Adapted from the example on the resources pages)
+ * get_char -- get a character form the fifo buffer
+ * Returns:	
+ *			char c: The character that is read from the FIFO 
+ * Author: Bastiaan Oosterhuis(Adapted from the example on the resources pages)
  *------------------------------------------------------------------
  */
-int get_char(void)
+char get_char(void)
 {
 	char c;
     c = fifo_buffer[rear++];
@@ -95,9 +97,13 @@ int get_char(void)
 }
 
 /*------------------------------------------------------------------
- *	detect_message -- receive a string of characters
- *		return amount of read bytes
- *	Author: Bastiaan Oosterhuis (modified by Kaj Dreef)
+ * detect_message -- Detects a message by looking for a pattern in the received characters.
+ * The first two bits indicate the message type or the end of a message
+ *
+ * Input :
+ *			char data:	The character to be processed
+ *			
+ * Author: Bastiaan Oosterhuis(modified by Kaj Dreef)
  *------------------------------------------------------------------
  */
 void detect_message (char data) {
@@ -163,7 +169,8 @@ void received_new_IO (int status){
 
 /*------------------------------------------------------------------
  * is_char_available -- checks if a character is available in the FIFO buffer
- * to determine whether processing is needed.
+ * Returns:	
+ *			int 1/0: Whether or not a character is available 
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

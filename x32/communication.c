@@ -71,7 +71,7 @@ int is_char_available(void){
  * get_char -- get a character form the fifo buffer
  * Returns:	
  *			char c: The character that is read from the FIFO 
- * Author: Bastiaan Oosterhuis
+ * Author: Bastiaan Oosterhuis(Adapted from the example on the resources pages)
  *------------------------------------------------------------------
  */
 char get_char(void)
