@@ -52,8 +52,12 @@ int	term_getchar(void){
 }
 
 /*------------------------------------------------------------------
- *	keyboard_log_input Check whether the keyboard input is related
+ *	keyboard_log_input -- Check whether the keyboard input is related
  *  to logging
+ *	Input:
+ *			char input: the character to be checked
+ *	Returns: 
+ *			int 1/-1 : whether or not the input was a log input
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -76,8 +80,12 @@ int keyboard_log_input(char input)
 }
 
 /*------------------------------------------------------------------
- *	keyboard_control_input Check whether the keyboard input is related
+ *	keyboard_control_input -- Check whether the keyboard input is related
  *  to tuning the controller
+ * 	Input:
+ *			char input: The character to be checked
+ *	Returns:
+ *			int 1/-1: whether or not the input is a control input
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
