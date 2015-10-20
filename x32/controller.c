@@ -189,9 +189,9 @@ void apply_mot_fact(Factors *F,int *ae){
 }
 
 /*------------------------------------------------------------------
- * isr_controller -- The interrupt routine of the controller. Depending
- * on the mode, different control actions are taken. The lift factor is 
- * always set, the default is that all the other factors are 0.
+ * isr_controller -- The interrupt routine of the controller @500Hz.
+ * Depending on the mode, different control actions are taken. The 
+ * lift factor is always set, the default is that all the other factors are 0.
  * Input :
  *			Factors *F:		The array with actuator factors.
  *			int *ae:		The array with desired actuator values.
