@@ -126,7 +126,7 @@ int read_joystick(int jfd, struct js_event *js, int axis[], int button[]){
  * Input:
  *			int *axis: the axis array of the joystick
  *			int *button: the button array of the joystick
- *			int t: timestampz
+ *			int t: timestamp
  * Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */

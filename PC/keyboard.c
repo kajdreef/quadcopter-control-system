@@ -118,8 +118,12 @@ int keyboard_control_input(char input)
 }
 
 /*------------------------------------------------------------------
- *	trim_pitch_roll_yaw_up trim the pitch roll and yaw value of the joystick
+ *	trim_pitch_roll_yaw_up -- trim the pitch roll and yaw value of the joystick
  *  upwards.
+ * 	Input:
+ *			int *trim:	The array that contains the trimming values
+ *			int index:	the value to trim		
+ *
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -134,8 +138,12 @@ void trim_pitch_roll_yaw_up(int *trim, int index)
 }
 
 /*------------------------------------------------------------------
- *	trim_pitch_roll_yaw_down trim the pitch roll and yaw value of the joystick
+ *	trim_pitch_roll_yaw_down -- trim the pitch roll and yaw value of the joystick
  *  downwards.
+ * 	Input:
+ *			int *trim:	The array that contains the trimming values
+ *			int index:	the value to trim		
+ *
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -149,7 +157,11 @@ void trim_pitch_roll_yaw_down(int *trim, int index)
 }
 
 /*------------------------------------------------------------------
- *	trim_lift_up trim the lift value of the joystick upwards.
+ *	trim_lift_up -- trim the lift value of the joystick upwards.
+ * 	Input:
+ *			int *trim:	The array that contains the trimming values
+ *			int index:	the value to trim		
+ *
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -163,7 +175,11 @@ void trim_lift_up(int *trim, int index)
 }
 
 /*------------------------------------------------------------------
- *	trim_lift_down trim the lift value of the joystick downwards.
+ *	trim_lift_down -- trim the lift value of the joystick downwards.
+ * 	Input:
+ *			int *trim:	The array that contains the trimming values
+ *			int index:	the value to trim		
+ *
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
@@ -178,8 +194,13 @@ void trim_lift_down(int *trim, int index)
 }
 
 /*------------------------------------------------------------------
- *	process_keyboard function used to process the keymap that has to 
+ *	process_keyboard -- function used to process the keymap that has to 
  *  be abided.
+ *			char c:		The keyboard character that has to be processed
+ *			int *trim:	The array that contains the trimming values
+ *			int *control_p:	THe tuning multiplier values of the controller
+ *			int *log: 	Wheter to start stop or transfer log		
+ *
  *	Author: Bastiaan Oosterhuis
  *------------------------------------------------------------------
  */
