@@ -121,7 +121,7 @@ int main(void)
 	setup_sensor_interrupts(10);
 #endif
 #ifdef DIV_0_INTERRUPT
-//setup_div_0_interrupts(20);
+setup_div_0_interrupts(20);
 #endif
 	X32_leds = 0;
 	//Let the QR begin with a safe configuration

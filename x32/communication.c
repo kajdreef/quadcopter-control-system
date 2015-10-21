@@ -37,7 +37,7 @@ void send_message(char msg[], int length)
 void isr_rx_fifo(void){
 
 	char data;
-	DISABLE_INTERRUPT(INTERRUPT_GLOBAL);
+
 	while (X32_rx_status & 0x02) {
 		data = X32_rx_data;
 		fifo_buffer[front++] = data;
@@ -45,7 +45,7 @@ void isr_rx_fifo(void){
 		if (front >= FIFO_SIZE)
 			front = 0;
 	}
-	ENABLE_INTERRUPT(INTERRUPT_GLOBAL);
+
 
 }
 
