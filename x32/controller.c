@@ -20,7 +20,7 @@ extern int filtered_theta;  // Pitch
 extern int filtered_phi;	// Roll
 extern int ae[];
 
-#define PY_BASE 24
+#define PY_BASE 15
 #define P1_BASE 75
 #define P2_BASE 30
 
