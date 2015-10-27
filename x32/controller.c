@@ -131,7 +131,6 @@ void control_pitch(Factors *F){
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
 		//js pitch [-0.25 0.25 ]
-		//filterd_theta [-100 100]
 
 		des_q = JS_mes[JS_PITCH] - MULT(filtered_theta,P1);
 		count=0;
@@ -160,13 +159,13 @@ void control_roll(Factors *F){
 
 	// Position controller
 	if (count>=LOOP_RATE_FACT){
-		//des_p = JS_mes[JS_ROLL]/2;
+		
 		des_p = JS_mes[JS_ROLL] + MULT(filtered_phi,P1);
 		count=0;
 	}
 
 	// Rate controller
-	//filtered_p= 0;
+
 	F->f_r = des_p + MULT(filtered_p,P2);
     
 	count++;
